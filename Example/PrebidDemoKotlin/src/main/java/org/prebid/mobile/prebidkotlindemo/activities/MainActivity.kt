@@ -16,42 +16,47 @@
 
 package org.prebid.mobile.prebidkotlindemo.activities
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.MobileAds
-import org.prebid.mobile.PrebidMobile
+import org.prebid.mobile.AdSize
+import org.prebid.mobile.api.exceptions.AdException
+import org.prebid.mobile.api.rendering.BannerView
+import org.prebid.mobile.api.rendering.RewardedAdUnit
+import org.prebid.mobile.api.rendering.listeners.BannerViewListener
+import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.prebidkotlindemo.R
+import org.prebid.mobile.prebidkotlindemo.activities.ads.inapp.InAppVideoRewardedActivity
 import org.prebid.mobile.prebidkotlindemo.databinding.ActivityMainBinding
-import org.prebid.mobile.prebidkotlindemo.testcases.*
+import org.prebid.mobile.prebidkotlindemo.cases.*
 import org.prebid.mobile.prebidkotlindemo.utils.Settings
+
+enum class Format(val description: String) {
+    SIMPLE_BANNER("Simple Banner"),
+    INTERSTITIAL_BANNER("Interstitial Banner"),
+    VIDEO_REWARDED("Rewarded Video"),
+}
 
 class MainActivity : AppCompatActivity() {
 
-    private var integrationKind: IntegrationKind? = null
-    private var adFormat: AdFormat? = null
-    private var searchRequest = ""
-
+    private var adFormat: Format? = null
+    private val adWrapperView: ViewGroup get() = binding.adLayout
     private lateinit var binding: ActivityMainBinding
-    private lateinit var testCaseAdapter: TestCaseAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
-        initSpinners()
-        initSearch()
-        initList()
-
-        PrebidMobile.checkGoogleMobileAdsCompatibility(MobileAds.getVersion().toString())
+        initVariants()
+        initActions()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -60,98 +65,79 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        super.onOptionsItemSelected(item)
-        if (item.itemId == R.id.settings) {
-            startActivity(SettingsActivity.getIntent(this))
-            return true
+    private fun initActions() {
+        val ShowBanner = findViewById(R.id.show_banner) as Button;
+
+        ShowBanner.setOnClickListener {
+
+            when (adFormat) {
+                Format.SIMPLE_BANNER -> {
+                    val adUnit: BannerView?
+                    adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(350, 200))
+                    adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdLoaded(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdDisplayed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClicked(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClosed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                    binding.adLayout.visibility = View.VISIBLE
+                    adWrapperView.addView(adUnit)
+                    adUnit.loadAd()
+                }
+                Format.VIDEO_REWARDED -> {
+                    val adUnit: RewardedAdUnit?
+                    adUnit = RewardedAdUnit(this, InAppVideoRewardedActivity.CONFIG_ID)
+                    adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
+                        override fun onAdLoaded(rewardedAdUnit: RewardedAdUnit?) {
+                            adUnit.show()
+                        }
+                        override fun onAdDisplayed(rewardedAdUnit: RewardedAdUnit?) {}
+                        override fun onAdFailed(rewardedAdUnit: RewardedAdUnit?, exception: AdException?) {}
+                        override fun onAdClicked(rewardedAdUnit: RewardedAdUnit?) {}
+                        override fun onAdClosed(rewardedAdUnit: RewardedAdUnit?) {}
+                        override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?) {}
+                    })
+                    adUnit.loadAd()
+
+                }
+                Format.INTERSTITIAL_BANNER -> {}
+                else -> {}
+            }
         }
-        return false
     }
 
+    private fun initVariants() {
 
-    private fun initSpinners() {
-        binding.spinnerIntegrationKind.apply {
-            adapter = ArrayAdapter(
-                this@MainActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                IntegrationKind.values().map { it.adServer }.toMutableList().apply {
-                    add(0, "All")
-                }
-            )
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, l: Long) {
-                    integrationKind = if (position == 0) null else IntegrationKind.values()[position - 1]
-                    Settings.get().lastIntegrationKindId = position
-                    updateList()
-                }
-
-                override fun onNothingSelected(adapterView: AdapterView<*>) {}
-            }
-            setSelection(Settings.get().lastIntegrationKindId)
-        }
         binding.spinnerAdType.apply {
             adapter = ArrayAdapter(
                 this@MainActivity,
                 android.R.layout.simple_spinner_dropdown_item,
-                AdFormat.values().map { it.description }.toMutableList().apply {
-                    add(0, "All")
-                }
+                Format.values().map { it.description }.toMutableList().apply{}
             )
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, l: Long) {
-                    adFormat = if (position == 0) null else AdFormat.values()[position - 1]
-                    Settings.get().lastAdFormatId = position
-                    updateList()
+                    adFormat = Format.values()[position]
+                    Log.d("SELECTED", position.toString())
                 }
 
                 override fun onNothingSelected(adapterView: AdapterView<*>) {}
             }
             setSelection(Settings.get().lastAdFormatId)
         }
-    }
-
-    private fun initSearch() {
-        binding.etSearch.addTextChangedListener {
-            searchRequest = it.toString()
-            updateList()
-        }
-    }
-
-    private fun initList() {
-        binding.rvAdTypes.apply {
-            testCaseAdapter = TestCaseAdapter { showAd(it) }
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = testCaseAdapter
-        }
-    }
-
-    private fun updateList() {
-        val list = TestCaseRepository.getList().filter {
-            if (integrationKind != null && it.integrationKind != integrationKind) {
-                return@filter false
-            }
-
-            if (adFormat != null && it.adFormat != adFormat) {
-                return@filter false
-            }
-
-            if (searchRequest.isNotBlank() && !getString(it.titleStringRes).contains(
-                    searchRequest,
-                    ignoreCase = true
-                )
-            ) {
-                return@filter false
-            }
-
-            return@filter true
-        }
-        testCaseAdapter.setList(list)
-    }
-
-    private fun showAd(testCase: TestCase) {
-        TestCaseRepository.lastTestCase = testCase
-        startActivity(Intent(this, testCase.activity))
     }
 
 }

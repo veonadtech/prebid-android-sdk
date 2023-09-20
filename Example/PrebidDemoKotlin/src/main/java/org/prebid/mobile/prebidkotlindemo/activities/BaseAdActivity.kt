@@ -7,8 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import org.prebid.mobile.prebidkotlindemo.R
 import org.prebid.mobile.prebidkotlindemo.databinding.ActivityDemoBinding
-import org.prebid.mobile.prebidkotlindemo.testcases.TestCase
-import org.prebid.mobile.prebidkotlindemo.testcases.TestCaseRepository
+import org.prebid.mobile.prebidkotlindemo.cases.TestCase
+import org.prebid.mobile.prebidkotlindemo.cases.TestCaseRepository
 import org.prebid.mobile.prebidkotlindemo.utils.Settings
 
 open class BaseAdActivity : AppCompatActivity() {

@@ -36,16 +36,19 @@ class CustomApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initPrebidSDK()
-        initAdMob()
-        initApplovinMax()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
     }
 
     private fun initPrebidSDK() {
-        PrebidMobile.setPrebidServerAccountId("0689a263-318d-448b-a3d4-b02e8a709d9d")
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid-server-test-j.prebid.org/openrtb2/auction"))
-        PrebidMobile.setCustomStatusEndpoint("https://prebid-server-test-j.prebid.org/status")
+        Log.d(TAG, "SDK start initialization")
+
+        PrebidMobile.setPrebidServerAccountId("test")
+        PrebidMobile.setPrebidServerHost(Host.createCustomHost("http://10.0.2.2:1234/openrtb2/auction"))
+        PrebidMobile.setCustomStatusEndpoint("http://10.0.2.2:1234/status")
+        PrebidMobile.setTimeoutMillis(3000)
+        PrebidMobile.setShareGeoLocation(true)
+
         PrebidMobile.initializeSdk(applicationContext) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")
@@ -54,22 +57,6 @@ class CustomApplication : Application() {
             }
         }
         PrebidMobile.setShareGeoLocation(true)
-    }
-
-    private fun initAdMob() {
-        MobileAds.initialize(this) {
-            Log.d("MobileAds", "Initialization complete.")
-        }
-        val configuration = RequestConfiguration.Builder().setTestDeviceIds(
-            listOf("38250D98D8E3A07A2C03CD3552013B29")
-        ).build()
-        MobileAds.setRequestConfiguration(configuration)
-    }
-
-    private fun initApplovinMax() {
-        AppLovinSdk.getInstance(this).mediationProvider = "max"
-        AppLovinSdk.getInstance(this).initializeSdk { }
-        AppLovinSdk.getInstance(this).settings.setVerboseLogging(false)
     }
 
 }

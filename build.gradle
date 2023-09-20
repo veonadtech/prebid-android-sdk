@@ -2,7 +2,7 @@ ext {
     prebidSdkVersionName = "2.1.4"
     prebidSdkMinVersion = 16
     prebidSdkTargetVersion = 32
-    prebidSdkCompileVersion = 32
+    prebidSdkCompileVersion = 33
     prebidSdkBuildToolsVersion = "30.0.3"
 
     artifactGroupId = "org.prebid"
@@ -12,7 +12,7 @@ ext {
 }
 
 buildscript {
-    ext.kotlin_version = '1.6.21'
+    ext.kotlin_version = '1.8.0'
     repositories {
         google()
         mavenCentral()

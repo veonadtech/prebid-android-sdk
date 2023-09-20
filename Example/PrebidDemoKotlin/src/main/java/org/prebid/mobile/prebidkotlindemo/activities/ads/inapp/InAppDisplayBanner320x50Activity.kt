@@ -16,16 +16,19 @@
 package org.prebid.mobile.prebidkotlindemo.activities.ads.inapp
 
 import android.os.Bundle
+import android.widget.Button
+import androidx.databinding.DataBindingUtil
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.rendering.BannerView
+import org.prebid.mobile.prebidkotlindemo.R
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
 
 class InAppDisplayBanner320x50Activity : BaseAdActivity() {
 
     companion object {
         const val CONFIG_ID = "prebid-ita-banner-320-50"
-        const val WIDTH = 320
-        const val HEIGHT = 50
+        const val WIDTH = 350
+        const val HEIGHT = 200
     }
 
     private var adView: BannerView? = null
@@ -34,7 +37,11 @@ class InAppDisplayBanner320x50Activity : BaseAdActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createAd()
+        val ShowBanner = findViewById(R.id.show_banner) as Button
+
+        ShowBanner.setOnClickListener {
+            createAd()
+        }
     }
 
     private fun createAd() {
@@ -45,7 +52,6 @@ class InAppDisplayBanner320x50Activity : BaseAdActivity() {
         )
 
         adWrapperView.addView(adView)
-        adView?.setAutoRefreshDelay(refreshTimeSeconds)
         adView?.loadAd()
     }
 
