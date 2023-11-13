@@ -21,11 +21,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.ads.AdListener
@@ -47,11 +47,10 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.veondemo.R
-import org.prebid.veondemo.activities.ads.gam.rendering.GamRenderingApiDisplayBanner320x50Activity
 import org.prebid.veondemo.databinding.ActivityMainBinding
-import org.prebid.veondemo.cases.*
 import org.prebid.veondemo.utils.Settings
 import java.util.EnumSet
+
 
 enum class Format(val description: String) {
     SIMPLE_BANNER("Simple Banner"),
@@ -59,12 +58,14 @@ enum class Format(val description: String) {
     VIDEO_REWARDED("Rewarded Video"),
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
+    RTL_BANNER("RTL Banner"),
 }
 
 class MainActivity : AppCompatActivity() {
 
     private var adFormat: org.prebid.veondemo.activities.Format? = null
     private val adWrapperView: ViewGroup get() = binding.adLayout
+    private val iframe: WebView get() = findViewById(R.id.iframe) as WebView;
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -213,6 +214,17 @@ class MainActivity : AppCompatActivity() {
                     adWrapperView.addView(adUnit)
                     adUnit.loadAd()
                 }
+                org.prebid.veondemo.activities.Format.RTL_BANNER -> {
+
+                    val html =
+                        "<iframe width=\"450\" height=\"260\" style=\"border: 1px solid #cccccc;\" src=\"https://google.com\" ></iframe>"
+
+
+                    val webview: WebView
+                    webview = findViewById<View>(R.id.iframe) as WebView
+                    webview.settings.javaScriptEnabled = true
+                    webview.loadData(html, "text/html", "UTF-8")
+                }
                 else -> {}
             }
         }
@@ -221,16 +233,6 @@ class MainActivity : AppCompatActivity() {
     private fun createGAMListener(adView: AdManagerAdView): AdListener {
 
         return object : AdListener() {
-            override fun onAdDisplayed() {
-                super.onAdDisplayed()
-                Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
-            }
-
-            override fun onAdFailedToLoad(LoadAdError var1) {
-                super.onAdFailedToLoad(var1)
-                Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
-            }
-
             override fun onAdClicked() {
                 super.onAdClosed()
                 Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
