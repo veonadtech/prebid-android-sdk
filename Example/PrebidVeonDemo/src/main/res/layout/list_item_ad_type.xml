@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="8dp"
-        tools:context="org.prebid.mobile.prebidkotlindemo.activities.MainActivity">
+        tools:context="org.prebid.mobile.prebidveondemo.activities.MainActivity">
 
         <TextView
             android:id="@+id/tvName"
