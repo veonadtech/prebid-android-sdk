@@ -6,7 +6,7 @@ include ':PrebidMobile',
         ':test-utils',
         ':omsdk-android',
         // Prebid Demo
-        ':PrebidDemoKotlin'
+        ':PrebidVeonDemo'
         // Other
 //        ':DrPrebid'
 
@@ -16,5 +16,5 @@ project(':PrebidMobile-core').projectDir = new File('PrebidMobile/PrebidMobile-c
 project(':PrebidMobile-gamEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-gamEventHandlers')
 project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
 project(':test-utils').projectDir = new File('PrebidMobile/test-utils')
-project(':PrebidDemoKotlin').projectDir = new File('Example/PrebidDemoKotlin')
+project(':PrebidVeonDemo').projectDir = new File('Example/PrebidVeonDemo')
 //project(':DrPrebid').projectDir = new File('tools/drprebid')
