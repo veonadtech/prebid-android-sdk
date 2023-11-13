@@ -30,7 +30,7 @@ import org.prebid.mobile.addendum.PbFindSizeError
 class GamOriginalApiDisplayBanner300x250Activity : org.prebid.veondemo.activities.BaseAdActivity() {
 
     companion object {
-        const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
+        const val AD_UNIT_ID = "/6499/example/banner"
         const val CONFIG_ID = "prebid-ita-banner-300-250"
         const val WIDTH = 300
         const val HEIGHT = 250

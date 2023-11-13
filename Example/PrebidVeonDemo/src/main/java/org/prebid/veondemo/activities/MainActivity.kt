@@ -25,6 +25,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.ads.AdListener
@@ -44,7 +45,9 @@ import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
+import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.ads.gam.rendering.GamRenderingApiDisplayBanner320x50Activity
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import org.prebid.veondemo.cases.*
 import org.prebid.veondemo.utils.Settings
@@ -55,6 +58,7 @@ enum class Format(val description: String) {
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
+    GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
 }
 
 class MainActivity : AppCompatActivity() {
@@ -163,7 +167,7 @@ class MainActivity : AppCompatActivity() {
 
                     // 3. Create AdManagerAdView
                     val adView = AdManagerAdView(this)
-                    adView.adUnitId = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
+                    adView.adUnitId = "/6499/example/banner"
                     adView.setAdSizes(com.google.android.gms.ads.AdSize(300, 250))
                     adView.adListener = createGAMListener(adView)
 
@@ -176,17 +180,69 @@ class MainActivity : AppCompatActivity() {
                         adView.loadAd(request)
                     }
                 }
+                org.prebid.veondemo.activities.Format.GAM_RENDER_SIMPLE_BANNER -> {
+                    val adUnit: BannerView?
+                    val eventHandler = GamBannerEventHandler(
+                        this,
+                        "prebid-ita-banner-320-50",
+                        AdSize(300, 300)
+                    )
+
+                    adUnit = BannerView(this, "prebid-ita-banner-320-50", eventHandler)
+                    adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdLoaded(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdDisplayed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClicked(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClosed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                    binding.adLayout.visibility = View.VISIBLE
+                    adWrapperView.addView(adUnit)
+                    adUnit.loadAd()
+                }
                 else -> {}
             }
         }
     }
 
     private fun createGAMListener(adView: AdManagerAdView): AdListener {
+
         return object : AdListener() {
+            override fun onAdDisplayed() {
+                super.onAdDisplayed()
+                Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onAdFailedToLoad(LoadAdError var1) {
+                super.onAdFailedToLoad(var1)
+                Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onAdClicked() {
+                super.onAdClosed()
+                Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onAdClosed() {
+                super.onAdClosed()
+                Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+            }
             override fun onAdLoaded() {
                 super.onAdLoaded()
-
-                // 6. Update ad view
+                Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
                 AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
                     override fun success(width: Int, height: Int) {
                         adView.setAdSizes(com.google.android.gms.ads.AdSize(width, height))
