@@ -43,11 +43,6 @@
 
         </LinearLayout>
 
-        <WebView
-            android:id="@+id/iframe"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -61,6 +56,12 @@
             android:layout_height="match_parent">
 
         </FrameLayout>
+
+        <WebView
+            android:id="@+id/iframe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
 
     </LinearLayout>
 

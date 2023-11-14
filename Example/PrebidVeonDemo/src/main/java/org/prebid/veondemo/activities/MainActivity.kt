@@ -16,12 +16,19 @@
 
 package org.prebid.veondemo.activities
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -65,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     private var adFormat: org.prebid.veondemo.activities.Format? = null
     private val adWrapperView: ViewGroup get() = binding.adLayout
-    private val iframe: WebView get() = findViewById(R.id.iframe) as WebView;
+
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -216,14 +223,39 @@ class MainActivity : AppCompatActivity() {
                 }
                 org.prebid.veondemo.activities.Format.RTL_BANNER -> {
 
-                    val html =
-                        "<iframe width=\"450\" height=\"260\" style=\"border: 1px solid #cccccc;\" src=\"https://google.com\" ></iframe>"
+                    val webView = findViewById(R.id.iframe) as WebView;
+                    webView.setInitialScale(1)
+                    webView.setWebChromeClient(WebChromeClient())
+                    webView.getSettings().setAllowFileAccess(true)
+                    webView.getSettings().setPluginState(WebSettings.PluginState.ON)
+                    webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND)
+                    //webView.setWebViewClient(WebViewClient())
+                    webView.getSettings().setJavaScriptEnabled(true)
+                    webView.getSettings().setLoadWithOverviewMode(true)
+                    webView.getSettings().setUseWideViewPort(true)
+                    webView.webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                            return if (Uri.parse(url).scheme == "market") {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = Uri.parse(url)
+                                    val activity = view.context as Activity
+                                    activity.startActivity(intent)
+                                    true
+                                } catch (e: ActivityNotFoundException) {
+                                    // Google Play app is not installed, you may want to open the app store link
+                                    // Link will open your browser
+                                    val uri = Uri.parse(url)
+                                    view.loadUrl("http://play.google.com/store/apps/" + uri.host + "?" + uri.query)
+                                    false
+                                }
+                            } else false
+                        }
+                    }
+
+                    webView.loadData("<iframe width=\"300\" height=\"250\" src=\"https://ad-ru.rtl.otm-r.ru/ads/v1/banner?env=inapp&w=350&h=50&location=http://poligon.videonow.ru&crt=157.1736.68232.108022&floor=1&price=2\"></iframe>", "text/html", "utf-8");
 
 
-                    val webview: WebView
-                    webview = findViewById<View>(R.id.iframe) as WebView
-                    webview.settings.javaScriptEnabled = true
-                    webview.loadData(html, "text/html", "UTF-8")
                 }
                 else -> {}
             }
