@@ -21,6 +21,8 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.provider.Settings.Secure
 import android.util.Log
 import android.view.Menu
 import android.view.View
@@ -35,6 +37,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
@@ -66,6 +69,7 @@ enum class Format(val description: String) {
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
     RTL_BANNER("RTL Banner"),
+    SYNC_PIXEL("SYNC"),
 }
 
 class MainActivity : AppCompatActivity() {
@@ -93,11 +97,11 @@ class MainActivity : AppCompatActivity() {
         val ShowBanner = findViewById(R.id.show_banner) as Button;
 
         ShowBanner.setOnClickListener {
-
+            adWrapperView.removeAllViewsInLayout()
             when (adFormat) {
                 org.prebid.veondemo.activities.Format.SIMPLE_BANNER -> {
-                    val adUnit: BannerView?
-                    adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(300, 300))
+                    val adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(300, 300))
+                    adWrapperView.addView(adUnit)
                     adUnit.setBannerListener(object : BannerViewListener {
                         override fun onAdLoaded(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
@@ -105,26 +109,21 @@ class MainActivity : AppCompatActivity() {
                         override fun onAdDisplayed(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
                         }
-
                         override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
                             Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
                         }
-
                         override fun onAdClicked(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
                         }
-
                         override fun onAdClosed(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
                         }
                     })
-                    binding.adLayout.visibility = View.VISIBLE
-                    adWrapperView.addView(adUnit)
+
                     adUnit.loadAd()
                 }
                 org.prebid.veondemo.activities.Format.VIDEO_REWARDED -> {
-                    val adUnit: RewardedAdUnit?
-                    adUnit = RewardedAdUnit(this, "prebid-ita-video-rewarded-320-480")
+                    val adUnit = RewardedAdUnit(this, "prebid-ita-video-rewarded-320-480")
                     adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
                         override fun onAdLoaded(rewardedAdUnit: RewardedAdUnit?) {
                             adUnit.show()
@@ -139,9 +138,11 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 org.prebid.veondemo.activities.Format.INTERSTITIAL_BANNER -> {
-                    val adUnit: InterstitialAdUnit?
-                    adUnit = InterstitialAdUnit(this, "banner-interstitial", EnumSet.of(AdUnitFormat.BANNER))
+
+                    val adUnit = InterstitialAdUnit(this, "prebid-ita-banner-320-50", EnumSet.of(AdUnitFormat.BANNER))
+                    adUnit.setMinSizePercentage(AdSize(50, 50))
                     adUnit.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
+
                         override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
                             adUnit.show()
@@ -163,10 +164,9 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
                 org.prebid.veondemo.activities.Format.GAM_SIMPLE_BANNER -> {
-                    val adUnit: BannerAdUnit?
 
                     // 1. Create BannerAdUnit
-                    adUnit = BannerAdUnit("prebid-ita-banner-300-250", 300, 250)
+                    val adUnit = BannerAdUnit("prebid-ita-banner-300-250", 300, 250)
 
                     // 2. Configure banner parameters
                     val parameters = BannerParameters()
@@ -189,14 +189,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 org.prebid.veondemo.activities.Format.GAM_RENDER_SIMPLE_BANNER -> {
-                    val adUnit: BannerView?
                     val eventHandler = GamBannerEventHandler(
                         this,
-                        "prebid-ita-banner-320-50",
+                        "/6499/example/banner",
                         AdSize(300, 300)
                     )
 
-                    adUnit = BannerView(this, "prebid-ita-banner-320-50", eventHandler)
+                    val adUnit = BannerView(this, "prebid-ita-banner-320-50", eventHandler)
                     adUnit.setBannerListener(object : BannerViewListener {
                         override fun onAdLoaded(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
@@ -256,6 +255,29 @@ class MainActivity : AppCompatActivity() {
                     webView.loadData("<iframe width=\"300\" height=\"250\" src=\"https://ad-ru.rtl.otm-r.ru/ads/v1/banner?env=inapp&w=350&h=50&location=http://poligon.videonow.ru&crt=157.1736.68232.108022&floor=1&price=2\"></iframe>", "text/html", "utf-8");
 
 
+                }
+                org.prebid.veondemo.activities.Format.SYNC_PIXEL -> {
+                    val webView = findViewById(R.id.iframe) as WebView;
+                    webView.setInitialScale(1)
+                    webView.setWebChromeClient(WebChromeClient())
+                    webView.getSettings().setAllowFileAccess(true)
+                    webView.getSettings().setPluginState(WebSettings.PluginState.ON)
+                    webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND)
+                    //webView.setWebViewClient(WebViewClient())
+                    webView.getSettings().setJavaScriptEnabled(true)
+                    webView.getSettings().setLoadWithOverviewMode(true)
+                    webView.getSettings().setUseWideViewPort(true)
+                    webView.webViewClient = object : WebViewClient() {
+
+                        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+//                            val mRecentRecyclerView = findViewById(R.id.redirects) as RecyclerView
+                            Log.d("redirect", url)
+                            return false
+                        }
+                    }
+                    val deviceID = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID)
+                    val uri = "https://sync.otm-r.com/match/stable?mpid=" + deviceID
+                    webView.loadData("<a href=\""+uri+"\">"+uri+"</a>", "text/html", "utf-8");
                 }
                 else -> {}
             }

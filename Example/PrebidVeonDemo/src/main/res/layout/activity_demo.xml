@@ -9,13 +9,13 @@
 
         <TextView
             android:id="@+id/tvTestCaseName"
-            android:layout_margin="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/background_inverse"
+            android:layout_margin="8dp"
             android:gravity="center"
+            android:textColor="@color/background_inverse"
             android:textSize="24sp"
-            tools:text="Google Ad Manager" />
+            tools:text="Sync Pixel" />
 
         <FrameLayout
             android:id="@+id/frameAdWrapper"

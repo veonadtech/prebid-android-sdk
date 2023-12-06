@@ -53,7 +53,6 @@ class Demo : Application() {
                 Log.e(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialization error: $status\n${status.description}")
             }
         }
-        PrebidMobile.setShareGeoLocation(true)
     }
 
 }

@@ -50,6 +50,14 @@
             android:layout_marginBottom="0dp"
             android:background="@color/gray" />
 
+        <WebView
+            android:id="@+id/iframe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+        </WebView>
+
         <FrameLayout
             android:id="@+id/adLayout"
             android:layout_width="match_parent"
@@ -57,11 +65,14 @@
 
         </FrameLayout>
 
-        <WebView
-            android:id="@+id/iframe"
+        <FrameLayout
+            android:id="@+id/adInterstitial"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible" />
+            android:layoutMode="clipBounds"
+            tools:visibility="invisible">
+
+        </FrameLayout>
 
     </LinearLayout>
 
