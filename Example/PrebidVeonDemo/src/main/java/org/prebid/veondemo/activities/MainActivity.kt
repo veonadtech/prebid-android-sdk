@@ -56,6 +56,7 @@ import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler
+import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import org.prebid.veondemo.utils.Settings
@@ -67,6 +68,8 @@ enum class Format(val description: String) {
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
+    GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
+    GAM_REWARD_VIDEO("GAM Rewarded Video"),
     GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
     RTL_BANNER("RTL Banner"),
     SYNC_PIXEL("SYNC"),
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
                     // 3. Create AdManagerAdView
                     val adView = AdManagerAdView(this)
-                    adView.adUnitId = "/6499/example/banner"
+                    adView.adUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appbanner"
                     adView.setAdSizes(com.google.android.gms.ads.AdSize(300, 250))
                     adView.adListener = createGAMListener(adView)
 
@@ -220,6 +223,40 @@ class MainActivity : AppCompatActivity() {
                     adWrapperView.addView(adUnit)
                     adUnit.loadAd()
                 }
+
+                org.prebid.veondemo.activities.Format.GAM_INTERSTITIAL_BANNER -> {
+
+                    val eventHandler = GamInterstitialEventHandler(
+                        this,
+                        "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appinterstitial"
+                    )
+
+                    val adUnit = InterstitialAdUnit(this, "prebid-ita-banner-320-50", eventHandler)
+                    adUnit.setMinSizePercentage(AdSize(50, 50))
+                    adUnit.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
+                        override fun onAdLoaded(bannerView: InterstitialAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
+                            adUnit.show()
+                        }
+                        override fun onAdDisplayed(bannerView: InterstitialAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdFailed(bannerView: InterstitialAdUnit?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClicked(bannerView: InterstitialAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClosed(bannerView: InterstitialAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                    adUnit.loadAd()
+                }
+
                 org.prebid.veondemo.activities.Format.RTL_BANNER -> {
 
                     val webView = findViewById(R.id.iframe) as WebView;
