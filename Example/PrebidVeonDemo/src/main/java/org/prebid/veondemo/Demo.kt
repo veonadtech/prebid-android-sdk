@@ -41,8 +41,8 @@ class Demo : Application() {
         Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
 
         PrebidMobile.setPrebidServerAccountId("test")
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost("http://prebid.jazzdsp.com/openrtb2/auction"))
-        PrebidMobile.setCustomStatusEndpoint("http://prebid.jazzdsp.com/status")
+        PrebidMobile.setPrebidServerHost(Host.createCustomHost("http://prebid-eu.veonadx.com/openrtb2/auction"))
+        PrebidMobile.setCustomStatusEndpoint("http://prebid-eu.veonadx.com/status")
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
 

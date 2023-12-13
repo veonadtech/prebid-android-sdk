@@ -57,6 +57,7 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
+import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import org.prebid.veondemo.utils.Settings
@@ -67,12 +68,11 @@ enum class Format(val description: String) {
     SIMPLE_BANNER("Simple Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
+    GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
+
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
     GAM_REWARD_VIDEO("GAM Rewarded Video"),
-    GAM_RENDER_SIMPLE_BANNER("GAM Render Simple Banner"),
-    RTL_BANNER("RTL Banner"),
-    SYNC_PIXEL("SYNC"),
 }
 
 class MainActivity : AppCompatActivity() {
@@ -102,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         ShowBanner.setOnClickListener {
             adWrapperView.removeAllViewsInLayout()
             when (adFormat) {
+
                 org.prebid.veondemo.activities.Format.SIMPLE_BANNER -> {
                     val adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(300, 300))
                     adWrapperView.addView(adUnit)
@@ -125,6 +126,7 @@ class MainActivity : AppCompatActivity() {
 
                     adUnit.loadAd()
                 }
+
                 org.prebid.veondemo.activities.Format.VIDEO_REWARDED -> {
                     val adUnit = RewardedAdUnit(this, "prebid-ita-video-rewarded-320-480")
                     adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
@@ -140,6 +142,7 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
 
                 }
+
                 org.prebid.veondemo.activities.Format.INTERSTITIAL_BANNER -> {
 
                     val adUnit = InterstitialAdUnit(this, "prebid-ita-banner-320-50", EnumSet.of(AdUnitFormat.BANNER))
@@ -165,32 +168,9 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
                     adUnit.loadAd()
+
                 }
-                org.prebid.veondemo.activities.Format.GAM_SIMPLE_BANNER -> {
 
-                    // 1. Create BannerAdUnit
-                    val adUnit = BannerAdUnit("prebid-ita-banner-300-250", 300, 250)
-
-                    // 2. Configure banner parameters
-                    val parameters = BannerParameters()
-                    parameters.api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
-                    adUnit.bannerParameters = parameters
-
-                    // 3. Create AdManagerAdView
-                    val adView = AdManagerAdView(this)
-                    adView.adUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appbanner"
-                    adView.setAdSizes(com.google.android.gms.ads.AdSize(300, 250))
-                    adView.adListener = createGAMListener(adView)
-
-                    // Add GMA SDK banner view to the app UI
-                    adWrapperView.addView(adView)
-
-                    // 4. Make a bid request to Prebid Server
-                    val request = AdManagerAdRequest.Builder().build()
-                    adUnit.fetchDemand(request) {
-                        adView.loadAd(request)
-                    }
-                }
                 org.prebid.veondemo.activities.Format.GAM_RENDER_SIMPLE_BANNER -> {
                     val eventHandler = GamBannerEventHandler(
                         this,
@@ -224,6 +204,33 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
 
+                org.prebid.veondemo.activities.Format.GAM_SIMPLE_BANNER -> {
+
+                    // 1. Create BannerAdUnit
+                    val adUnit = BannerAdUnit("prebid-ita-banner-300-250", 300, 250)
+
+                    // 2. Configure banner parameters
+                    val parameters = BannerParameters()
+                    parameters.api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
+                    adUnit.bannerParameters = parameters
+
+                    // 3. Create AdManagerAdView
+                    val adView = AdManagerAdView(this)
+                    adView.adUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appbanner"
+                    adView.setAdSizes(com.google.android.gms.ads.AdSize(300, 250))
+                    adView.adListener = createGAMListener(adView)
+
+                    // Add GMA SDK banner view to the app UI
+                    adWrapperView.addView(adView)
+
+                    // 4. Make a bid request to Prebid Server
+                    val request = AdManagerAdRequest.Builder().build()
+                    adUnit.fetchDemand(request) {
+                        adView.loadAd(request)
+                        Log.d("redirect", request.toString())
+                    }
+                }
+
                 org.prebid.veondemo.activities.Format.GAM_INTERSTITIAL_BANNER -> {
 
                     val eventHandler = GamInterstitialEventHandler(
@@ -254,68 +261,39 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
                         }
                     })
+
                     adUnit.loadAd()
                 }
 
-                org.prebid.veondemo.activities.Format.RTL_BANNER -> {
-
-                    val webView = findViewById(R.id.iframe) as WebView;
-                    webView.setInitialScale(1)
-                    webView.setWebChromeClient(WebChromeClient())
-                    webView.getSettings().setAllowFileAccess(true)
-                    webView.getSettings().setPluginState(WebSettings.PluginState.ON)
-                    webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND)
-                    //webView.setWebViewClient(WebViewClient())
-                    webView.getSettings().setJavaScriptEnabled(true)
-                    webView.getSettings().setLoadWithOverviewMode(true)
-                    webView.getSettings().setUseWideViewPort(true)
-                    webView.webViewClient = object : WebViewClient() {
-                        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                            return if (Uri.parse(url).scheme == "market") {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW)
-                                    intent.data = Uri.parse(url)
-                                    val activity = view.context as Activity
-                                    activity.startActivity(intent)
-                                    true
-                                } catch (e: ActivityNotFoundException) {
-                                    // Google Play app is not installed, you may want to open the app store link
-                                    // Link will open your browser
-                                    val uri = Uri.parse(url)
-                                    view.loadUrl("http://play.google.com/store/apps/" + uri.host + "?" + uri.query)
-                                    false
-                                }
-                            } else false
+                org.prebid.veondemo.activities.Format.GAM_REWARD_VIDEO -> {
+                    val eventHandler = GamRewardedEventHandler(
+                        this,
+                        "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen"
+                    )
+                    val adUnit = RewardedAdUnit(this, "prebid-ita-video-rewarded-320-480", eventHandler)
+                    adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
+                        override fun onAdLoaded(rewardedAdUnit: RewardedAdUnit?) {
+                            adUnit.show()
                         }
-                    }
-
-                    webView.loadData("<iframe width=\"300\" height=\"250\" src=\"https://ad-ru.rtl.otm-r.ru/ads/v1/banner?env=inapp&w=350&h=50&location=http://poligon.videonow.ru&crt=157.1736.68232.108022&floor=1&price=2\"></iframe>", "text/html", "utf-8");
-
-
-                }
-                org.prebid.veondemo.activities.Format.SYNC_PIXEL -> {
-                    val webView = findViewById(R.id.iframe) as WebView;
-                    webView.setInitialScale(1)
-                    webView.setWebChromeClient(WebChromeClient())
-                    webView.getSettings().setAllowFileAccess(true)
-                    webView.getSettings().setPluginState(WebSettings.PluginState.ON)
-                    webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND)
-                    //webView.setWebViewClient(WebViewClient())
-                    webView.getSettings().setJavaScriptEnabled(true)
-                    webView.getSettings().setLoadWithOverviewMode(true)
-                    webView.getSettings().setUseWideViewPort(true)
-                    webView.webViewClient = object : WebViewClient() {
-
-                        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-//                            val mRecentRecyclerView = findViewById(R.id.redirects) as RecyclerView
-                            Log.d("redirect", url)
-                            return false
+                        override fun onAdDisplayed(rewardedAdUnit: RewardedAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
                         }
-                    }
-                    val deviceID = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID)
-                    val uri = "https://sync.otm-r.com/match/stable?mpid=" + deviceID
-                    webView.loadData("<a href=\""+uri+"\">"+uri+"</a>", "text/html", "utf-8");
+                        override fun onAdFailed(rewardedAdUnit: RewardedAdUnit?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdClicked(rewardedAdUnit: RewardedAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdClosed(rewardedAdUnit: RewardedAdUnit?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?) {
+                            Toast.makeText(applicationContext, "onUserEarnedReward", Toast.LENGTH_LONG).show()
+                        }
+                    })
+                    adUnit.loadAd()
                 }
+
                 else -> {}
             }
         }
