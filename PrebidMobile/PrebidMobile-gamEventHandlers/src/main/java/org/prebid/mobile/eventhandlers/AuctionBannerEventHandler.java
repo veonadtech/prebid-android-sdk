@@ -118,10 +118,8 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
 
     private void auction() {
         if (executeBid != null && executeBid.getPrice() > this.cpm) {
-            Toast.makeText(applicationContext, "auction: win prebid", Toast.LENGTH_LONG).show();
             handlePRBDisplay();
         } else {
-            Toast.makeText(applicationContext, "auction: win gam", Toast.LENGTH_LONG).show();
             handleGAMDisplay();
         }
     }
