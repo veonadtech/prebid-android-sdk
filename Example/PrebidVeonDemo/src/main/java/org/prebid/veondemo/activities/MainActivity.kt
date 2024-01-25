@@ -169,8 +169,8 @@ class MainActivity : AppCompatActivity() {
                     val eventHandler = AuctionBannerEventHandler(
                         this,
                         "/6355419/Travel/Europe/France/Paris",
-                        1.0F,
-                        AdSize(300, 250)
+                        0.5F,
+                        AdSize(320, 50)
                     )
 
                     // lister for understand where from demand
@@ -207,7 +207,9 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
                         }
                     })
-                    adWrapperView.addView(adUnit)
+
+                    val AdSlot = binding.banner320x50
+                    AdSlot.addView(adUnit)
                     adUnit.loadAd()
                 }
 
@@ -279,11 +281,11 @@ class MainActivity : AppCompatActivity() {
 
                     val eventHandler = GamInterstitialEventHandler(
                         this,
-                        "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appinterstitial"
+                        "/ca-app-pub-3940256099942544/1033173712"
                     )
 
-                    val adUnit = InterstitialAdUnit(this, "prebid-ita-banner-320-50", eventHandler)
-                    adUnit.setMinSizePercentage(AdSize(320, 50))
+                    val adUnit = InterstitialAdUnit(this, "banner-interstitial", eventHandler)
+                    adUnit.setMinSizePercentage(AdSize(80, 60))
                     adUnit.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
                         override fun onAdLoaded(bannerView: InterstitialAdUnit?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
