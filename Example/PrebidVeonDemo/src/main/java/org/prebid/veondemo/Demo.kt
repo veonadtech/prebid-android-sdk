@@ -40,9 +40,28 @@ class Demo : Application() {
     private fun initPrebidSDK() {
         Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("com.ideation.portall")
+//        PrebidMobile.setPrebidServerAccountId("com.ideation.portall")
+        PrebidMobile.setPrebidServerAccountId("test")
         PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.jazzdsp.com/openrtb2/auction"))
         PrebidMobile.setCustomStatusEndpoint("https://prebid.jazzdsp.com/status")
+        PrebidMobile.setTimeoutMillis(10000)
+        PrebidMobile.setShareGeoLocation(true)
+
+        PrebidMobile.initializeSdk(applicationContext) { status ->
+            if (status == InitializationStatus.SUCCEEDED) {
+                Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialized successfully!")
+            } else {
+                Log.e(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialization error: $status\n${status.description}")
+            }
+        }
+    }
+
+    private fun initBanglaPrebidSDK() {
+        Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
+
+        PrebidMobile.setPrebidServerAccountId("com.arena.banglalinkmela.app")
+        PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.bangladsp.com/openrtb2/auction"))
+        PrebidMobile.setCustomStatusEndpoint("https://prebid.bangladsp.com/status")
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
 
