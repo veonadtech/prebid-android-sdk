@@ -62,6 +62,15 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/banner_300x250"
+                android:layout_width="300dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
+                android:scrollbarAlwaysDrawHorizontalTrack="false">
+
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/banner_320x50"
                 android:layout_width="320dp"
                 android:layout_height="50dp"
@@ -69,6 +78,7 @@
                 android:scrollbarAlwaysDrawHorizontalTrack="false">
 
             </FrameLayout>
+
         </FrameLayout>
 
         <WebView

@@ -58,6 +58,7 @@ import java.util.EnumSet
 
 enum class Format(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
+    AUCTION_SIMPLE_BANNER_300_250("300x250"),
     SIMPLE_BANNER("Simple Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
@@ -209,6 +210,56 @@ class MainActivity : AppCompatActivity() {
                     })
 
                     val AdSlot = binding.banner320x50
+                    AdSlot.addView(adUnit)
+                    adUnit.loadAd()
+                }
+
+                org.prebid.veondemo.activities.Format.AUCTION_SIMPLE_BANNER_300_250 -> {
+
+                    // listener for wrapping GAM rendering
+                    val eventHandler = AuctionBannerEventHandler(
+                        this,
+                        "/6355419/Travel/Europe/France/Paris",
+                        0.5F,
+                        AdSize(300, 250)
+                    )
+
+                    // lister for understand where from demand
+                    eventHandler.setAuctionEventListener(object : AuctionListener {
+                        override fun onPRBWin(price: Float) {
+                            Toast.makeText(applicationContext, "onPRBWin", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onGAMWin(view: View?) {
+                            Toast.makeText(applicationContext, "onGAMWin", Toast.LENGTH_LONG).show()
+                        }
+                    })
+
+                    // configure banner placement
+                    val adUnit = BannerView(this, "prebid-ita-banner-300-250", eventHandler)
+
+                    // lister for custom tracking or custom display creative
+                    adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdLoaded(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdDisplayed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClicked(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+
+                        override fun onAdClosed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                    })
+
+                    val AdSlot = binding.banner300x250
                     AdSlot.addView(adUnit)
                     adUnit.loadAd()
                 }
