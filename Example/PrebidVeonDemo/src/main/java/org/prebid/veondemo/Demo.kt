@@ -32,7 +32,7 @@ class Demo : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        initPrebidSDK()
+        initBanglaPrebidSDK()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
     }
@@ -41,7 +41,8 @@ class Demo : Application() {
         Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
 
 //        PrebidMobile.setPrebidServerAccountId("com.ideation.portall")
-        PrebidMobile.setPrebidServerAccountId("test")
+        PrebidMobile.setPrebidServerAccountId("com.spbtv.mobilinktv")
+//        PrebidMobile.setPrebidServerAccountId("test")
         PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.jazzdsp.com/openrtb2/auction"))
         PrebidMobile.setCustomStatusEndpoint("https://prebid.jazzdsp.com/status")
         PrebidMobile.setTimeoutMillis(10000)
@@ -62,7 +63,7 @@ class Demo : Application() {
         PrebidMobile.setPrebidServerAccountId("com.arena.banglalinkmela.app")
         PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.bangladsp.com/openrtb2/auction"))
         PrebidMobile.setCustomStatusEndpoint("https://prebid.bangladsp.com/status")
-        PrebidMobile.setTimeoutMillis(3000)
+        PrebidMobile.setTimeoutMillis(100000)
         PrebidMobile.setShareGeoLocation(true)
 
         PrebidMobile.initializeSdk(applicationContext) { status ->

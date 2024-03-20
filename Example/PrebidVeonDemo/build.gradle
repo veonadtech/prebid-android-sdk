@@ -5,7 +5,7 @@ android {
     setCompileSdkVersion(33)
     setBuildToolsVersion("30.0.3")
     defaultConfig {
-        minSdkVersion 19
+        minSdk 21
         targetSdkVersion 32
         versionCode 1
         versionName "1.0.0"

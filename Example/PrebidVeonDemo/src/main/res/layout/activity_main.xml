@@ -79,6 +79,15 @@
 
             </FrameLayout>
 
+            <FrameLayout
+                android:id="@+id/banner_320x100"
+                android:layout_width="320dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:scrollbarAlwaysDrawHorizontalTrack="false">
+
+            </FrameLayout>
+
         </FrameLayout>
 
         <WebView

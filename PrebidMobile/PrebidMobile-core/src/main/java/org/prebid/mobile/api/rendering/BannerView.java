@@ -120,6 +120,13 @@ public class BannerView extends FrameLayout {
         }
 
         @Override
+        public void onAdUrlClicked(String url) {
+            if (bannerViewListener != null) {
+                bannerViewListener.onAdUrlClicked(url);
+            }
+        }
+
+        @Override
         public void onAdClosed() {
             if (bannerViewListener != null) {
                 bannerViewListener.onAdClosed(BannerView.this);

@@ -17,6 +17,7 @@ package org.prebid.veondemo.activities.ads.inapp
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
@@ -49,6 +50,7 @@ class InAppVideoBannerActivity : org.prebid.veondemo.activities.BaseAdActivity()
 
         bannerView?.videoPlacementType = VideoPlacementType.IN_BANNER
         bannerView?.setBannerListener(object : BannerViewListener {
+            override fun onAdUrlClicked(url: String?) {}
             override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
                 Log.e("InAppVideoBanner", "Ad failed: ${exception?.message}")
             }

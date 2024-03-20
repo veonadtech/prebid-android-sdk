@@ -31,6 +31,8 @@ public interface DisplayViewListener {
     // Called when the banner view will launch a dialog on top of the current view
     void onAdClicked();
 
+    void onAdUrlClicked(String url);
+
     // Called when the banner view has dismissed the modal on top of the current view
     void onAdClosed();
 }

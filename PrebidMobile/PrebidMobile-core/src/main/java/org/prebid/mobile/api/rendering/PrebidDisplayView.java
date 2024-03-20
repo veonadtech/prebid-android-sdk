@@ -90,6 +90,7 @@ public class PrebidDisplayView extends FrameLayout {
         @Override
         public void creativeClicked(String url) {
             notifyListenerClicked();
+            notifyUrlClicked(url);
         }
 
         @Override
@@ -254,6 +255,13 @@ public class PrebidDisplayView extends FrameLayout {
         LogUtil.debug(TAG, "onAdClicked");
         if (displayViewListener != null) {
             displayViewListener.onAdClicked();
+        }
+    }
+
+    private void notifyUrlClicked(String url) {
+        LogUtil.debug(TAG, "onAdClickedUrl");
+        if (displayViewListener != null) {
+            displayViewListener.onAdUrlClicked(url);
         }
     }
 

@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity() {
                     val adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(320, 50))
                     adWrapperView.addView(adUnit)
                     adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdUrlClicked(url: String?) {
+                            Toast.makeText(applicationContext, url, Toast.LENGTH_LONG).show()
+                        }
                         override fun onAdLoaded(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
                         }
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity() {
                     val eventHandler = AuctionBannerEventHandler(
                         this,
                         "/6355419/Travel/Europe/France/Paris",
-                        0.5F,
+                        0.1F,
                         AdSize(320, 50)
                     )
 
@@ -189,6 +192,9 @@ class MainActivity : AppCompatActivity() {
 
                     // lister for custom tracking or custom display creative
                     adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdUrlClicked(url: String?) {
+                            Toast.makeText(applicationContext, url, Toast.LENGTH_LONG).show()
+                        }
                         override fun onAdLoaded(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
                         }
@@ -209,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
 
-                    val AdSlot = binding.banner320x50
+                    val AdSlot = binding.banner320x100
                     AdSlot.addView(adUnit)
                     adUnit.loadAd()
                 }
@@ -239,6 +245,9 @@ class MainActivity : AppCompatActivity() {
 
                     // lister for custom tracking or custom display creative
                     adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdUrlClicked(url: String?) {
+                            Toast.makeText(applicationContext, url, Toast.LENGTH_LONG).show()
+                        }
                         override fun onAdLoaded(bannerView: BannerView?) {
                             Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
                         }
