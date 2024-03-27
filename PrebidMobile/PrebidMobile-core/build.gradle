@@ -11,3 +11,16 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "com.veonadtech"
+                artifactId = "mobile"
+                version = '1.0.0'
+            }
+        }
+    }
+}

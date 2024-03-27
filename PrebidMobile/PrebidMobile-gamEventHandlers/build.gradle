@@ -5,3 +5,16 @@ dependencies {
     implementation project(":PrebidMobile")
     implementation 'com.google.android.gms:play-services-ads:+'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "com.veonadtech"
+                artifactId = "mobile.eventhandlers"
+                version = '1.0.0'
+            }
+        }
+    }
+}

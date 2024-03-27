@@ -10,3 +10,12 @@ project(':PrebidMobile-core').projectDir = new File('PrebidMobile/PrebidMobile-c
 project(':PrebidMobile-gamEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-gamEventHandlers')
 project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
 project(':PrebidVeonDemo').projectDir = new File('Example/PrebidVeonDemo')
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
