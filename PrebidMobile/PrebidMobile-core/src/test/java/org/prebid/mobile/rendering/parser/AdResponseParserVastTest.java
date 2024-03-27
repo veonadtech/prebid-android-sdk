@@ -750,24 +750,24 @@ public class AdResponseParserVastTest {
         assertEquals("www.impression.url", track.getUrl());
     }
 
-//    @Test
-//    public void testWrongVastThrowError() throws IOException {
-//
-//        String wrongvast = ResourceUtils.convertResourceToString(WRONG_VAST);
-//        AdResponseParserVastHelper vast = null;
-//        VastParseError error = null;
-//        try {
-//            vast = new AdResponseParserVastHelper(wrongvast);
-//        }
-//        catch (VastParseError vastParseError) {
-//            vastParseError.printStackTrace();
-//            error = vastParseError;
-//        }
-//
-//        assertNotNull("Syntax error for inline->impressoin", error);
-//        assertTrue(error instanceof VastParseError);
-//        assertNull(vast);
-//    }
+    @Test
+    public void testWrongVastThrowError() throws IOException {
+
+        String wrongvast = ResourceUtils.convertResourceToString(WRONG_VAST);
+        AdResponseParserVastHelper vast = null;
+        VastParseError error = null;
+        try {
+            vast = new AdResponseParserVastHelper(wrongvast);
+        }
+        catch (VastParseError vastParseError) {
+            vastParseError.printStackTrace();
+            error = vastParseError;
+        }
+
+        assertNotNull("Syntax error for inline->impressoin", error);
+        assertTrue(error instanceof VastParseError);
+        assertNull(vast);
+    }
 
     @Test
     public void testVastWithNoAd() throws IOException {
