@@ -1,33 +1,13 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
-apply from: '../tests.gradle'
-
-android {
-    def getGitHash = { ->
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'rev-parse', '--short', 'HEAD'
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
-    }
-
-    defaultConfig {
-        buildConfigField "String", "GitHash", "\"${getGitHash()}\""
-        buildConfigField "String", "VERSION", "\"${versionName}\""
-        buildConfigField "String", "OMSDK_VERSION", "\"${omSdkVersion}\""
-    }
-}
 
 dependencies {
     implementation project(":omsdk-android")
 
-    implementation 'androidx.annotation:annotation:1.5.0'
-
-    implementation 'com.google.android.gms:play-services-base:18.1.0'
+    implementation 'androidx.annotation:annotation:1.7.1'
+    implementation 'com.google.android.gms:play-services-base:18.3.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
-
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
 }
