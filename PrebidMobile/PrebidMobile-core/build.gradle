@@ -2,8 +2,8 @@ apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 
 dependencies {
-//    implementation project(":omsdk-android")
-    compileOnly files('lib/omsdk-android-1.4.1.aar')
+    implementation project(":omsdk-android")
+//    compileOnly files('lib/omsdk-android-1.4.1.aar')
     implementation 'androidx.annotation:annotation:1.7.1'
     implementation 'com.google.android.gms:play-services-base:18.3.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'

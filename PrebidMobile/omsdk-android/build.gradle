@@ -4,6 +4,11 @@
 //apply plugin:  'kotlin-android'
 //apply plugin: 'maven-publish'
 //
+
+//apply plugin: 'com.android.library'
+//apply plugin:  'kotlin-android'
+apply plugin: 'maven-publish'
+
 configurations.maybeCreate("default")
 artifacts.add("default", file("omsdk-android-1.4.1.aar"))
 
@@ -17,8 +22,8 @@ artifacts.add("default", file("omsdk-android-1.4.1.aar"))
 //publishing {
 //    publications {
 //        local(MavenPublication) {
-//            groupId 'com.iab.omid.library'
-//            artifactId 'prebidorg'
+//            groupId 'com.iab.omid.library.prebidorg'
+//            artifactId 'omsdk-android'
 //            version '0.1'
 //            artifacts {
 //                artifact "omsdk-android-1.4.1.aar"
@@ -26,3 +31,20 @@ artifacts.add("default", file("omsdk-android-1.4.1.aar"))
 //        }
 //    }
 //}
+//
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+//                from components.release
+                groupId = "com.iab.omid.library"
+                artifactId = "prebidorg"
+                version = '1.0.0'
+                artifacts {
+                    artifact "omsdk-android-1.4.1.aar"
+                }
+            }
+        }
+    }
+}
+
