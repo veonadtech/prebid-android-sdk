@@ -1,2 +1,28 @@
+//apply from: '../android.gradle'
+//
+//apply plugin: 'com.android.library'
+//apply plugin:  'kotlin-android'
+//apply plugin: 'maven-publish'
+//
 configurations.maybeCreate("default")
 artifacts.add("default", file("omsdk-android-1.4.1.aar"))
+
+//apply plugin: 'maven-publish'
+//
+//task sourceJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier "sources"
+//}
+//
+//publishing {
+//    publications {
+//        local(MavenPublication) {
+//            groupId 'com.iab.omid.library'
+//            artifactId 'prebidorg'
+//            version '0.1'
+//            artifacts {
+//                artifact "omsdk-android-1.4.1.aar"
+//            }
+//        }
+//    }
+//}

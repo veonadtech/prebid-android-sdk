@@ -4,3 +4,17 @@ apply from: 'publisher.gradle'
 dependencies {
     api project(':PrebidMobile-core')
 }
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "com.veonadtech"
+                artifactId = "mobile"
+                version = '1.0.0'
+            }
+        }
+    }
+}
