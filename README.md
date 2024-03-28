@@ -1,16 +1,27 @@
-[![Build Status](https://api.travis-ci.org/prebid/prebid-mobile-android.svg?branch=master)](https://travis-ci.org/prebid/prebid-mobile-android)
+[![](https://jitpack.io/v/veonadtech/prebid-android-sdk.svg)](https://jitpack.io/#veonadtech/prebid-android-sdk)
 
 # Prebid Mobile Android SDK
-
-To work with Prebid Mobile, you will need access to a Prebid Server.
-See [this page](https://docs.prebid.org/prebid-server/overview/prebid-server-overview.html) for options.
+See [this page](https://jitpack.io/#veonadtech/prebid-android-sdk) for options.
 
 ## Use Maven?
-
-Easily include the Prebid Mobile SDK using Maven. Simply add this line to your gradle dependencies:
-
+Step 1. Add the JitPack repository to your build file
+Add it in your root build.gradle at the end of repositories:
 ```
-implementation 'org.prebid:prebid-mobile-sdk:2.1.4'
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+Step 2. Add the dependency
+```
+implementation 'com.github.veonadtech:prebid-android-sdk:v0.0.3.2'
+implementation 'com.github.veonadtech.prebid-android-sdk:core:v0.0.3.2'
+implementation 'com.github.veonadtech.prebid-android-sdk:mobile:v0.0.3.2'
+implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:v0.0.3.2'
 ```
 
 ## Build from source
@@ -22,12 +33,3 @@ scripts/buildPrebidMobile.sh
 ```
 
 to output the final lib jar and package you a demo app.
-
-
-## Test Prebid Mobile
-
-Run the test script to run unit tests and integration tests.
-
-```
-scripts/testPrebidMobile.sh
-```
