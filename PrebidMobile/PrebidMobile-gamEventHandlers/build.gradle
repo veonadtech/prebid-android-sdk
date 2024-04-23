@@ -3,7 +3,7 @@ apply from: '../publisher.gradle'
 
 dependencies {
     implementation project(":PrebidMobile")
-    implementation 'com.google.android.gms:play-services-ads:+'
+    implementation 'com.google.android.gms:play-services-ads:22.0.0'
 }
 
 afterEvaluate {

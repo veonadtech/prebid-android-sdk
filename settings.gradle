@@ -2,6 +2,7 @@ include ':PrebidMobile',
         ':PrebidMobile-core',
         ':PrebidMobile-gamEventHandlers',
         ':omsdk-android',
+
         // Prebid Demo
         ':PrebidVeonDemo'
 

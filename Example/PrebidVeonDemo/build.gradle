@@ -2,11 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    setCompileSdkVersion(33)
+    namespace "org.prebid.veondemo"
+
+    setCompileSdkVersion(34)
+
     setBuildToolsVersion("30.0.3")
+
     defaultConfig {
         minSdk 21
-        targetSdkVersion 32
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
         applicationId "org.prebid.veondemo"
@@ -14,12 +18,10 @@ android {
         multiDexEnabled true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    buildFeatures {
-        dataBinding true
-    }
+
     // Fix for Exoplayer Problem
     packagingOptions {
         exclude("META-INF/*.kotlin_module")
@@ -29,36 +31,35 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    buildFeatures {
+        dataBinding true
+    }
 }
 
 dependencies {
-//    implementation project(':PrebidMobile')
-//    implementation project(':PrebidMobile-gamEventHandlers')
+    implementation project(':PrebidMobile-core')
+    implementation project(':PrebidMobile-gamEventHandlers')
 
     // For testing staging releases
-    implementation 'com.github.veonadtech:prebid-android-sdk:v0.0.3.2'
-    implementation 'com.github.veonadtech.prebid-android-sdk:core:v0.0.3.2'
-    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:v0.0.3.2'
-    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:v0.0.3.2'
-//    implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-gam-event-handlers:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-admob-adapters:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-max-adapters:$prebidSdkVersionName"
+//    implementation 'com.github.veonadtech:prebid-android-sdk:v0.0.3.2'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:v0.0.3.2'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:v0.0.3.2'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:v0.0.3.2'
 
     // Standard libraries
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0"
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.20"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
 
     // Advertisement
-    implementation 'com.google.android.gms:play-services-ads:+'
+    implementation 'com.google.android.gms:play-services-ads:22.0.0'
     implementation "com.applovin:applovin-sdk:11.5.3"
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1" // For Applovin Max
 
     // Image Downloader
-    implementation "com.github.bumptech.glide:glide:4.14.2"
+    implementation "com.github.bumptech.glide:glide:4.16.0"
 
     // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
