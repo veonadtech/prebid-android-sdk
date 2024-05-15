@@ -45,7 +45,7 @@ import java.util.Map;
 public class PrebidMobile {
 
     public static boolean isCoppaEnabled = false;
-    public static boolean useExternalBrowser = false;
+    public static boolean useExternalBrowser = true;
 
     /**
      * If true, the SDK sends "af=3,5", indicating support for MRAID
