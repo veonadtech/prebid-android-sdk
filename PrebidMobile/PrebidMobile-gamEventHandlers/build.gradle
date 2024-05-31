@@ -17,7 +17,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = "com.veonadtech.mobile"
+                groupId = "org.prebid.mobile"
                 artifactId = "eventhandlers"
                 version = '1.0.0'
             }
