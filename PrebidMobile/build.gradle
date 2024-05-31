@@ -1,6 +1,5 @@
 apply from: 'android.gradle'
 apply from: 'publisher.gradle'
-apply plugin: 'maven-publish'
 
 dependencies {
     api project(':PrebidMobile-core')
