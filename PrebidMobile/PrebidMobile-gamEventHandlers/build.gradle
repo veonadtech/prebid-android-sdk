@@ -6,6 +6,12 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:22.0.0'
 }
 
+android {
+    defaultConfig {
+        namespace("org.prebid.mobile.eventhandlers")
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {

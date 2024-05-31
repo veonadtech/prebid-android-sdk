@@ -1,6 +1,12 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 
+android {
+    defaultConfig {
+        namespace("org.prebid.mobile.core")
+    }
+}
+
 dependencies {
     implementation project(":omsdk-android")
 //    compileOnly files('lib/omsdk-android-1.4.1.aar')
@@ -17,7 +23,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = "com.veonadtech.mobile"
+                groupId = "org.prebid.mobile"
                 artifactId = "core"
                 version = '1.0.0'
             }
