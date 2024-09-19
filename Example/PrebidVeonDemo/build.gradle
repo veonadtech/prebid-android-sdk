@@ -40,12 +40,12 @@ dependencies {
     implementation project(':PrebidMobile-core')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'org.prebid:prebid-mobile-sdk:2.0.4'
     // For testing staging releases
-//    implementation 'com.github.veonadtech:prebid-android-sdk:v0.0.3.2'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:v0.0.3.2'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:v0.0.3.2'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:v0.0.3.2'
+//    implementation 'com.github.veonadtech:prebid-android-sdk:v0.0.3.5-gradle-8.1.x'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:v0.0.3.5-gradle-8.1.x'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:v0.0.3.5-gradle-8.1.x'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:v0.0.3.5-gradle-8.1.x'
+
     implementation 'com.google.code.gson:gson:2.11.0'
     // Standard libraries
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.20"

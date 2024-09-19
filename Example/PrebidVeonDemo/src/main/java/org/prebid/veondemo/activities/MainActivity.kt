@@ -60,6 +60,7 @@ enum class Format(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
     AUCTION_SIMPLE_BANNER_300_250("300x250"),
     SIMPLE_BANNER("Simple Banner"),
+    SMART_BANNER("Smart Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
 
@@ -96,6 +97,26 @@ class MainActivity : AppCompatActivity() {
             adWrapperView.removeAllViewsInLayout()
             when (adFormat) {
 
+                org.prebid.veondemo.activities.Format.SMART_BANNER -> {
+
+                    val adUnitId = "/23081467975/mybl_bangladesh/mybl_android_slot-25_commerce_960x288"
+                    val configId = "mybl_android_slot-25_commerce_960x288"
+
+                    val adView = BannerView(
+                        applicationContext,
+                        configId,
+                        GamBannerEventHandler(
+                            applicationContext,
+                            adUnitId,
+                            AdSize(960, 288)
+                        )
+                    )
+
+                    binding.banner960x288.addView(adView)
+                    adView.setAutoRefreshDelay(30)
+                    adView.loadAd()
+
+                }
                 org.prebid.veondemo.activities.Format.SIMPLE_BANNER -> {
                     val adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(320, 50))
                     adWrapperView.addView(adUnit)
