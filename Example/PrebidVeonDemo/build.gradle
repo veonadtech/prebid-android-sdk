@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    setCompileSdkVersion(33)
-    setBuildToolsVersion("30.0.3")
+    setCompileSdkVersion(34)
+    setBuildToolsVersion("34.0.0")
     defaultConfig {
-        minSdk 21
-        targetSdkVersion 32
+        minSdk 29
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
         applicationId "org.prebid.veondemo"
@@ -14,8 +14,8 @@ android {
         multiDexEnabled true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     buildFeatures {
         dataBinding true
