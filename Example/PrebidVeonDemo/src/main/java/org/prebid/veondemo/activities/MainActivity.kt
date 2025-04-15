@@ -47,7 +47,6 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
-import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
