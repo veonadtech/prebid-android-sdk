@@ -4,7 +4,6 @@ apply plugin: 'kotlin-android'
 android {
     namespace "org.prebid.veondemo"
     setCompileSdkVersion(34)
-    setBuildToolsVersion("34.0.0")
     defaultConfig {
         minSdk 29
         targetSdkVersion 34
