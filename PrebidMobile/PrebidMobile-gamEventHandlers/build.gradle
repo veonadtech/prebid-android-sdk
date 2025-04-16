@@ -3,6 +3,7 @@ apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
 
 android {
+    namespace "org.prebid.mobile"
     defaultConfig {
         minSdkVersion 19
     }

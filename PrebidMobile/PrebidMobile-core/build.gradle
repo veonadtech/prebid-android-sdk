@@ -3,6 +3,12 @@ apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
 
 android {
+    namespace "org.prebid.mobile.core"
+
+    buildFeatures {
+        buildConfig true
+    }
+
     def getGitHash = { ->
         def stdout = new ByteArrayOutputStream()
         exec {
