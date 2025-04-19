@@ -58,6 +58,7 @@ import java.util.EnumSet
 enum class Format(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
     AUCTION_SIMPLE_BANNER_300_250("300x250"),
+    SIMPLE_TEST_BANNER("Simple Test Banner"),
     SIMPLE_BANNER("Simple Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
@@ -95,7 +96,34 @@ class MainActivity : AppCompatActivity() {
             adWrapperView.removeAllViewsInLayout()
             when (adFormat) {
 
-                org.prebid.veondemo.activities.Format.SIMPLE_BANNER -> {
+                Format.SIMPLE_TEST_BANNER -> {
+                    val adUnit = BannerView(this, "test_320x50", AdSize(320, 50))
+                    adWrapperView.addView(adUnit)
+                    adUnit.setBannerListener(object : BannerViewListener {
+                        override fun onAdUrlClicked(url: String?) {
+                            Toast.makeText(applicationContext, url, Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdLoaded(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdLoaded", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdDisplayed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdDisplayed", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
+                            Toast.makeText(applicationContext, "onAdFailed", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdClicked(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClicked", Toast.LENGTH_LONG).show()
+                        }
+                        override fun onAdClosed(bannerView: BannerView?) {
+                            Toast.makeText(applicationContext, "onAdClosed", Toast.LENGTH_LONG).show()
+                        }
+                    })
+
+                    adUnit.loadAd()
+                }
+
+                Format.SIMPLE_BANNER -> {
                     val adUnit = BannerView(this, "prebid-ita-banner-320-50", AdSize(320, 50))
                     adWrapperView.addView(adUnit)
                     adUnit.setBannerListener(object : BannerViewListener {
@@ -122,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
 
-                org.prebid.veondemo.activities.Format.VIDEO_REWARDED -> {
+                Format.VIDEO_REWARDED -> {
                     val adUnit = RewardedAdUnit(this, "prebid-ita-video-rewarded-320-480")
                     adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
                         override fun onAdLoaded(rewardedAdUnit: RewardedAdUnit?) {
@@ -138,7 +166,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
 
-                org.prebid.veondemo.activities.Format.INTERSTITIAL_BANNER -> {
+                Format.INTERSTITIAL_BANNER -> {
 
                     val adUnit = InterstitialAdUnit(this, "prebid-ita-banner-320-50", EnumSet.of(AdUnitFormat.BANNER))
                     adUnit.setMinSizePercentage(AdSize(50, 50))
@@ -166,7 +194,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
 
-                org.prebid.veondemo.activities.Format.AUCTION_SIMPLE_BANNER -> {
+                Format.AUCTION_SIMPLE_BANNER -> {
 
                     // listener for wrapping GAM rendering
                     val eventHandler = AuctionBannerEventHandler(
@@ -219,7 +247,7 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
 
-                org.prebid.veondemo.activities.Format.AUCTION_SIMPLE_BANNER_300_250 -> {
+                Format.AUCTION_SIMPLE_BANNER_300_250 -> {
 
                     // listener for wrapping GAM rendering
                     val eventHandler = AuctionBannerEventHandler(
@@ -272,7 +300,7 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
 
-                org.prebid.veondemo.activities.Format.GAM_SIMPLE_BANNER -> {
+                Format.GAM_SIMPLE_BANNER -> {
 
                     val adUnit = BannerAdUnit(
                         "prebid-ita-banner-320-50",
@@ -336,7 +364,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                org.prebid.veondemo.activities.Format.GAM_INTERSTITIAL_BANNER -> {
+                Format.GAM_INTERSTITIAL_BANNER -> {
 
                     val eventHandler = GamInterstitialEventHandler(
                         this,
@@ -370,7 +398,7 @@ class MainActivity : AppCompatActivity() {
                     adUnit.loadAd()
                 }
 
-                org.prebid.veondemo.activities.Format.GAM_REWARD_VIDEO -> {
+                Format.GAM_REWARD_VIDEO -> {
                     val eventHandler = GamRewardedEventHandler(
                         this,
                         "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen"
