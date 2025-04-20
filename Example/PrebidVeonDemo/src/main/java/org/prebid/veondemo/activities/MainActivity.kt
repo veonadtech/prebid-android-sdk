@@ -105,9 +105,11 @@ class MainActivity : AppCompatActivity() {
             BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner("prebid-ita-banner-320-50",
                                                                    AdSize(320, 50),
                                                                    "/21952429235,23020124565/be_kg.beeline.odp_appbanner")
+
             BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner("/ca-app-pub-3940256099942544/1033173712",
                                                                                "banner-interstitial",
                                                                                AdSize(80, 60))
+
             BannerFormat.GAM_REWARD_VIDEO ->
                 setupGamRewardVideo("/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
                                     "prebid-ita-video-rewarded-320-480")
@@ -143,6 +145,7 @@ class MainActivity : AppCompatActivity() {
                 showToast("onAdLoaded")
                 adUnit.show()
             }
+
             override fun onAdDisplayed(unit: InterstitialAdUnit?) = showToast("onAdDisplayed")
             override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) = showToast("onAdFailed")
             override fun onAdClicked(unit: InterstitialAdUnit?) = showToast("onAdClicked")
@@ -236,6 +239,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onAdLoaded(unit: RewardedAdUnit?) {
                     if ((bidResponse.winningBid?.price ?: 0.0) > 0.5) show()
                 }
+
                 override fun onAdDisplayed(unit: RewardedAdUnit?) = showToast("onAdDisplayed")
                 override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) = showToast("onAdFailed")
                 override fun onAdClicked(unit: RewardedAdUnit?) = showToast("onAdClicked")
@@ -271,6 +275,7 @@ class MainActivity : AppCompatActivity() {
                     adBannerFormat = BannerFormat.entries.toTypedArray()[position]
                     Log.d("SELECTED", position.toString())
                 }
+
                 override fun onNothingSelected(adapterView: AdapterView<*>) {}
             }
         }
