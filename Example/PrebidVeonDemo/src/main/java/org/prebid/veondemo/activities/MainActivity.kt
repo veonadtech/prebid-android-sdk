@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupAdFormatSelectionActions() {
         binding.showBanner.setOnClickListener {
-            adWrapperView.removeAllViewsInLayout()
+            removeAllBannerSlots()
             adBannerFormat?.let { format ->
                 handleAdFormat(format)
             }
@@ -100,8 +100,12 @@ class MainActivity : AppCompatActivity() {
             BannerFormat.SIMPLE_BANNER -> setupSimpleBanner("prebid-ita-banner-320-50", AdSize(320, 50))
             BannerFormat.VIDEO_REWARDED -> setupRewardedVideo("prebid-ita-video-rewarded-320-480")
             BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner("prebid-ita-banner-320-50", AdSize(50, 50))
-            BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner(AdSize(320, 50), binding.banner320x100, 10F)
-            BannerFormat.AUCTION_SIMPLE_BANNER_300_250 -> setupAuctionBanner(AdSize(300, 250), binding.banner300x250, 50F)
+            BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner("/6355419/Travel/Europe/France/Paris",
+                                                                     AdSize(320, 50),
+                                                                     binding.banner320x50, 10F)
+            BannerFormat.AUCTION_SIMPLE_BANNER_300_250 -> setupAuctionBanner("/6355419/Travel/Europe/France/Paris",
+                                                                             AdSize(300, 250),
+                                                                             binding.banner300x250, 50F)
             BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner("prebid-ita-banner-320-50",
                                                                    AdSize(320, 50),
                                                                    "/21952429235,23020124565/be_kg.beeline.odp_appbanner")
@@ -114,6 +118,12 @@ class MainActivity : AppCompatActivity() {
                 setupGamRewardVideo("/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
                                     "prebid-ita-video-rewarded-320-480")
         }
+    }
+
+    private fun removeAllBannerSlots() {
+        adWrapperView.removeAllViewsInLayout()
+        binding.banner320x50.removeAllViewsInLayout()
+        binding.banner300x250.removeAllViewsInLayout()
     }
 
     private fun setupSimpleBanner(configId: String, size: AdSize) {
@@ -154,9 +164,9 @@ class MainActivity : AppCompatActivity() {
         adUnit.loadAd()
     }
 
-    private fun setupAuctionBanner(size: AdSize, slot: ViewGroup, cpm: Float) {
+    private fun setupAuctionBanner(adUnitId: String, size: AdSize, slot: ViewGroup, cpm: Float) {
         val eventHandler = AuctionBannerEventHandler(
-            this, "/6355419/Travel/Europe/France/Paris", cpm, size
+            this, adUnitId, cpm, size
         ).apply {
             setAuctionEventListener(object : AuctionListener {
                 override fun onPRBWin(price: Float) = showToast("onPRBWin")
