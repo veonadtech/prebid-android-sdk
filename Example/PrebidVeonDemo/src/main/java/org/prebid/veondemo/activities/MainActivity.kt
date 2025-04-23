@@ -278,11 +278,11 @@ class MainActivity : AppCompatActivity() {
             adapter = ArrayAdapter(
                 this@MainActivity,
                 android.R.layout.simple_spinner_dropdown_item,
-                BannerFormat.entries.map { it.description }
+                BannerFormat.values().map { it.description }
             )
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, l: Long) {
-                    adBannerFormat = BannerFormat.entries.toTypedArray()[position]
+                    adBannerFormat = BannerFormat.values()[position]
                     Log.d("SELECTED", position.toString())
                 }
 
