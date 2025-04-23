@@ -32,45 +32,26 @@ class Demo : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        initBanglaPrebidSDK()
+        initTestPrebidSDK()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
     }
 
-    private fun initPrebidSDK() {
-        Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
+    private fun initTestPrebidSDK() {
+        Log.d(TAG, "SDK start initialization")
 
-//        PrebidMobile.setPrebidServerAccountId("com.ideation.portall")
-        PrebidMobile.setPrebidServerAccountId("com.spbtv.mobilinktv")
-//        PrebidMobile.setPrebidServerAccountId("test")
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.jazzdsp.com/openrtb2/auction"))
-        PrebidMobile.setCustomStatusEndpoint("https://prebid.jazzdsp.com/status")
-        PrebidMobile.setTimeoutMillis(10000)
-        PrebidMobile.setShareGeoLocation(true)
-
-        PrebidMobile.initializeSdk(applicationContext) { status ->
-            if (status == InitializationStatus.SUCCEEDED) {
-                Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialized successfully!")
-            } else {
-                Log.e(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialization error: $status\n${status.description}")
-            }
-        }
-    }
-
-    private fun initBanglaPrebidSDK() {
-        Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK start initialization")
-
-        PrebidMobile.setPrebidServerAccountId("com.arena.banglalinkmela.app")
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.bangladsp.com/openrtb2/auction"))
-        PrebidMobile.setCustomStatusEndpoint("https://prebid.bangladsp.com/status")
+        PrebidMobile.setPrebidServerAccountId("test")
+        PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid.veonadx.com/openrtb2/auction"))
+        PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
         PrebidMobile.setTimeoutMillis(100000)
         PrebidMobile.setShareGeoLocation(true)
+        PrebidMobile.useExternalBrowser = true
 
         PrebidMobile.initializeSdk(applicationContext) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
-                Log.d(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialized successfully!")
+                Log.d(TAG, "SDK initialized successfully!")
             } else {
-                Log.e(org.prebid.veondemo.Demo.Companion.TAG, "SDK initialization error: $status\n${status.description}")
+                Log.e(TAG, "SDK initialization error: $status\n${status.description}")
             }
         }
     }
