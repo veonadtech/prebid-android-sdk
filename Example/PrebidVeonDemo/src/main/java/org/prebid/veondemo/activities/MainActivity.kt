@@ -138,12 +138,30 @@ class MainActivity : AppCompatActivity() {
     private fun setupRewardedVideo(configId: String) {
         val adUnit = RewardedAdUnit(this, configId)
         adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
-            override fun onAdLoaded(unit: RewardedAdUnit?) = adUnit.show()
-            override fun onAdDisplayed(unit: RewardedAdUnit?) {}
-            override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) {}
-            override fun onAdClicked(unit: RewardedAdUnit?) {}
-            override fun onAdClosed(unit: RewardedAdUnit?) {}
-            override fun onUserEarnedReward(unit: RewardedAdUnit?) {}
+            override fun onAdLoaded(unit: RewardedAdUnit?) {
+                Log.d("qwerty", "Loading rewarded ad")
+                adUnit.loadAd()
+                Log.d("qwerty", "Rewarded ad load call sent")
+                adUnit.show()
+                showToast("onAdLoaded")
+            }
+            override fun onAdDisplayed(unit: RewardedAdUnit?) {
+                showToast("onAdDisplayed")
+            }
+            override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) {
+                showToast("onAdFailed")
+                Log.e("qwerty", "Ad failed to load", e)
+
+            }
+            override fun onAdClicked(unit: RewardedAdUnit?) {
+                showToast("onAdClicked")
+            }
+            override fun onAdClosed(unit: RewardedAdUnit?) {
+                showToast("onAdClosed")
+            }
+            override fun onUserEarnedReward(unit: RewardedAdUnit?) {
+                showToast("onUserEarnedReward")
+            }
         })
         adUnit.loadAd()
     }
@@ -158,7 +176,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAdDisplayed(unit: InterstitialAdUnit?) = showToast("onAdDisplayed")
-            override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) = showToast("onAdFailed")
+            override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) {
+                showToast("onAdFailed")
+                Log.e("qwerty", "Ad failed to load", e)
+            }
             override fun onAdClicked(unit: InterstitialAdUnit?) = showToast("onAdClicked")
             override fun onAdClosed(unit: InterstitialAdUnit?) = showToast("onAdClosed")
         })
