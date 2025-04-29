@@ -51,6 +51,7 @@ import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import java.util.EnumSet
+import java.util.logging.Level
 
 enum class BannerFormat(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
@@ -98,8 +99,8 @@ class MainActivity : AppCompatActivity() {
         when (bannerFormat) {
             BannerFormat.SIMPLE_TEST_BANNER -> setupSimpleBanner("test_320x50", AdSize(320, 50))
             BannerFormat.SIMPLE_BANNER -> setupSimpleBanner("prebid-ita-banner-320-50", AdSize(320, 50))
-            BannerFormat.VIDEO_REWARDED -> setupRewardedVideo("prebid-ita-video-rewarded-320-480")
-            BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner("prebid-ita-banner-320-50", AdSize(50, 50))
+            BannerFormat.VIDEO_REWARDED -> setupRewardedVideo("test_video_content_320x100")
+            BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner("test_interstitial", AdSize(50, 50))
             BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner("/6355419/Travel/Europe/France/Paris",
                                                                      AdSize(320, 50),
                                                                      binding.banner320x50, 10F)
