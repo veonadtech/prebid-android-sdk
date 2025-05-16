@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.RewardedEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.RewardedVideoEventListener;
@@ -60,21 +61,27 @@ public class GamRewardedEventHandler implements RewardedEventHandler, GamAdEvent
     public void onEvent(AdEvent adEvent) {
         switch (adEvent) {
             case APP_EVENT_RECEIVED:
+                GamLogUtil.info("App Event Received");
                 handleAppEvent();
                 break;
             case LOADED:
+                GamLogUtil.info("Ad Loaded");
                 primaryAdReceived();
                 break;
             case DISPLAYED:
+                GamLogUtil.info("Ad Displayed");
                 listener.onAdDisplayed();
                 break;
             case CLOSED:
+                GamLogUtil.info("Ad Closed");
                 listener.onAdClosed();
                 break;
             case FAILED:
+                GamLogUtil.info("Ad Failed");
                 notifyErrorListener(adEvent.getErrorCode());
                 break;
             case REWARD_EARNED:
+                GamLogUtil.info("Reward Earned");
                 listener.onUserEarnedReward();
                 break;
         }

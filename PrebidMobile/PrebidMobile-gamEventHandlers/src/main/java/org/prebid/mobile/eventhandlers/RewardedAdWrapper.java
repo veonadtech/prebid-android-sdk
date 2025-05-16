@@ -16,12 +16,16 @@
 
 package org.prebid.mobile.eventhandlers;
 
+import static org.prebid.mobile.eventhandlers.global.Constants.APP_EVENT;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
@@ -30,15 +34,15 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.prebid.mobile.eventhandlers.global.Constants.APP_EVENT;
 
 /**
  * This class is responsible for wrapping usage of RewardedAd from GAM SDK.
@@ -58,12 +62,11 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
 
     private final RewardedAdLoadCallback rewardedAdLoadCallback = new RewardedAdLoadCallback() {
         @Override
-        public void onAdLoaded(
-                @NonNull RewardedAd rewardedAd
-        ) {
+        public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
             RewardedAdWrapper.this.rewardedAd = rewardedAd;
             RewardedAdWrapper.this.rewardedAd.setFullScreenContentCallback(RewardedAdWrapper.this);
             listener.onEvent(AdEvent.LOADED);
+            GamLogUtil.info("Ad loaded");
 
             if (metadataContainsAdEvent()) {
                 listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
@@ -71,10 +74,10 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
         }
 
         @Override
-        public void onAdFailedToLoad(
-            @NonNull
-                LoadAdError loadAdError) {
+        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             rewardedAd = null;
+            GamLogUtil.info("Ad failed to load " + loadAdError.getMessage());
+            GamLogUtil.info("Ad failed to load " + loadAdError.getResponseInfo());
             notifyErrorListener(loadAdError.getCode());
         }
     };
@@ -93,8 +96,8 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
     static RewardedAdWrapper newInstance(Context context, String gamAdUnitId, GamAdEventListener eventListener) {
         try {
             return new RewardedAdWrapper(context, gamAdUnitId, eventListener);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
+            GamLogUtil.error("Failed to create RewardedAdWrapper instance");
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
         }
         return null;
@@ -103,27 +106,28 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
     //region ==================== GAM FullScreenContentCallback Implementation
 
     @Override
-    public void onAdFailedToShowFullScreenContent(
-        @NonNull
-            AdError adError) {
+    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
         rewardedAd = null;
+        GamLogUtil.info("Ad failed to show fullscreen" + adError.getMessage());
         notifyErrorListener(adError.getCode());
     }
 
     @Override
     public void onAdShowedFullScreenContent() {
         listener.onEvent(AdEvent.DISPLAYED);
+        GamLogUtil.info("Ad showed fullscreen");
     }
 
     @Override
     public void onAdDismissedFullScreenContent() {
         listener.onEvent(AdEvent.CLOSED);
+        rewardedAd = null;
+        GamLogUtil.info("Ad dismissed fullscreen");
     }
 
     @Override
-    public void onUserEarnedReward(
-        @NonNull
-            RewardItem rewardItem) {
+    public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+        GamLogUtil.info("User earned reward");
         listener.onEvent(AdEvent.REWARD_EARNED);
         listener.onEvent(AdEvent.CLOSED);
     }
@@ -139,17 +143,16 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
             }
 
             RewardedAd.load(contextWeakReference.get(), adUnitId, adRequest, rewardedAdLoadCallback);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Load ad error: " + throwable.getMessage());
         }
     }
 
     public boolean isLoaded() {
         try {
             return rewardedAd != null;
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
         }
 
@@ -164,9 +167,9 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
 
         try {
             rewardedAd.show(activity, this);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Show ad error: " + throwable.getMessage());
         }
     }
 
@@ -190,9 +193,9 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
 
             final Bundle adMetadata = rewardedAd.getAdMetadata();
             return APP_EVENT.equals(adMetadata.getString(KEY_METADATA));
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("metadataContainsAdEvent error: " + throwable.getMessage());
         }
         return false;
     }

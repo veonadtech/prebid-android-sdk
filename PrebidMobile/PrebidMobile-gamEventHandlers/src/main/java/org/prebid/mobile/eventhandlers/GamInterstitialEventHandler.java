@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.InterstitialEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.InterstitialEventListener;
@@ -193,27 +194,32 @@ public class GamInterstitialEventHandler implements InterstitialEventHandler, Ga
                         AdException.THIRD_PARTY,
                         "GAM SDK encountered an internal error."
                 ));
+                GamLogUtil.error("GAM SDK encountered an internal error.");
                 break;
             case Constants.ERROR_CODE_INVALID_REQUEST:
                 interstitialEventListener.onAdFailed(new AdException(
                         AdException.THIRD_PARTY,
                         "GAM SDK - invalid request error."
                 ));
+                GamLogUtil.error("GAM SDK - invalid request error.");
                 break;
             case Constants.ERROR_CODE_NETWORK_ERROR:
                 interstitialEventListener.onAdFailed(new AdException(
                         AdException.THIRD_PARTY,
                         "GAM SDK - network error."
                 ));
+                GamLogUtil.error("GAM SDK - network error.");
                 break;
             case Constants.ERROR_CODE_NO_FILL:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - no fill."));
+                GamLogUtil.error("GAM SDK - no fill.");
                 break;
             default:
                 interstitialEventListener.onAdFailed(new AdException(
                         AdException.THIRD_PARTY,
                         "GAM SDK - failed with errorCode: " + errorCode
                 ));
+                GamLogUtil.error("GAM SDK - failed with errorCode: " + errorCode);
         }
     }
 }

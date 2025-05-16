@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -29,6 +28,7 @@ import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.BannerEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.BannerEventListener;
@@ -65,10 +65,10 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
     private boolean isExpectingAppEvent;
 
     /**
-     * @param context     activity or application context.
+     * @param context  activity or application context.
      * @param adUnitId GAM AdUnitId.
-     * @param cpm min cpm for display creative from Prebid Server.
-     * @param adSizes     ad sizes for banner.
+     * @param cpm      min cpm for display creative from Prebid Server.
+     * @param adSizes  ad sizes for banner.
      */
     public AuctionBannerEventHandler(
             Context context,
@@ -101,16 +101,21 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
     public void onEvent(AdEvent adEvent) {
         switch (adEvent) {
             case APP_EVENT_RECEIVED:
+                GamLogUtil.info("App Event Received");
             case LOADED:
+                GamLogUtil.info("Ad loaded");
                 auction();
                 break;
             case CLOSED:
+                GamLogUtil.info("Ad closed");
                 bannerEventListener.onAdClosed();
                 break;
             case FAILED:
+                GamLogUtil.info("Ad failed " + adEvent.getErrorCode());
                 handleAdFailure(adEvent.getErrorCode());
                 break;
             case CLICKED:
+                GamLogUtil.info("Ad clicked");
                 bannerEventListener.onAdClicked();
                 break;
         }
@@ -136,7 +141,7 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
 
     @Override
     public void setBannerEventListener(
-        @NonNull
+            @NonNull
             BannerEventListener bannerViewListener) {
         bannerEventListener = bannerViewListener;
     }

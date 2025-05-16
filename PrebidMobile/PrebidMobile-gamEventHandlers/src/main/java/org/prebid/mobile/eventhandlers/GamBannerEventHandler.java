@@ -26,6 +26,7 @@ import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.BannerEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.BannerEventListener;
@@ -91,18 +92,23 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
     public void onEvent(AdEvent adEvent) {
         switch (adEvent) {
             case APP_EVENT_RECEIVED:
+                GamLogUtil.info("App Event Received");
                 handleAppEvent();
                 break;
             case CLOSED:
+                GamLogUtil.info("Ad closed");
                 bannerEventListener.onAdClosed();
                 break;
             case FAILED:
+                GamLogUtil.error("Ad failed " + adEvent.getErrorCode());
                 handleAdFailure(adEvent.getErrorCode());
                 break;
             case CLICKED:
+                GamLogUtil.info("Ad clicked");
                 bannerEventListener.onAdClicked();
                 break;
             case LOADED:
+                GamLogUtil.info("Ad loaded");
                 primaryAdReceived();
                 break;
         }
