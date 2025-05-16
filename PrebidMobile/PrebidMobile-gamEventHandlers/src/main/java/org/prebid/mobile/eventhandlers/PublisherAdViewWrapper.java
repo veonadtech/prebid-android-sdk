@@ -19,17 +19,21 @@ package org.prebid.mobile.eventhandlers;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.android.gms.ads.admanager.AppEventListener;
+
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.global.Constants;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.util.HashMap;
@@ -64,16 +68,12 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     }
 
     @Nullable
-    static PublisherAdViewWrapper newInstance(Context context, String gamAdUnitId,
-                                              GamAdEventListener eventListener, AdSize... adSizes) {
+    static PublisherAdViewWrapper newInstance(Context context, String gamAdUnitId, GamAdEventListener eventListener, AdSize... adSizes) {
         try {
-            return new PublisherAdViewWrapper(context,
-                                              gamAdUnitId,
-                                              eventListener,
-                                              adSizes);
-        }
-        catch (Throwable throwable) {
+            return new PublisherAdViewWrapper(context, gamAdUnitId, eventListener, adSizes);
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Failed to create PublisherAdViewWrapper instance");
         }
         return null;
     }
@@ -81,12 +81,13 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     //region ==================== GAM AppEventsListener Implementation
     @Override
     public void onAppEvent(
-        @NonNull
+            @NonNull
             String name,
-        @NonNull
+            @NonNull
             String info) {
         if (Constants.APP_EVENT.equals(name)) {
             listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
+            GamLogUtil.info("App event received");
         }
     }
     //endregion ==================== GAM AppEventsListener Implementation
@@ -95,14 +96,16 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     @Override
     public void onAdClosed() {
         listener.onEvent(AdEvent.CLOSED);
+        GamLogUtil.info("Ad closed");
     }
 
     @Override
     public void onAdFailedToLoad(
-        @NonNull
+            @NonNull
             LoadAdError loadAdError) {
         final AdEvent adEvent = AdEvent.FAILED;
         adEvent.setErrorCode(loadAdError.getCode());
+        GamLogUtil.info("Ad failed to load " + loadAdError.getMessage());
 
         listener.onEvent(adEvent);
     }
@@ -110,11 +113,13 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     @Override
     public void onAdOpened() {
         listener.onEvent(AdEvent.CLICKED);
+        GamLogUtil.info("Ad opened");
     }
 
     @Override
     public void onAdLoaded() {
         listener.onEvent(AdEvent.LOADED);
+        GamLogUtil.info("Ad loaded");
     }
     //endregion ==================== GAM AdEventListener Implementation
 
@@ -128,36 +133,36 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
             }
 
             adView.loadAd(adRequest);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Load ad error: " + throwable.getMessage());
         }
     }
 
     public void setManualImpressionsEnabled(boolean enabled) {
         try {
             adView.setManualImpressionsEnabled(enabled);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Set manual impressions enabled error: " + throwable.getMessage());
         }
     }
 
     public void recordManualImpression() {
         try {
             adView.recordManualImpression();
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Record manual impression error: " + throwable.getMessage());
         }
     }
 
     public void destroy() {
         try {
             adView.destroy();
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Destroy ad error: " + throwable.getMessage());
         }
     }
 

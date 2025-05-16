@@ -11,6 +11,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
@@ -46,6 +47,8 @@ public class SdkInitializer {
         if (PrebidMobile.logLevel != null) {
             LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
         }
+
+//        GamLogUtil.configureLogServer("", true);
 
         try {
             // todo using internal api until pluginrenderer feature is released
