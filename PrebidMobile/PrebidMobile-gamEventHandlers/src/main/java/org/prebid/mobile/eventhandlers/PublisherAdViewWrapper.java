@@ -34,6 +34,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.global.Constants;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
 import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.GamStatus;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.util.HashMap;
@@ -80,14 +81,9 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
 
     //region ==================== GAM AppEventsListener Implementation
     @Override
-    public void onAppEvent(
-            @NonNull
-            String name,
-            @NonNull
-            String info) {
+    public void onAppEvent(@NonNull String name, @NonNull String info) {
         if (Constants.APP_EVENT.equals(name)) {
             listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
-            GamLogUtil.info("App event received");
         }
     }
     //endregion ==================== GAM AppEventsListener Implementation
@@ -96,7 +92,7 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     @Override
     public void onAdClosed() {
         listener.onEvent(AdEvent.CLOSED);
-        GamLogUtil.info("Ad closed");
+        GamLogUtil.info("Ad closed", GamStatus.CLOSED);
     }
 
     @Override
@@ -105,7 +101,7 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
             LoadAdError loadAdError) {
         final AdEvent adEvent = AdEvent.FAILED;
         adEvent.setErrorCode(loadAdError.getCode());
-        GamLogUtil.info("Ad failed to load " + loadAdError.getMessage());
+        GamLogUtil.error("Ad failed to load " + loadAdError.getMessage());
 
         listener.onEvent(adEvent);
     }
@@ -113,14 +109,26 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
     @Override
     public void onAdOpened() {
         listener.onEvent(AdEvent.CLICKED);
-        GamLogUtil.info("Ad opened");
+        GamLogUtil.info("Ad opened", GamStatus.OPENED);
     }
 
     @Override
     public void onAdLoaded() {
         listener.onEvent(AdEvent.LOADED);
-        GamLogUtil.info("Ad loaded");
+        GamLogUtil.info("Ad loaded", GamStatus.LOADED);
     }
+
+    @Override
+    public void onAdClicked() {
+        listener.onEvent(AdEvent.CLICKED);
+        GamLogUtil.info("Ad clicked", GamStatus.CLICKED);
+    }
+
+    @Override
+    public void onAdImpression() {
+        GamLogUtil.info("Ad impression", GamStatus.IMPRESSION);
+    }
+
     //endregion ==================== GAM AdEventListener Implementation
 
     public void loadAd(Bid bid) {

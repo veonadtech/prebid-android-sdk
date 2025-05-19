@@ -38,6 +38,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
 import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.GamStatus;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
@@ -66,7 +67,7 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
             RewardedAdWrapper.this.rewardedAd = rewardedAd;
             RewardedAdWrapper.this.rewardedAd.setFullScreenContentCallback(RewardedAdWrapper.this);
             listener.onEvent(AdEvent.LOADED);
-            GamLogUtil.info("Ad loaded");
+            GamLogUtil.info("Ad loaded", GamStatus.LOADED);
 
             if (metadataContainsAdEvent()) {
                 listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
@@ -76,8 +77,8 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
         @Override
         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             rewardedAd = null;
-            GamLogUtil.info("Ad failed to load " + loadAdError.getMessage());
-            GamLogUtil.info("Ad failed to load " + loadAdError.getResponseInfo());
+            GamLogUtil.error("Ad failed to load " + loadAdError.getMessage());
+            GamLogUtil.error("Ad failed to load " + loadAdError.getResponseInfo());
             notifyErrorListener(loadAdError.getCode());
         }
     };
@@ -108,29 +109,41 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
     @Override
     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
         rewardedAd = null;
-        GamLogUtil.info("Ad failed to show fullscreen" + adError.getMessage());
+        GamLogUtil.error("Ad failed to show fullscreen" + adError.getMessage());
         notifyErrorListener(adError.getCode());
     }
 
     @Override
     public void onAdShowedFullScreenContent() {
         listener.onEvent(AdEvent.DISPLAYED);
-        GamLogUtil.info("Ad showed fullscreen");
+        GamLogUtil.info("Ad showed fullscreen", GamStatus.DISPLAYED);
     }
 
     @Override
     public void onAdDismissedFullScreenContent() {
         listener.onEvent(AdEvent.CLOSED);
         rewardedAd = null;
-        GamLogUtil.info("Ad dismissed fullscreen");
+        GamLogUtil.info("Ad dismissed fullscreen", GamStatus.CLOSED);
     }
 
     @Override
     public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-        GamLogUtil.info("User earned reward");
+        GamLogUtil.info("User earned reward", GamStatus.CLOSED);
         listener.onEvent(AdEvent.REWARD_EARNED);
         listener.onEvent(AdEvent.CLOSED);
     }
+
+    @Override
+    public void onAdClicked() {
+        listener.onEvent(AdEvent.CLICKED);
+        GamLogUtil.info("Ad clicked", GamStatus.CLICKED);
+    }
+
+    @Override
+    public void onAdImpression() {
+        GamLogUtil.info("Ad impression", GamStatus.IMPRESSION);
+    }
+
     //endregion ==================== GAM FullScreenContentCallback Implementation
 
     public void loadAd(Bid bid) {

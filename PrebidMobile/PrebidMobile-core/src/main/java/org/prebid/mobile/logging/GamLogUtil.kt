@@ -29,35 +29,11 @@ object GamLogUtil {
     }
 
     /**
-     * Prints a message with VERBOSE priority and default GAM_TAG
-     */
-    @JvmStatic
-    fun verbose(message: String) {
-        verbose(GAM_TAG, message)
-    }
-
-    /**
-     * Prints a message with DEBUG priority and default GAM_TAG
-     */
-    @JvmStatic
-    fun debug(message: String) {
-        debug(GAM_TAG, message)
-    }
-
-    /**
      * Prints a message with INFO priority and default GAM_TAG
      */
     @JvmStatic
-    fun info(message: String) {
-        info(GAM_TAG, message)
-    }
-
-    /**
-     * Prints a message with WARNING priority and default GAM_TAG
-     */
-    @JvmStatic
-    fun warning(message: String) {
-        warning(GAM_TAG, message)
+    fun info(message: String, gamStatus: GamStatus) {
+        info(GAM_TAG, message, gamStatus)
     }
 
     /**
@@ -69,35 +45,11 @@ object GamLogUtil {
     }
 
     /**
-     * Prints a message with VERBOSE priority.
-     */
-    @JvmStatic
-    fun verbose(@Size(max = 23) tag: String, msg: String) {
-        print(VERBOSE, tag, msg)
-    }
-
-    /**
-     * Prints a message with DEBUG priority.
-     */
-    @JvmStatic
-    fun debug(@Size(max = 23) tag: String, msg: String) {
-        print(DEBUG, tag, msg)
-    }
-
-    /**
      * Prints a message with INFO priority.
      */
     @JvmStatic
-    fun info(@Size(max = 23) tag: String, msg: String) {
-        print(INFO, tag, msg)
-    }
-
-    /**
-     * Prints a message with WARN priority.
-     */
-    @JvmStatic
-    fun warning(@Size(max = 23) tag: String, msg: String) {
-        print(WARN, tag, msg)
+    fun info(@Size(max = 23) tag: String, msg: String, gamStatus: GamStatus) {
+        print(INFO, tag, msg, gamStatus)
     }
 
     /**
@@ -105,15 +57,7 @@ object GamLogUtil {
      */
     @JvmStatic
     fun error(@Size(max = 23) tag: String, msg: String) {
-        print(ERROR, tag, msg)
-    }
-
-    /**
-     * Prints a message with ASSERT priority.
-     */
-    @JvmStatic
-    fun wtf(@Size(max = 23) tag: String, msg: String) {
-        print(ASSERT, tag, msg)
+        print(ERROR, tag, msg, GamStatus.FAILED)
     }
 
     /**
@@ -130,7 +74,7 @@ object GamLogUtil {
     /**
      * Prints information with set priority. Every tag
      */
-    private fun print(messagePriority: Int, tag: String?, message: String?) {
+    private fun print(messagePriority: Int, tag: String?, message: String?, status: GamStatus) {
         if (tag == null || message == null) {
             return
         }
@@ -138,7 +82,10 @@ object GamLogUtil {
         Log.println(messagePriority, finalTag, message)
 
         // Send to server
-        LogServerSender.getInstance().sendLog(messagePriority, finalTag, message)
+        LogServerSender.getInstance().sendLog(
+            status = status,
+            message = message
+        )
     }
 
     /**

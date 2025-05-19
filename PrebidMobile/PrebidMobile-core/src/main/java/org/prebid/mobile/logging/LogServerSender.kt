@@ -1,13 +1,13 @@
 package org.prebid.mobile.logging
 
 import android.os.AsyncTask
+import org.json.JSONArray
 import org.json.JSONObject
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
+import org.prebid.mobile.core.BuildConfig
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.ResponseHandler
-import org.prebid.mobile.rendering.sdk.ManagersResolver
-import org.prebid.mobile.rendering.sdk.deviceData.managers.DeviceInfoManager
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 import org.prebid.mobile.tasksmanager.TasksManager
 import java.util.concurrent.BlockingQueue
@@ -55,22 +55,20 @@ class LogServerSender private constructor() {
     /**
      * Add a log entry to be sent to server
      */
-    fun sendLog(level: Int, tag: String, message: String) {
+    fun sendLog(status: GamStatus, message: String) {
         if (!enabled || serverUrl == null) {
             return
         }
 
-        val device = AppInfoManager.getDeviceName()
+        val appVersion = BuildConfig.VERSION
         val accountId = PrebidMobile.getPrebidServerAccountId()
 
-
         val entry = LogEntry(
-            level = level,
+            status = status,
             message = message,
-            tag = tag,
             timestamp = System.currentTimeMillis(),
             accountId = accountId,
-            device = device
+            appVersion = appVersion
         )
 
         // Add to queue, remove oldest if queue is full
@@ -111,26 +109,17 @@ class LogServerSender private constructor() {
     }
 
     private fun sendLogBatch() {
-        val logBatch = JSONObject()
         try {
-            val logs = JSONObject()
-            var count = 0
+            val logs = JSONArray()
 
-            while (logQueue.isNotEmpty() && count < BATCH_SIZE) {
-                val entry = logQueue.poll()
+            while (logQueue.isNotEmpty() && logs.length() < BATCH_SIZE) {
+                val entry: LogEntry? = logQueue.poll()
                 entry?.let {
-                    logs.put(count.toString(), it.toJson())
-                    count++
+                    logs.put(it.toJson())
                 }
             }
 
-            if (count > 0) {
-                logBatch.put("logs", logs)
-                logBatch.put("app_id", AppInfoManager.getPackageName())
-                logBatch.put("timestamp", System.currentTimeMillis())
-
-                sendToServer(logBatch.toString())
-            }
+            sendToServer(logs.toString())
         } catch (e: Exception) {
             LogUtil.error(TAG, "Error creating log batch: ${e.message}")
         }

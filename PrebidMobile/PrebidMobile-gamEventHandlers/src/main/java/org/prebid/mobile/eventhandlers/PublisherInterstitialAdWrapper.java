@@ -35,6 +35,7 @@ import com.google.android.gms.ads.admanager.AppEventListener;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
 import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.GamStatus;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
@@ -65,14 +66,14 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             interstitialAd.setFullScreenContentCallback(PublisherInterstitialAdWrapper.this);
             interstitialAd.setAppEventListener(PublisherInterstitialAdWrapper.this);
 
-            GamLogUtil.info("Ad loaded");
+            GamLogUtil.info("Ad loaded", GamStatus.LOADED);
         }
 
         @Override
         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             interstitialAd = null;
-            GamLogUtil.info("Ad failed to load " + loadAdError.getMessage());
-            GamLogUtil.info("Ad failed to load " + loadAdError.getResponseInfo());
+            GamLogUtil.error("Ad failed to load " + loadAdError.getMessage());
+            GamLogUtil.error("Ad failed to load " + loadAdError.getResponseInfo());
             notifyErrorListener(loadAdError.getCode());
         }
     };
@@ -108,7 +109,6 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             String info) {
         if (APP_EVENT.equals(name)) {
             listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
-            GamLogUtil.info("App event received");
         }
     }
     //endregion ==================== GAM AppEventsListener Implementation
@@ -117,7 +117,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
 
     @Override
     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-        GamLogUtil.info("Ad failed to show fullscreen" + adError.getMessage());
+        GamLogUtil.error("Ad failed to show fullscreen" + adError.getMessage());
         interstitialAd = null;
         notifyErrorListener(adError.getCode());
     }
@@ -125,13 +125,24 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     @Override
     public void onAdShowedFullScreenContent() {
         listener.onEvent(AdEvent.DISPLAYED);
-        GamLogUtil.info("Ad showed fullscreen");
+        GamLogUtil.info("Ad showed fullscreen", GamStatus.DISPLAYED);
     }
 
     @Override
     public void onAdDismissedFullScreenContent() {
         listener.onEvent(AdEvent.CLOSED);
-        GamLogUtil.info("Ad dismissed fullscreen");
+        GamLogUtil.info("Ad dismissed fullscreen", GamStatus.CLOSED);
+    }
+
+    @Override
+    public void onAdClicked() {
+        listener.onEvent(AdEvent.CLICKED);
+        GamLogUtil.info("Ad clicked", GamStatus.CLICKED);
+    }
+
+    @Override
+    public void onAdImpression() {
+        GamLogUtil.info("Ad impression", GamStatus.IMPRESSION);
     }
 
     //endregion ==================== GAM FullScreenContentCallback Implementation

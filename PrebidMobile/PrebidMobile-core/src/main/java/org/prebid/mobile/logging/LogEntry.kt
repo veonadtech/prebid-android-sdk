@@ -7,38 +7,25 @@ import org.prebid.mobile.LogUtil
  * Represents a single log entry to be sent to server
  */
 data class LogEntry(
-    val level: Int,
+    val status: GamStatus,
     val message: String,
-    val tag: String,
     val timestamp: Long,
     val accountId: String,
-    val device: String
-//    val status: String
+    val appVersion: String
 ) {
 
     fun toJson(): JSONObject {
         val json = JSONObject()
         try {
-            json.put("level", getLevelString(level))
+            json.put("status", status.name)
             json.put("message", message)
-            json.put("tag", tag)
             json.put("timestamp", timestamp)
             json.put("accountId", accountId)
-            json.put("device", device)
-//            json.put("status", status)
+            json.put("appVersion", appVersion)
         } catch (e: Exception) {
             LogUtil.error("LogEntry", "Error converting to JSON: ${e.message}")
         }
         return json
     }
 
-    private fun getLevelString(level: Int): String = when (level) {
-        GamLogUtil.VERBOSE -> "VERBOSE"
-        GamLogUtil.DEBUG -> "DEBUG"
-        GamLogUtil.INFO -> "INFO"
-        GamLogUtil.WARN -> "WARN"
-        GamLogUtil.ERROR -> "ERROR"
-        GamLogUtil.ASSERT -> "ASSERT"
-        else -> "UNKNOWN"
-    }
 }

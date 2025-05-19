@@ -94,23 +94,18 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
     public void onEvent(AdEvent adEvent) {
         switch (adEvent) {
             case APP_EVENT_RECEIVED:
-                GamLogUtil.info("App Event Received");
                 handleAppEvent();
                 break;
             case CLOSED:
-                GamLogUtil.info("Ad closed");
                 bannerEventListener.onAdClosed();
                 break;
             case FAILED:
-                GamLogUtil.error("Ad failed " + adEvent.getErrorCode());
                 handleAdFailure(adEvent.getErrorCode());
                 break;
             case CLICKED:
-                GamLogUtil.info("Ad clicked");
                 bannerEventListener.onAdClicked();
                 break;
             case LOADED:
-                GamLogUtil.info("Ad loaded");
                 primaryAdReceived();
                 break;
         }
@@ -250,28 +245,24 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
 
         switch (errorCode) {
             case Constants.ERROR_CODE_INTERNAL_ERROR:
-                bannerEventListener.onAdFailed(new AdException(
-                        AdException.THIRD_PARTY,
-                        "GAM SDK encountered an internal error."
-                ));
+                GamLogUtil.error("Ad failed: GAM SDK encountered an internal error.");
+                bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK encountered an internal error."));
                 break;
             case Constants.ERROR_CODE_INVALID_REQUEST:
-                bannerEventListener.onAdFailed(new AdException(
-                        AdException.THIRD_PARTY,
-                        "GAM SDK - invalid request error."
-                ));
+                GamLogUtil.error("Ad failed: GAM SDK - invalid request error.");
+                bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - invalid request error."));
                 break;
             case Constants.ERROR_CODE_NETWORK_ERROR:
+                GamLogUtil.error("Ad failed: GAM SDK - network error.");
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - network error."));
                 break;
             case Constants.ERROR_CODE_NO_FILL:
+                GamLogUtil.error("Ad failed: GAM SDK - no fill.");
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - no fill."));
                 break;
             default:
-                bannerEventListener.onAdFailed(new AdException(
-                        AdException.THIRD_PARTY,
-                        "GAM SDK - failed with errorCode: " + errorCode
-                ));
+                GamLogUtil.error("Ad failed: GAM SDK - failed with errorCode: " + errorCode);
+                bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - failed with errorCode: " + errorCode));
         }
     }
 
