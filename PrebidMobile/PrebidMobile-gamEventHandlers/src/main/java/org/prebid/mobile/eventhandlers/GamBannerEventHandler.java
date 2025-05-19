@@ -21,7 +21,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+
 import androidx.annotation.NonNull;
+
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
@@ -127,7 +129,7 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
 
     @Override
     public void setBannerEventListener(
-        @NonNull
+            @NonNull
             BannerEventListener bannerViewListener) {
         bannerEventListener = bannerViewListener;
     }

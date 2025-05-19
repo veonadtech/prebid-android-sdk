@@ -48,7 +48,7 @@ public class SdkInitializer {
             LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
         }
 
-//        GamLogUtil.configureLogServer("", true);
+        GamLogUtil.configureLogServer("", true);
 
         try {
             // todo using internal api until pluginrenderer feature is released

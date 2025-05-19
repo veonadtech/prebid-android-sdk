@@ -20,8 +20,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
@@ -91,7 +93,7 @@ public class GamRewardedEventHandler implements RewardedEventHandler, GamAdEvent
     //region ==================== EventHandler Implementation
     @Override
     public void setRewardedEventListener(
-        @NonNull
+            @NonNull
             RewardedVideoEventListener listener) {
         this.listener = listener;
     }
@@ -99,7 +101,7 @@ public class GamRewardedEventHandler implements RewardedEventHandler, GamAdEvent
     @SuppressLint("MissingPermission")
     @Override
     public void requestAdWithBid(
-        @Nullable
+            @Nullable
             Bid bid) {
         isExpectingAppEvent = false;
         didNotifiedBidWin = false;
