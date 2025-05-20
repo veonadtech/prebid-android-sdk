@@ -26,17 +26,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.admanager.AdManagerAdRequest
-import com.google.android.gms.ads.admanager.AdManagerAdView
 import org.prebid.mobile.AdSize
-import org.prebid.mobile.BannerAdUnit
-import org.prebid.mobile.BannerParameters
-import org.prebid.mobile.Signals
-import org.prebid.mobile.addendum.AdViewUtils
-import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.data.AdUnitFormat
+import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
@@ -112,6 +104,17 @@ class MainActivity : AppCompatActivity() {
                 configId = "test_320x50",
                 adSize = AdSize(320, 50),
                 adUnitId = "/23081467975/toffee_bangladesh/toffee_home_live_300x250"
+
+            BannerFormat.VIDEO_IN_BANNER -> setupInBannerVideoBanner(
+                configId = "toffee_bumper_ads_1920x1080v",
+                adSize = AdSize(1920, 1080),
+                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
+            )
+
+            BannerFormat.VIDEO_INTERSTITIAL -> setupInterstitialVideo(
+                configId = "toffee_bumper_ads_1920x1080v",
+                adSize = AdSize(1920, 1080),
+                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
             )
 
             BannerFormat.VIDEO_REWARDED -> setupRewardedVideo(
@@ -196,6 +199,35 @@ class MainActivity : AppCompatActivity() {
             override fun onAdClicked(unit: RewardedAdUnit?) {}
             override fun onAdClosed(unit: RewardedAdUnit?) {}
             override fun onUserEarnedReward(unit: RewardedAdUnit?) {}
+        })
+        adUnit.loadAd()
+    }
+
+    private fun setupInBannerVideoBanner(configId: String, adSize: AdSize, adUnitId: String) {
+        val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
+        val adView = BannerView(this, configId, eventHandler)
+        adView.setAutoRefreshDelay(30)
+
+        // For Video
+        adView.videoPlacementType = VideoPlacementType.IN_BANNER
+
+        adWrapperView.addView(adView)
+        adView.loadAd()
+    }
+
+    private fun setupInterstitialVideo(configId: String, adSize: AdSize, adUnitId: String) {
+        val eventHandler = GamInterstitialEventHandler(this, adUnitId)
+        val adUnit = InterstitialAdUnit(this, configId, EnumSet.of(AdUnitFormat.VIDEO), eventHandler)
+        adUnit.setInterstitialAdUnitListener(object :
+            InterstitialAdUnitListener {
+            override fun onAdLoaded(adUnit: InterstitialAdUnit?) {
+                adUnit?.show()
+            }
+
+            override fun onAdDisplayed(adUnit: InterstitialAdUnit?) {}
+            override fun onAdFailed(adUnit: InterstitialAdUnit?, exception: AdException?) {}
+            override fun onAdClicked(adUnit: InterstitialAdUnit?) {}
+            override fun onAdClosed(adUnit: InterstitialAdUnit?) {}
         })
         adUnit.loadAd()
     }
