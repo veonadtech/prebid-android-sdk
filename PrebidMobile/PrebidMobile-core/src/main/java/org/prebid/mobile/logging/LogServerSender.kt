@@ -1,7 +1,6 @@
 package org.prebid.mobile.logging
 
 import android.os.AsyncTask
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import org.json.JSONArray
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
@@ -10,6 +9,9 @@ import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.ResponseHandler
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 import org.prebid.mobile.tasksmanager.TasksManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -63,11 +65,12 @@ class LogServerSender private constructor() {
 
         val appVersion = BuildConfig.VERSION
         val accountId = PrebidMobile.getPrebidServerAccountId()
+        val timestamp = getTimeStamp()
 
         val entry = LogEntry(
             status = status,
             message = message,
-            timestamp = System.currentTimeMillis(),
+            timestamp = timestamp,
             accountId = accountId,
             appVersion = appVersion
         )
@@ -150,6 +153,14 @@ class LogServerSender private constructor() {
         })
 
         networkTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params)
+    }
+
+    private fun getTimeStamp(): String {
+        val currentTimeMills = System.currentTimeMillis()
+        val date = Date(currentTimeMills)
+        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        simpleFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return simpleFormat.format(date)
     }
 
     /**

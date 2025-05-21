@@ -9,7 +9,7 @@ import org.prebid.mobile.LogUtil
 data class LogEntry(
     val status: GamStatus,
     val message: String,
-    val timestamp: Long,
+    val timestamp: String,
     val accountId: String,
     val appVersion: String
 ) {
