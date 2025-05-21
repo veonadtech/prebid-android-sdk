@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity() {
                 configId = "test_320x50",
                 adSize = AdSize(320, 50),
                 adUnitId = "/23081467975/toffee_bangladesh/toffee_home_live_300x250"
+            )
 
             BannerFormat.VIDEO_IN_BANNER -> setupInBannerVideoBanner(
                 configId = "toffee_bumper_ads_1920x1080v",
