@@ -50,7 +50,6 @@ enum class BannerFormat(val description: String) {
     AUCTION_SIMPLE_BANNER_300_250("300x250"),
     SIMPLE_TEST_BANNER("Simple Test Banner"),
     SIMPLE_BANNER("Simple Banner"),
-    RENDERING_BANNER("Rendering Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
     VIDEO_IN_BANNER("Video Banner"),
@@ -100,12 +99,6 @@ class MainActivity : AppCompatActivity() {
             BannerFormat.SIMPLE_BANNER -> setupSimpleBanner(
                 configId = "prebid-ita-banner-320-50",
                 size = AdSize(320, 50)
-            )
-
-            BannerFormat.RENDERING_BANNER -> setupRenderingBanner(
-                configId = "test_320x50",
-                adSize = AdSize(320, 50),
-                adUnitId = "/23081467975/toffee_bangladesh/toffee_home_live_300x250"
             )
 
             BannerFormat.VIDEO_IN_BANNER -> setupInBannerVideoBanner(
@@ -176,21 +169,6 @@ class MainActivity : AppCompatActivity() {
             setAutoRefreshDelay(30)
         }
         adWrapperView.addView(adUnit)
-    }
-
-    private fun setupRenderingBanner(configId: String, adSize: AdSize, adUnitId: String) {
-        val eventHandler = GamBannerEventHandler(applicationContext, adUnitId, adSize)
-        val adView = BannerView(applicationContext, configId, eventHandler)
-        adView.setBannerListener(object : BannerViewListener {
-            override fun onAdLoaded(bannerView: BannerView) = showToast("Prebid Ad Loaded")
-            override fun onAdDisplayed(adView: BannerView) = showToast("Prebid Ad Displayed")
-            override fun onAdFailed(adView: BannerView, error: AdException) = showToast("Prebid Ad Failed: ${error.message}")
-            override fun onAdUrlClicked(url: String) = showToast("Prebid Ad URL Clicked: $url")
-            override fun onAdClicked(adView: BannerView) = showToast("Prebid Ad Clicked")
-            override fun onAdClosed(adView: BannerView) = showToast("Prebid Ad Closed")
-        })
-        adView.loadAd()
-        adWrapperView.addView(adView)
     }
 
     private fun setupRewardedVideo(configId: String) {
