@@ -53,6 +53,8 @@ enum class BannerFormat(val description: String) {
     RENDERING_BANNER("Rendering Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
+    VIDEO_IN_BANNER("Video Banner"),
+    VIDEO_INTERSTITIAL("Video Interstitial"),
 
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
