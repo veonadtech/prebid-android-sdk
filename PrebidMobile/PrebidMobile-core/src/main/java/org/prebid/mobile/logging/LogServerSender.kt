@@ -1,8 +1,8 @@
 package org.prebid.mobile.logging
 
 import android.os.AsyncTask
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import org.json.JSONArray
-import org.json.JSONObject
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.core.BuildConfig
@@ -13,6 +13,7 @@ import org.prebid.mobile.tasksmanager.TasksManager
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
+
 
 /**
  * Handles sending logs to a remote server using TasksManager

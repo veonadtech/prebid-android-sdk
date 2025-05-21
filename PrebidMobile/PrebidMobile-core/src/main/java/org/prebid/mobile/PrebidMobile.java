@@ -135,6 +135,7 @@ public class PrebidMobile {
     private static PBSConfig pbsConfig;
     private static int creativeFactoryTimeout = DEFAULT_BANNER_TIMEOUT;
     private static int creativeFactoryTimeoutPreRenderContent = DEFAULT_PRERENDER_TIMEOUT;
+    private static String AAID = "";
 
     private PrebidMobile() {
     }
@@ -240,8 +241,8 @@ public class PrebidMobile {
      */
     @MainThread
     public static void initializeSdk(
-        @Nullable Context context,
-        @Nullable SdkInitializationListener listener
+            @Nullable Context context,
+            @Nullable SdkInitializationListener listener
     ) {
         SdkInitializer.init(context, listener);
     }
@@ -261,8 +262,8 @@ public class PrebidMobile {
     }
 
     public static void addStoredBidResponse(
-        String bidder,
-        String responseId
+            String bidder,
+            String responseId
     ) {
         storedBidResponses.put(bidder, responseId);
     }
@@ -370,6 +371,7 @@ public class PrebidMobile {
     public static String getCustomStatusEndpoint() {
         return customStatusEndpoint;
     }
+
     public static void setIncludeWinnersFlag(boolean includeWinners) {
         PrebidMobile.includeWinners = includeWinners;
     }
@@ -396,10 +398,11 @@ public class PrebidMobile {
 
     /**
      * Priority Policy: PBSConfig > SDKConfig > Default
+     *
      * @return creativeFactoryTimeout in ms
      */
     public static int getCreativeFactoryTimeout() {
-        if (pbsConfig != null){
+        if (pbsConfig != null) {
             if (pbsConfig.getBannerTimeout() != 0) {
                 return pbsConfig.getBannerTimeout();
             }
@@ -413,6 +416,7 @@ public class PrebidMobile {
 
     /**
      * Priority Policy: PBSConfig > SDKConfig > Default
+     *
      * @return creativeFactoryTimeoutPreRender in ms
      */
     public static int getCreativeFactoryTimeoutPreRenderContent() {
@@ -426,6 +430,14 @@ public class PrebidMobile {
 
     public static void setCreativeFactoryTimeoutPreRenderContent(int creativeFactoryTimeoutPreRenderContent) {
         PrebidMobile.creativeFactoryTimeoutPreRenderContent = creativeFactoryTimeoutPreRenderContent;
+    }
+
+    public static void setAAID(String AAID) {
+        PrebidMobile.AAID = AAID;
+    }
+
+    public static String getAAID() {
+        return PrebidMobile.AAID;
     }
 
     //region PluginRenderer methods are disabled until feature release

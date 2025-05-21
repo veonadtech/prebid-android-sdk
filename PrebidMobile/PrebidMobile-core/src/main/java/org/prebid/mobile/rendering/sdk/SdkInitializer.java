@@ -2,19 +2,22 @@ package org.prebid.mobile.rendering.sdk;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
-import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
+import org.prebid.mobile.tasksmanager.TasksManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class SdkInitializer {
 
     private static final String TAG = SdkInitializer.class.getSimpleName();
+    private static TasksManager tasksManager = TasksManager.getInstance();
 
     public static void init(
             @Nullable Context context,
@@ -48,7 +52,17 @@ public class SdkInitializer {
             LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
         }
 
-        GamLogUtil.configureLogServer("", true);
+        tasksManager.executeOnBackgroundThread(() -> {
+            try {
+                AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(applicationContext);
+                String aaid = adInfo.getId();
+                PrebidMobile.setAAID(aaid);
+            } catch (Exception e) {
+                LogUtil.error(TAG, "Error getting AAID: " + e.getMessage());
+            }
+        });
+
+//        GamLogUtil.configureLogServer("", true);
 
         try {
             // todo using internal api until pluginrenderer feature is released
