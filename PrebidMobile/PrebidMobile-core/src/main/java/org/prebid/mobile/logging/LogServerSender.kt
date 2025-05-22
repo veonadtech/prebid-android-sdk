@@ -16,6 +16,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
+private const val OS = "ANDROID"
 
 /**
  * Handles sending logs to a remote server using TasksManager
@@ -72,7 +73,9 @@ class LogServerSender private constructor() {
             message = message,
             timestamp = timestamp,
             accountId = accountId,
-            appVersion = appVersion
+            appVersion = appVersion,
+            adId = PrebidMobile.getAAID(),
+            os = OS
         )
 
         // Add to queue, remove oldest if queue is full

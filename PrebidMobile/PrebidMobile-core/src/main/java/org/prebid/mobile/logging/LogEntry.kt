@@ -11,7 +11,9 @@ data class LogEntry(
     val message: String,
     val timestamp: String,
     val accountId: String,
-    val appVersion: String
+    val appVersion: String,
+    val adId: String,
+    val os: String,
 ) {
 
     fun toJson(): JSONObject {
@@ -19,9 +21,10 @@ data class LogEntry(
         try {
             json.put("status", status.name)
             json.put("message", message)
-            json.put("timestamp", timestamp)
+            json.put("time", timestamp)
             json.put("accountId", accountId)
             json.put("appVersion", appVersion)
+            json.put("os", os)
         } catch (e: Exception) {
             LogUtil.error("LogEntry", "Error converting to JSON: ${e.message}")
         }
