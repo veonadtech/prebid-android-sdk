@@ -16,10 +16,14 @@
 
 package org.prebid.mobile.eventhandlers;
 
+import static org.prebid.mobile.eventhandlers.global.Constants.APP_EVENT;
+
 import android.app.Activity;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
@@ -27,15 +31,16 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback;
 import com.google.android.gms.ads.admanager.AppEventListener;
+
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
+import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.GamStatus;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.prebid.mobile.eventhandlers.global.Constants.APP_EVENT;
 
 /**
  * This class is responsible for wrapping usage of PublisherInterstitialAd from GAM SDK.
@@ -54,21 +59,21 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
 
     private final AdManagerInterstitialAdLoadCallback adLoadCallback = new AdManagerInterstitialAdLoadCallback() {
         @Override
-        public void onAdLoaded(
-                @NonNull AdManagerInterstitialAd adManagerInterstitialAd
-        ) {
+        public void onAdLoaded(@NonNull AdManagerInterstitialAd adManagerInterstitialAd) {
             listener.onEvent(AdEvent.LOADED);
 
             interstitialAd = adManagerInterstitialAd;
             interstitialAd.setFullScreenContentCallback(PublisherInterstitialAdWrapper.this);
             interstitialAd.setAppEventListener(PublisherInterstitialAdWrapper.this);
+
+            GamLogUtil.info("Ad loaded", GamStatus.LOADED);
         }
 
         @Override
-        public void onAdFailedToLoad(
-            @NonNull
-                LoadAdError loadAdError) {
+        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             interstitialAd = null;
+            GamLogUtil.error("Ad failed to load " + loadAdError.getMessage());
+            GamLogUtil.error("Ad failed to load " + loadAdError.getResponseInfo());
             notifyErrorListener(loadAdError.getCode());
         }
     };
@@ -88,8 +93,8 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     static PublisherInterstitialAdWrapper newInstance(Activity activity, String gamAdUnitId, GamAdEventListener eventListener) {
         try {
             return new PublisherInterstitialAdWrapper(activity, gamAdUnitId, eventListener);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
+            GamLogUtil.error("Failed to create PublisherInterstitialAdWrapper instance");
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
         }
         return null;
@@ -98,9 +103,9 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     //region ==================== GAM AppEventsListener Implementation
     @Override
     public void onAppEvent(
-        @NonNull
+            @NonNull
             String name,
-        @NonNull
+            @NonNull
             String info) {
         if (APP_EVENT.equals(name)) {
             listener.onEvent(AdEvent.APP_EVENT_RECEIVED);
@@ -111,10 +116,8 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     //region ==================== GAM FullScreenContentCallback Implementation
 
     @Override
-    public void onAdFailedToShowFullScreenContent(
-        @NonNull
-            AdError adError) {
-
+    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+        GamLogUtil.error("Ad failed to show fullscreen" + adError.getMessage());
         interstitialAd = null;
         notifyErrorListener(adError.getCode());
     }
@@ -122,11 +125,24 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     @Override
     public void onAdShowedFullScreenContent() {
         listener.onEvent(AdEvent.DISPLAYED);
+        GamLogUtil.info("Ad showed fullscreen", GamStatus.DISPLAYED);
     }
 
     @Override
     public void onAdDismissedFullScreenContent() {
         listener.onEvent(AdEvent.CLOSED);
+        GamLogUtil.info("Ad dismissed fullscreen", GamStatus.CLOSED);
+    }
+
+    @Override
+    public void onAdClicked() {
+        listener.onEvent(AdEvent.CLICKED);
+        GamLogUtil.info("Ad clicked", GamStatus.CLICKED);
+    }
+
+    @Override
+    public void onAdImpression() {
+        GamLogUtil.info("Ad impression", GamStatus.IMPRESSION);
     }
 
     //endregion ==================== GAM FullScreenContentCallback Implementation
@@ -134,8 +150,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     public boolean isLoaded() {
         try {
             return interstitialAd != null;
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
         }
         return false;
@@ -151,14 +166,15 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
 
         if (interstitialAd == null) {
             LogUtil.error(TAG, "show: Failure. Interstitial ad is null.");
+            GamLogUtil.error("Show: Failure. Interstitial ad is null.");
             return;
         }
 
         try {
             interstitialAd.show(activity);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Show ad error: " + throwable.getMessage());
         }
     }
 
@@ -172,9 +188,9 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             }
 
             AdManagerInterstitialAd.load(activityWeakReference.get(), adUnitId, adRequest, adLoadCallback);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
+            GamLogUtil.error("Load ad error: " + throwable.getMessage());
         }
     }
 

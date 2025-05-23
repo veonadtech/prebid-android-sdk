@@ -26,17 +26,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.admanager.AdManagerAdRequest
-import com.google.android.gms.ads.admanager.AdManagerAdView
 import org.prebid.mobile.AdSize
-import org.prebid.mobile.BannerAdUnit
-import org.prebid.mobile.BannerParameters
-import org.prebid.mobile.Signals
-import org.prebid.mobile.addendum.AdViewUtils
-import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.data.AdUnitFormat
+import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
@@ -46,12 +38,12 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
+import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import java.util.EnumSet
-import java.util.logging.Level
 
 enum class BannerFormat(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
@@ -60,6 +52,8 @@ enum class BannerFormat(val description: String) {
     SIMPLE_BANNER("Simple Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
     VIDEO_REWARDED("Rewarded Video"),
+    VIDEO_IN_BANNER("Video Banner"),
+    VIDEO_INTERSTITIAL("Video Interstitial"),
 
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
@@ -97,27 +91,68 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleAdFormat(bannerFormat: BannerFormat) {
         when (bannerFormat) {
-            BannerFormat.SIMPLE_TEST_BANNER -> setupSimpleBanner("test_320x50", AdSize(320, 50))
-            BannerFormat.SIMPLE_BANNER -> setupSimpleBanner("prebid-ita-banner-320-50", AdSize(320, 50))
-            BannerFormat.VIDEO_REWARDED -> setupRewardedVideo("test_video_content_320x100")
-            BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner("test_interstitial", AdSize(50, 50))
-            BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner("/6355419/Travel/Europe/France/Paris",
-                                                                     AdSize(320, 50),
-                                                                     binding.banner320x50, 10F)
-            BannerFormat.AUCTION_SIMPLE_BANNER_300_250 -> setupAuctionBanner("/6355419/Travel/Europe/France/Paris",
-                                                                             AdSize(300, 250),
-                                                                             binding.banner300x250, 50F)
-            BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner("prebid-ita-banner-320-50",
-                                                                   AdSize(320, 50),
-                                                                   "/21952429235,23020124565/be_kg.beeline.odp_appbanner")
+            BannerFormat.SIMPLE_TEST_BANNER -> setupSimpleBanner(
+                configId = "test_320x50",
+                size = AdSize(320, 50)
+            )
 
-            BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner("/ca-app-pub-3940256099942544/1033173712",
-                                                                               "banner-interstitial",
-                                                                               AdSize(80, 60))
+            BannerFormat.SIMPLE_BANNER -> setupSimpleBanner(
+                configId = "prebid-ita-banner-320-50",
+                size = AdSize(320, 50)
+            )
+
+            BannerFormat.VIDEO_IN_BANNER -> setupInBannerVideoBanner(
+                configId = "toffee_bumper_ads_1920x1080v",
+                adSize = AdSize(1920, 1080),
+                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
+            )
+
+            BannerFormat.VIDEO_INTERSTITIAL -> setupInterstitialVideo(
+                configId = "toffee_bumper_ads_1920x1080v",
+                adSize = AdSize(1920, 1080),
+                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
+            )
+
+            BannerFormat.VIDEO_REWARDED -> setupRewardedVideo(
+                configId = "test_video_content_320x100"
+            )
+
+            BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner(
+                configId = "test_interstitial",
+                adSize = AdSize(50, 50)
+            )
+
+            BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner(
+                adUnitId = "/6355419/Travel/Europe/France/Paris",
+                size = AdSize(320, 50),
+                slot = binding.banner320x50,
+                cpm = 10F
+            )
+
+            BannerFormat.AUCTION_SIMPLE_BANNER_300_250 -> setupAuctionBanner(
+                adUnitId = "/6355419/Travel/Europe/France/Paris",
+                size = AdSize(300, 250),
+                slot = binding.banner300x250,
+                cpm = 50F
+            )
+
+            BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner(
+                configId = "prebid-ita-banner-320-50",
+                adSize = AdSize(320, 50),
+                adUnitId = "/6355419/Travel/Europe/France/Paris"
+            )
+
+            BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
+                gamAdUnitId = "/ca-app-pub-3940256099942544/1033173712",
+                configId = "banner-interstitial",
+                adSize = AdSize(80, 60)
+            )
 
             BannerFormat.GAM_REWARD_VIDEO ->
-                setupGamRewardVideo("/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
-                                    "prebid-ita-video-rewarded-320-480")
+                setupGamRewardVideo(
+                    gamAdUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
+                    configId = "prebid-ita-video-rewarded-320-480"
+                )
         }
     }
 
@@ -131,6 +166,7 @@ class MainActivity : AppCompatActivity() {
         val adUnit = BannerView(this, configId, size).apply {
             setBannerListener(defaultBannerListener())
             loadAd()
+            setAutoRefreshDelay(30)
         }
         adWrapperView.addView(adUnit)
     }
@@ -138,30 +174,41 @@ class MainActivity : AppCompatActivity() {
     private fun setupRewardedVideo(configId: String) {
         val adUnit = RewardedAdUnit(this, configId)
         adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
-            override fun onAdLoaded(unit: RewardedAdUnit?) {
-                Log.d("qwerty", "Loading rewarded ad")
-                adUnit.loadAd()
-                Log.d("qwerty", "Rewarded ad load call sent")
-                adUnit.show()
-                showToast("onAdLoaded")
-            }
-            override fun onAdDisplayed(unit: RewardedAdUnit?) {
-                showToast("onAdDisplayed")
-            }
-            override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) {
-                showToast("onAdFailed")
-                Log.e("qwerty", "Ad failed to load", e)
+            override fun onAdLoaded(unit: RewardedAdUnit?) = adUnit.show()
+            override fun onAdDisplayed(unit: RewardedAdUnit?) {}
+            override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) {}
+            override fun onAdClicked(unit: RewardedAdUnit?) {}
+            override fun onAdClosed(unit: RewardedAdUnit?) {}
+            override fun onUserEarnedReward(unit: RewardedAdUnit?) {}
+        })
+        adUnit.loadAd()
+    }
 
+    private fun setupInBannerVideoBanner(configId: String, adSize: AdSize, adUnitId: String) {
+        val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
+        val adView = BannerView(this, configId, eventHandler)
+        adView.setAutoRefreshDelay(30)
+
+        // For Video
+        adView.videoPlacementType = VideoPlacementType.IN_BANNER
+
+        adWrapperView.addView(adView)
+        adView.loadAd()
+    }
+
+    private fun setupInterstitialVideo(configId: String, adSize: AdSize, adUnitId: String) {
+        val eventHandler = GamInterstitialEventHandler(this, adUnitId)
+        val adUnit = InterstitialAdUnit(this, configId, EnumSet.of(AdUnitFormat.VIDEO), eventHandler)
+        adUnit.setInterstitialAdUnitListener(object :
+            InterstitialAdUnitListener {
+            override fun onAdLoaded(adUnit: InterstitialAdUnit?) {
+                adUnit?.show()
             }
-            override fun onAdClicked(unit: RewardedAdUnit?) {
-                showToast("onAdClicked")
-            }
-            override fun onAdClosed(unit: RewardedAdUnit?) {
-                showToast("onAdClosed")
-            }
-            override fun onUserEarnedReward(unit: RewardedAdUnit?) {
-                showToast("onUserEarnedReward")
-            }
+
+            override fun onAdDisplayed(adUnit: InterstitialAdUnit?) {}
+            override fun onAdFailed(adUnit: InterstitialAdUnit?, exception: AdException?) {}
+            override fun onAdClicked(adUnit: InterstitialAdUnit?) {}
+            override fun onAdClosed(adUnit: InterstitialAdUnit?) {}
         })
         adUnit.loadAd()
     }
@@ -176,10 +223,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAdDisplayed(unit: InterstitialAdUnit?) = showToast("onAdDisplayed")
-            override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) {
-                showToast("onAdFailed")
-                Log.e("qwerty", "Ad failed to load", e)
-            }
+            override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) = showToast("onAdFailed")
             override fun onAdClicked(unit: InterstitialAdUnit?) = showToast("onAdClicked")
             override fun onAdClosed(unit: InterstitialAdUnit?) = showToast("onAdClosed")
         })
@@ -205,44 +249,76 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupGamSimpleBanner(configId: String, adSize: AdSize, adUnitId: String) {
-        val adUnit = BannerAdUnit(configId, adSize.width, adSize.height).apply {
-            bannerParameters = BannerParameters().apply {
-                api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
-            }
-            setAutoRefreshInterval(30)
-        }
+        val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
+        val bannerView = BannerView(this, configId, eventHandler)
+        adWrapperView.addView(bannerView)
+        bannerView.loadAd()
 
-        val adView = AdManagerAdView(this)
-        adView.adUnitId = adUnitId
-        adView.setAdSizes(com.google.android.gms.ads.AdSize(320, 50))
-
-        adView.adListener = object : AdListener() {
-            override fun onAdClicked() = showToast("onAdClicked")
-            override fun onAdClosed() = showToast("onAdClosed")
-            override fun onAdFailedToLoad(adError: LoadAdError) = showToast("onAdFailedToLoad")
-            override fun onAdImpression() = showToast("onAdImpression")
-            override fun onAdOpened() = showToast("onAdOpened")
-            override fun onAdLoaded() {
+        bannerView.setBannerListener(object : BannerViewListener {
+            override fun onAdLoaded(bannerView: BannerView?) {
                 showToast("onAdLoaded")
-                AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
-                    override fun success(width: Int, height: Int) {
-                        adView.setAdSizes(
-                            com.google.android.gms.ads.AdSize(
-                                width,
-                                height
-                            )
-                        )
-                    }
-
-                    override fun failure(error: PbFindSizeError) {}
-                })
             }
-        }
 
-        adWrapperView.addView(adView)
+            override fun onAdDisplayed(bannerView: BannerView?) {
+                showToast("onAdDisplayed")
+            }
 
-        val request = AdManagerAdRequest.Builder().build()
-        adUnit.fetchDemand(request) { adView.loadAd(request) }
+            override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
+                showToast("onAdFailed")
+            }
+
+            override fun onAdClicked(bannerView: BannerView?) {
+                showToast("onAdClicked")
+            }
+
+            override fun onAdUrlClicked(url: String?) {
+                showToast("onAdUrlClicked")
+            }
+
+            override fun onAdClosed(bannerView: BannerView?) {
+                showToast("onAdClosed")
+            }
+
+        })
+
+//        val adUnit = BannerAdUnit(configId, adSize.width, adSize.height).apply {
+//            bannerParameters = BannerParameters().apply {
+//                api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
+//            }
+//            setAutoRefreshInterval(30)
+//        }
+//
+//        val adView = AdManagerAdView(this)
+//        adView.adUnitId = adUnitId
+//        adView.setAdSizes(com.google.android.gms.ads.AdSize(320, 50))
+//
+//        adView.adListener = object : AdListener() {
+//            override fun onAdClicked() = showToast("onAdClicked")
+//            override fun onAdClosed() = showToast("onAdClosed")
+//            override fun onAdFailedToLoad(adError: LoadAdError) = showToast("onAdFailedToLoad")
+//            override fun onAdImpression() = showToast("onAdImpression")
+//            override fun onAdOpened() = showToast("onAdOpened")
+//            override fun onAdLoaded() {
+//                showToast("onAdLoaded")
+//                AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
+//                    override fun success(width: Int, height: Int) {
+//                        adView.setAdSizes(
+//                            com.google.android.gms.ads.AdSize(
+//                                width,
+//                                height
+//                            )
+//                        )
+//                    }
+//
+//                    override fun failure(error: PbFindSizeError) {}
+//                })
+//            }
+//        }
+//
+//        adWrapperView.addView(adView)
+//
+//        val request = AdManagerAdRequest.Builder().build()
+//        adUnit.fetchDemand(request) { adView.loadAd(request) }
     }
 
     private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
