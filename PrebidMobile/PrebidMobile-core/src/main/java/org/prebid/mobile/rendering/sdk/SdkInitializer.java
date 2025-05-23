@@ -14,6 +14,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
+import org.prebid.mobile.logging.GamLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
@@ -62,7 +63,7 @@ public class SdkInitializer {
             }
         });
 
-//        GamLogUtil.configureLogServer("", true);
+        GamLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
 
         try {
             // todo using internal api until pluginrenderer feature is released

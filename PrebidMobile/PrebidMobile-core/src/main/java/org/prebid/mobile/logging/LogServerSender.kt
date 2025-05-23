@@ -1,7 +1,7 @@
 package org.prebid.mobile.logging
 
 import android.os.AsyncTask
-import org.json.JSONArray
+import org.json.JSONObject
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.core.BuildConfig
@@ -117,26 +117,21 @@ class LogServerSender private constructor() {
 
     private fun sendLogBatch() {
         try {
-            val logs = JSONArray()
-
-            while (logQueue.isNotEmpty() && logs.length() < BATCH_SIZE) {
-                val entry: LogEntry? = logQueue.poll()
-                entry?.let {
-                    logs.put(it.toJson())
-                }
+            val entry: LogEntry? = logQueue.poll()
+            entry?.let { log ->
+                sendToServer(log.toJson())
             }
 
-            sendToServer(logs.toString())
         } catch (e: Exception) {
             LogUtil.error(TAG, "Error creating log batch: ${e.message}")
         }
     }
 
-    private fun sendToServer(jsonData: String) {
+    private fun sendToServer(jsonData: JSONObject) {
         val params = BaseNetworkTask.GetUrlParams().apply {
             url = serverUrl
             requestType = "POST"
-            queryParams = jsonData
+            queryParams = jsonData.toString()
             userAgent = AppInfoManager.getUserAgent()
             name = "logsender"
         }
