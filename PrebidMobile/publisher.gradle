@@ -19,3 +19,18 @@ task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
 }
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = "org.prebid"
+            artifactId = "prebid-mobile-sdk-core"
+            version = "2.1.4"
+
+            from components.release
+
+            artifact javadocJar
+            artifact sourcesJar
+        }
+    }
+}
