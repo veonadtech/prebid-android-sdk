@@ -50,3 +50,41 @@ android {
         exclude 'META-INF/LICENSE'
     }
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = "org.prebid"
+                artifactId = "prebid-mobile-sdk-core"
+                version = rootProject.prebidSdkVersionName
+
+                from components.release
+
+                pom {
+                    name = "Prebid Mobile SDK Core"
+                    description = "Core module of the Prebid Mobile SDK"
+                    url = "https://github.com/prebid/prebid-mobile-android"
+                    licenses {
+                        license {
+                            name = "The Apache License, Version 2.0"
+                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "prebid"
+                            name = "Prebid.org"
+                            email = "mobile@prebid.org"
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:git://github.com/prebid/prebid-mobile-android.git"
+                        developerConnection = "scm:git:ssh://github.com/prebid/prebid-mobile-android.git"
+                        url = "https://github.com/prebid/prebid-mobile-android"
+                    }
+                }
+            }
+        }
+    }
+}
