@@ -1,36 +1,161 @@
-task javadoc(type: Javadoc, dependsOn: assemble) {
-    source = android.sourceSets.main.java.srcDirs
-    source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
+//apply plugin: 'com.android.library'
+//
+//task javadoc(type: Javadoc, dependsOn: assemble) {
+//    source = android.sourceSets.main.java.srcDirs
+//    source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
+//
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//
+//    options.addBooleanOption('-ignore-source-errors', true)
+//    options.addStringOption('Xdoclint:none', '-quiet')
+//    options.addStringOption('encoding', 'UTF-8')
+//    options.addStringOption('charSet', 'UTF-8')
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    archiveClassifier.set("javadoc")
+//    from javadoc.destinationDir
+//}
+//
+//task sourcesJar(type: Jar) {
+//    archiveClassifier.set("sources")
+//    from android.sourceSets.main.java.srcDirs
+//}
+//
+//publishing {
+//    publications {
+//        release(MavenPublication) {
+//            groupId = "org.prebid"
+//            artifactId = "prebid-mobile-sdk-core"
+//            version = "2.1.4"
+//
+//            from components.release
+//
+//            artifact javadocJar
+//            artifact sourcesJar
+//        }
+//    }
+//}
 
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 
-    options.addBooleanOption('-ignore-source-errors', true)
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-    options.addStringOption('charSet', 'UTF-8')
-}
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set("javadoc")
-    from javadoc.destinationDir
-}
 
-task sourcesJar(type: Jar) {
-    archiveClassifier.set("sources")
-    from android.sourceSets.main.java.srcDirs
-}
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = "org.prebid"
-            artifactId = "prebid-mobile-sdk-core"
-            version = "2.1.4"
-
-            from components.release
-
-            artifact javadocJar
-            artifact sourcesJar
-        }
-    }
-}
+// Configure Javadoc generation
+//plugins {
+//    id 'maven-publish'
+//}
+//
+//// Configure Javadoc generation with modern task registration
+//tasks.register('generateJavadoc', Javadoc) {
+//    dependsOn 'assembleRelease'
+//    source = android.sourceSets.main.java.srcDirs
+//
+//    // Include all generated BuildConfig files (more robust approach)
+//    source += fileTree('build/generated/source/buildConfig').matching {
+//        include '**/BuildConfig.java'
+//    }
+//
+//    // Comprehensive classpath configuration
+//    classpath = project.files(
+//            android.getBootClasspath().join(File.pathSeparator),
+//            configurations.compileClasspath,
+//            configurations.annotationProcessor
+//    )
+//
+//    // Enhanced Javadoc options
+//    options {
+//        encoding = 'UTF-8'
+//        charSet = 'UTF-8'
+//        memberLevel = JavadocMemberLevel.PROTECTED
+//        addBooleanOption('Xdoclint:none', true)
+//        addBooleanOption('quiet', true)
+//        links = [
+//                "https://developer.android.com/reference/",
+//                "https://docs.oracle.com/javase/8/docs/api/"
+//        ]
+//        title = "Prebid Mobile SDK Core ${project.version} API"
+//        windowTitle = "Prebid SDK ${project.version}"
+//        overview = file("src/main/javadoc/overview.html").takeIf { it.exists() }
+//    }
+//
+//    // Smart exclusions
+//    exclude '**/R.java'
+//    exclude '**/R/*.java'
+//    exclude '**/BuildConfig.java'
+//    exclude '**/internal/**'
+//}
+//
+//// Modern JAR task configuration
+//tasks.register('javadocJar', Jar) {
+//    dependsOn 'generateJavadoc'
+//    archiveClassifier.set('javadoc')
+//    from tasks.named('generateJavadoc').get().destinationDir
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    onlyIf { tasks.named('generateJavadoc').get().didWork }
+//}
+//
+//// Enhanced sources JAR with proper filtering
+//tasks.register('sourcesJar', Jar) {
+//    archiveClassifier.set('sources')
+//    from android.sourceSets.main.java.srcDirs
+//    from android.sourceSets.main.kotlin?.srcDirs ?: []
+//    exclude '**/R.java'
+//    exclude '**/BuildConfig.java'
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
+//
+//// Complete publishing configuration
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            release(MavenPublication) {
+//                from components.release
+//
+//                // Coordinates should come from project properties
+//                groupId = project.findProperty('PUBLISH_GROUP_ID') ?: 'org.prebid'
+//                artifactId = project.findProperty('PUBLISH_ARTIFACT_ID') ?: 'prebid-mobile-sdk-core'
+//                version = project.findProperty('PUBLISH_VERSION') ?: '2.1.4'
+//
+//                artifact tasks.named('sourcesJar').get()
+//                artifact tasks.named('javadocJar').get()
+//
+//                pom {
+//                    name = project.findProperty('PUBLISH_NAME') ?: 'Prebid Mobile SDK Core'
+//                    description = project.findProperty('PUBLISH_DESCRIPTION') ?: 'Core library for Prebid Mobile SDK'
+//                    url = project.findProperty('PUBLISH_URL') ?: 'https://github.com/prebid/prebid-mobile-android'
+//
+//                    licenses {
+//                        license {
+//                            name = project.findProperty('PUBLISH_LICENSE_NAME') ?: 'Apache 2.0'
+//                            url = project.findProperty('PUBLISH_LICENSE_URL') ?: 'https://www.apache.org/licenses/LICENSE-2.0'
+//                        }
+//                    }
+//
+//                    developers {
+//                        developer {
+//                            id = project.findProperty('PUBLISH_DEVELOPER_ID') ?: 'prebid'
+//                            name = project.findProperty('PUBLISH_DEVELOPER_NAME') ?: 'Prebid.org'
+//                            email = project.findProperty('PUBLISH_DEVELOPER_EMAIL') ?: 'info@prebid.org'
+//                        }
+//                    }
+//
+//                    scm {
+//                        connection = project.findProperty('PUBLISH_SCM_CONNECTION') ?: 'scm:git:github.com/prebid/prebid-mobile-android.git'
+//                        developerConnection = project.findProperty('PUBLISH_SCM_DEV_CONNECTION') ?: 'scm:git:ssh://github.com/prebid/prebid-mobile-android.git'
+//                        url = project.findProperty('PUBLISH_SCM_URL') ?: 'https://github.com/prebid/prebid-mobile-android/tree/main'
+//                    }
+//                }
+//            }
+//        }
+//
+//        // Optional repository configuration
+//        repositories {
+//            maven {
+//                name = 'local'
+//                url = layout.buildDirectory.dir('repo')
+//            }
+//            // Add other repositories as needed
+//        }
+//    }
+//}
