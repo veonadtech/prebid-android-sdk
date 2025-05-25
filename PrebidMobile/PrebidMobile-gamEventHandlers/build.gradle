@@ -15,7 +15,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:21.0.0'
 }
 
-afterEvaluate {
+publishing {
     publications {
         gamEventHandlers(MavenPublication) {
             groupId = 'com.github.veonadtech.prebid-android-sdk'
