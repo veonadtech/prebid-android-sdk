@@ -40,13 +40,20 @@ dependencies {
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
 }
 
+tasks.named('publishCorePublicationToMavenLocal') {
+    dependsOn 'assembleRelease'
+}
+
 publishing {
     publications {
         core(MavenPublication) {
             groupId = 'com.github.veonadtech.prebid-android-sdk'
             artifactId = 'core'
             version = 'v0.0.3.7-gradle-8.2.x'
-            artifact("$buildDir/outputs/aar/PrebidMobile-core-release.aar")
+
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                builtBy tasks.named('assembleRelease')
+            }
 
             pom.withXml {
                 def deps = asNode().appendNode('dependencies')
@@ -56,6 +63,7 @@ publishing {
                         depNode.appendNode('groupId', dep.group)
                         depNode.appendNode('artifactId', dep.name)
                         depNode.appendNode('version', dep.version)
+                        depNode.appendNode('scope', 'runtime')
                     }
                 }
             }
