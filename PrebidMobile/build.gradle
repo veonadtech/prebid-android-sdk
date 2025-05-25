@@ -1,20 +1,5 @@
 apply from: 'android.gradle'
 apply from: 'publisher.gradle'
-apply plugin: 'maven-publish'
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.findByName('release') ?: components.default
-
-                groupId = 'org.prebid'
-                artifactId = 'prebid-mobile-sdk-core'
-                version = '2.1.4'
-            }
-        }
-    }
-}
 
 android {
     namespace "org.prebid.mobile"

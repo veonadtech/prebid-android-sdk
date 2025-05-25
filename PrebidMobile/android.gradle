@@ -59,11 +59,49 @@ afterEvaluate {
                 artifactId = 'prebid-mobile-sdk-core'
                 version = '2.1.4'
 
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                    builtBy tasks.named('assembleRelease')
+                }
 
-  //              artifact sourcesJar
-  //              artifact javadocJar
+                /*
+                artifact sourcesJar {
+                    classifier 'sources'
+                    builtBy tasks.named('sourcesJar')
+                }
+
+                artifact javadocJar {
+                    classifier 'javadoc'
+                    builtBy tasks.named('javadocJar')
+                }
+                */
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.api.allDependencies.each { dep ->
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                    }
+                }
             }
         }
     }
 }
+
+/*
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
+}
+*/
