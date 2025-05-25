@@ -40,27 +40,22 @@ dependencies {
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            core(MavenPublication) {
-                groupId = 'com.github.veonadtech.prebid-android-sdk'
-                artifactId = 'core'
-                version = rootProject.prebidSdkVersionName
+publishing {
+    publications {
+        core(MavenPublication) {
+            groupId = 'com.github.veonadtech.prebid-android-sdk'
+            artifactId = 'core'
+            version = 'v0.0.3.7-gradle-8.2.x'
+            artifact("$buildDir/outputs/aar/PrebidMobile-core-release.aar")
 
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
-                    builtBy tasks.named('assembleRelease')
-                }
-
-                pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    configurations.implementation.allDependencies.each { dep ->
-                        if (!dep.name.equals('unspecified')) {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dep.group)
-                            dependencyNode.appendNode('artifactId', dep.name)
-                            dependencyNode.appendNode('version', dep.version)
-                        }
+            pom.withXml {
+                def deps = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.each { dep ->
+                    if (dep.name != 'unspecified' && dep.group != null) {
+                        def depNode = deps.appendNode('dependency')
+                        depNode.appendNode('groupId', dep.group)
+                        depNode.appendNode('artifactId', dep.name)
+                        depNode.appendNode('version', dep.version)
                     }
                 }
             }

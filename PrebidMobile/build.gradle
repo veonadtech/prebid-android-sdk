@@ -13,23 +13,33 @@ dependencies {
 afterEvaluate {
     publishing {
         publications {
-            core(MavenPublication) {
-                groupId = 'com.github.veonadtech.prebid-android-sdk'
-                artifactId = 'mobile'
-                version = rootProject.prebidSdkVersionName
+            release(MavenPublication) {
+                groupId = 'com.github.veonadtech'
+                artifactId = 'prebid-android-sdk'
+                version = 'v0.0.3.7-gradle-8.2.x'
 
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
-                    builtBy tasks.named('assembleRelease')
-                }
+                artifact("$buildDir/outputs/aar/PrebidMobile-release.aar")
 
                 pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
+                    def deps = asNode().appendNode('dependencies')
+
+                    configurations.api.allDependencies.each { dep ->
+                        if (dep.name != 'unspecified' && dep.group != null) {
+                            def depNode = deps.appendNode('dependency')
+                            depNode.appendNode('groupId', dep.group)
+                            depNode.appendNode('artifactId', dep.name)
+                            depNode.appendNode('version', dep.version)
+                            depNode.appendNode('scope', 'compile')
+                        }
+                    }
+
                     configurations.implementation.allDependencies.each { dep ->
-                        if (!dep.name.equals('unspecified')) {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dep.group)
-                            dependencyNode.appendNode('artifactId', dep.name)
-                            dependencyNode.appendNode('version', dep.version)
+                        if (dep.name != 'unspecified' && dep.group != null && !configurations.api.allDependencies.contains(dep)) {
+                            def depNode = deps.appendNode('dependency')
+                            depNode.appendNode('groupId', dep.group)
+                            depNode.appendNode('artifactId', dep.name)
+                            depNode.appendNode('version', dep.version)
+                            depNode.appendNode('scope', 'runtime')
                         }
                     }
                 }
