@@ -2,6 +2,8 @@ apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
 
+apply plugin: 'maven-publish'
+
 android {
     namespace "org.prebid.mobile.core"
 
@@ -36,4 +38,32 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            core(MavenPublication) {
+                groupId = 'com.github.veonadtech.prebid-android-sdk'
+                artifactId = 'core'
+                version = rootProject.prebidSdkVersionName
+
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                    builtBy tasks.named('assembleRelease')
+                }
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dep ->
+                        if (!dep.name.equals('unspecified')) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dep.group)
+                            dependencyNode.appendNode('artifactId', dep.name)
+                            dependencyNode.appendNode('version', dep.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

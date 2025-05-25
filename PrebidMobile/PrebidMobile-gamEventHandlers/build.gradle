@@ -1,6 +1,7 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
+apply plugin: 'maven-publish'
 
 android {
     namespace "org.prebid.mobile.gam"
@@ -12,4 +13,32 @@ android {
 dependencies {
     implementation project(":PrebidMobile")
     implementation 'com.google.android.gms:play-services-ads:21.0.0'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            core(MavenPublication) {
+                groupId = 'com.github.veonadtech.prebid-android-sdk'
+                artifactId = 'eventhandlers'
+                version = rootProject.prebidSdkVersionName
+
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                    builtBy tasks.named('assembleRelease')
+                }
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dep ->
+                        if (!dep.name.equals('unspecified')) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dep.group)
+                            dependencyNode.appendNode('artifactId', dep.name)
+                            dependencyNode.appendNode('version', dep.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

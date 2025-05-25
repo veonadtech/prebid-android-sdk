@@ -5,4 +5,7 @@ before_install:
   - sdk install java 17.0.14-amzn
   - sdk use java 17.0.14-amzn
 install:
-  - ./gradlew :PrebidMobile:clean :PrebidMobile:publishToMavenLocal -x test -x lint
+  - ./gradlew :PrebidMobile-core:publishToMavenLocal
+    :PrebidMobile:publishToMavenLocal
+    :PrebidMobile-gamEventHandlers:publishToMavenLocal
+    -x test -x lint
