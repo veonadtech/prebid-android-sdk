@@ -40,30 +40,28 @@ dependencies {
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
 }
 
-tasks.named('publishCorePublicationToMavenLocal') {
-    dependsOn 'assembleRelease'
-}
+afterEvaluate {
+    publishing {
+        publications {
+            core(MavenPublication) {
+                groupId = 'com.github.veonadtech.prebid-android-sdk'
+                artifactId = 'core'
+                version = 'v0.0.3.7-gradle-8.2.x'
 
-publishing {
-    publications {
-        core(MavenPublication) {
-            groupId = 'com.github.veonadtech.prebid-android-sdk'
-            artifactId = 'core'
-            version = 'v0.0.3.7-gradle-8.2.x'
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                    builtBy tasks.named('assembleRelease')
+                }
 
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
-                builtBy tasks.named('assembleRelease')
-            }
-
-            pom.withXml {
-                def deps = asNode().appendNode('dependencies')
-                configurations.implementation.allDependencies.each { dep ->
-                    if (dep.name != 'unspecified' && dep.group != null) {
-                        def depNode = deps.appendNode('dependency')
-                        depNode.appendNode('groupId', dep.group)
-                        depNode.appendNode('artifactId', dep.name)
-                        depNode.appendNode('version', dep.version)
-                        depNode.appendNode('scope', 'runtime')
+                pom.withXml {
+                    def deps = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dep ->
+                        if (dep.name != 'unspecified' && dep.group != null) {
+                            def depNode = deps.appendNode('dependency')
+                            depNode.appendNode('groupId', dep.group)
+                            depNode.appendNode('artifactId', dep.name)
+                            depNode.appendNode('version', dep.version)
+                            depNode.appendNode('scope', 'runtime')
+                        }
                     }
                 }
             }
