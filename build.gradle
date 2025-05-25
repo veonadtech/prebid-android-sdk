@@ -17,6 +17,7 @@ buildscript {
         agp_version = "8.2.0"
     }
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
     }
