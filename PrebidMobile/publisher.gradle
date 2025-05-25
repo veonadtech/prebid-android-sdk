@@ -1,19 +1,21 @@
-apply plugin: 'com.android.library'
-
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = "org.prebid"
-            artifactId = "prebid-mobile-sdk-core"
-            version = "2.1.4"
-
-            from components.release
-
-            artifact javadocJar
-            artifact sourcesJar
-        }
-    }
-}
+//apply plugin: 'com.android.library'
+//
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            release(MavenPublication) {
+//                groupId = "org.prebid"
+//                artifactId = "prebid-mobile-sdk-core"
+//                version = "2.1.4"
+//
+//                from components.release
+//
+//                artifact javadocJar
+//                artifact sourcesJar
+//            }
+//        }
+//    }
+//}
 
 
 //
