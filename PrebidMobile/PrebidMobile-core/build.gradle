@@ -3,24 +3,6 @@ apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
 apply plugin: 'org.jetbrains.kotlin.android'
 
-// Core module specific publishing configuration
-publishing {
-    publications {
-        maven(MavenPublication) {
-            afterEvaluate {
-                from components.release
-            }
-            
-            groupId = rootProject.ext.artifactGroupId
-            artifactId = 'prebid-mobile-sdk-core'
-            version = rootProject.ext.prebidSdkVersionName
-            
-            artifact sourcesJar
-            artifact javadocJar
-        }
-    }
-}
-
 android {
     namespace "org.prebid.mobile.core"
 
@@ -49,14 +31,22 @@ android {
 
 dependencies {
     implementation project(":omsdk-android")
-
     implementation 'androidx.annotation:annotation:1.5.0'
-
     implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
-
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
     implementation 'androidx.core:core-ktx:1.9.0'
+}
+
+// Core module - override artifact ID
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                artifactId = 'prebid-mobile-sdk-core'
+            }
+        }
+    }
 }

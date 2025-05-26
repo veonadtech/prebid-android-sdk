@@ -2,14 +2,13 @@ apply plugin: 'maven-publish'
 
 task javadoc(type: Javadoc, dependsOn: assemble) {
     source = android.sourceSets.main.java.srcDirs
-    source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
-
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-
     options.addBooleanOption('-ignore-source-errors', true)
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet', 'UTF-8')
+
+    failOnError false
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -22,44 +21,45 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            afterEvaluate {
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
                 from components.release
-            }
-            
-            groupId = rootProject.ext.artifactGroupId
-            artifactId = project.name.toLowerCase().replace('prebidmobile-', 'prebid-mobile-sdk-')
-            version = rootProject.ext.prebidSdkVersionName
-            
-            artifact sourcesJar
-            artifact javadocJar
-            
-            pom {
-                name = project.name
-                description = 'Prebid Mobile SDK for Android'
-                url = 'https://github.com/prebid/prebid-mobile-android'
-                
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+
+                groupId = rootProject.ext.artifactGroupId
+                artifactId = project.name.toLowerCase().replace('prebidmobile-', 'prebid-mobile-sdk-')
+                version = rootProject.ext.prebidSdkVersionName
+
+                artifact sourcesJar
+                artifact javadocJar
+
+                pom {
+                    name = project.name
+                    description = 'Prebid Mobile SDK for Android'
+                    url = 'https://https://github.com/veonadtech/prebid-android-sdk'
+                    packaging = 'aar'
+
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
                     }
-                }
-                
-                developers {
-                    developer {
-                        id = 'prebid'
-                        name = 'Prebid.org'
-                        email = 'info@prebid.org'
+
+                    developers {
+                        developer {
+                            id = 'prebid'
+                            name = 'Prebid.org'
+                            email = 'info@prebid.org'
+                        }
                     }
-                }
-                
-                scm {
-                    connection = 'scm:git:git://github.com/prebid/prebid-mobile-android.git'
-                    developerConnection = 'scm:git:ssh://github.com:prebid/prebid-mobile-android.git'
-                    url = 'https://github.com/prebid/prebid-mobile-android/tree/master'
+
+                    scm {
+                        connection = 'scm:git:git://https://github.com/veonadtech/prebid-android-sdk.git'
+                        developerConnection = 'scm:git:ssh://github.com:veonadtech/prebid-android-sdk.git'
+                        url = 'https://https://github.com/veonadtech/prebid-android-sdk/tree/master'
+                    }
                 }
             }
         }

@@ -9,20 +9,13 @@ dependencies {
     api project(':PrebidMobile-core')
 }
 
-// Main SDK artifact configuration
-publishing {
-    publications {
-        maven(MavenPublication) {
-            afterEvaluate {
-                from components.release
+// Main SDK - override artifact ID
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                artifactId = 'prebid-mobile-sdk'
             }
-            
-            groupId = rootProject.ext.artifactGroupId
-            artifactId = 'prebid-mobile-sdk'
-            version = rootProject.ext.prebidSdkVersionName
-            
-            artifact sourcesJar
-            artifact javadocJar
         }
     }
 }

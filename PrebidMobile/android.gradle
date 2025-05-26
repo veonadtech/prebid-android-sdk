@@ -49,4 +49,12 @@ android {
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/LICENSE'
     }
+
+    // Publishing configuration for Android Library modules
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
