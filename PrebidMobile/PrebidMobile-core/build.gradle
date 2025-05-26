@@ -1,6 +1,7 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace "org.prebid.mobile.core"
@@ -16,6 +17,9 @@ android {
             standardOutput = stdout
         }
         return stdout.toString().trim()
+    }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     defaultConfig {
@@ -36,4 +40,5 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+    implementation 'androidx.core:core-ktx:1.9.0'
 }
