@@ -11,6 +11,7 @@ import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 import org.prebid.mobile.tasksmanager.TasksManager
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
@@ -154,32 +155,8 @@ class LogServerSender private constructor() {
     }
 
     private fun getTimeStamp(): String {
-        val currentTimeMills = System.currentTimeMillis()
-        val date = Date(currentTimeMills)
-        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
         simpleFormat.timeZone = TimeZone.getTimeZone("UTC")
-        return simpleFormat.format(date)
+        return simpleFormat.format(Date())
     }
-
-    /**
-     * Clear all pending logs
-     */
-    fun clearLogs() {
-        logQueue.clear()
-    }
-
-    /**
-     * Get the number of pending logs
-     */
-    fun getPendingLogsCount(): Int = logQueue.size
-
-    /**
-     * Check if log server is enabled
-     */
-    fun isEnabled(): Boolean = enabled
-
-    /**
-     * Get configured server URL
-     */
-    fun getServerUrl(): String? = serverUrl
 }

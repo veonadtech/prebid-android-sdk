@@ -75,9 +75,7 @@ object GamLogUtil {
      * Prints information with set priority. Every tag
      */
     private fun print(messagePriority: Int, tag: String?, message: String?, status: GamStatus) {
-        if (tag == null || message == null) {
-            return
-        }
+        if (tag.isNullOrBlank() || message.isNullOrBlank()) return
         val finalTag = getTagWithBase(tag)
         Log.println(messagePriority, finalTag, message)
 
@@ -92,19 +90,7 @@ object GamLogUtil {
      * Helper method to add Prebid tag to logging messages.
      */
     private fun getTagWithBase(tag: String): String {
-        val result = StringBuilder()
-
-        val prefix = "GAM"
-        if (tag.startsWith(prefix)) {
-            result.append(tag)
-        } else {
-            result.append(prefix).append(tag)
-        }
-
-        return if (result.length > 23) {
-            result.substring(0, 22)
-        } else {
-            result.toString()
-        }
+        val fullTag = if (tag.startsWith("GAM")) tag else "GAM$tag"
+        return if (fullTag.length > 23) fullTag.take(22) else fullTag
     }
 }

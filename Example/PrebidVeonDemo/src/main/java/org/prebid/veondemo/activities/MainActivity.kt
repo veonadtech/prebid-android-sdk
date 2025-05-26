@@ -255,70 +255,13 @@ class MainActivity : AppCompatActivity() {
         bannerView.loadAd()
 
         bannerView.setBannerListener(object : BannerViewListener {
-            override fun onAdLoaded(bannerView: BannerView?) {
-                showToast("onAdLoaded")
-            }
-
-            override fun onAdDisplayed(bannerView: BannerView?) {
-                showToast("onAdDisplayed")
-            }
-
-            override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
-                showToast("onAdFailed")
-            }
-
-            override fun onAdClicked(bannerView: BannerView?) {
-                showToast("onAdClicked")
-            }
-
-            override fun onAdUrlClicked(url: String?) {
-                showToast("onAdUrlClicked")
-            }
-
-            override fun onAdClosed(bannerView: BannerView?) {
-                showToast("onAdClosed")
-            }
-
+            override fun onAdLoaded(bannerView: BannerView?) = showToast("onAdLoaded")
+            override fun onAdDisplayed(bannerView: BannerView?) = showToast("onAdDisplayed")
+            override fun onAdFailed(bannerView: BannerView?, exception: AdException?) = showToast("onAdFailed")
+            override fun onAdClicked(bannerView: BannerView?) = showToast("onAdClicked")
+            override fun onAdUrlClicked(url: String?) = showToast("onAdUrlClicked")
+            override fun onAdClosed(bannerView: BannerView?) = showToast("onAdClosed")
         })
-
-//        val adUnit = BannerAdUnit(configId, adSize.width, adSize.height).apply {
-//            bannerParameters = BannerParameters().apply {
-//                api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
-//            }
-//            setAutoRefreshInterval(30)
-//        }
-//
-//        val adView = AdManagerAdView(this)
-//        adView.adUnitId = adUnitId
-//        adView.setAdSizes(com.google.android.gms.ads.AdSize(320, 50))
-//
-//        adView.adListener = object : AdListener() {
-//            override fun onAdClicked() = showToast("onAdClicked")
-//            override fun onAdClosed() = showToast("onAdClosed")
-//            override fun onAdFailedToLoad(adError: LoadAdError) = showToast("onAdFailedToLoad")
-//            override fun onAdImpression() = showToast("onAdImpression")
-//            override fun onAdOpened() = showToast("onAdOpened")
-//            override fun onAdLoaded() {
-//                showToast("onAdLoaded")
-//                AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
-//                    override fun success(width: Int, height: Int) {
-//                        adView.setAdSizes(
-//                            com.google.android.gms.ads.AdSize(
-//                                width,
-//                                height
-//                            )
-//                        )
-//                    }
-//
-//                    override fun failure(error: PbFindSizeError) {}
-//                })
-//            }
-//        }
-//
-//        adWrapperView.addView(adView)
-//
-//        val request = AdManagerAdRequest.Builder().build()
-//        adUnit.fetchDemand(request) { adView.loadAd(request) }
     }
 
     private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {

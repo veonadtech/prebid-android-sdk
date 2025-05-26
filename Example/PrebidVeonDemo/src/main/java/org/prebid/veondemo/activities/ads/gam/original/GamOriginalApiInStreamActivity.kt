@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import org.prebid.mobile.*
+import org.prebid.mobile.Util
 import org.prebid.veondemo.R
 
 class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActivity() {
