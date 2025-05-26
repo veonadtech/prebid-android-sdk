@@ -27,7 +27,6 @@ class LogServerSender private constructor() {
     companion object {
         private val TAG = LogServerSender::class.java.simpleName
         private const val MAX_QUEUE_SIZE = 100
-        private const val BATCH_SIZE = 10
         private const val BATCH_DELAY_MS = 1000L // 1 second delay between batches
 
         @Volatile
@@ -61,20 +60,14 @@ class LogServerSender private constructor() {
      * Add a log entry to be sent to server
      */
     fun sendLog(status: GamStatus, message: String) {
-        if (!enabled || serverUrl == null) {
-            return
-        }
-
-        val appVersion = BuildConfig.VERSION
-        val accountId = PrebidMobile.getPrebidServerAccountId()
-        val timestamp = getTimeStamp()
+        if (!enabled || serverUrl.isNullOrBlank()) return
 
         val entry = LogEntry(
             status = status,
             message = message,
-            timestamp = timestamp,
-            accountId = accountId,
-            appVersion = appVersion,
+            timestamp = getTimeStamp(),
+            accountId = PrebidMobile.getPrebidServerAccountId(),
+            appVersion = BuildConfig.VERSION,
             adId = PrebidMobile.getAAID(),
             os = OS
         )
