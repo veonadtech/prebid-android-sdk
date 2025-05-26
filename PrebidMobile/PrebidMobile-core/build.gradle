@@ -1,6 +1,7 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 apply plugin: 'maven-publish'
 
@@ -26,6 +27,9 @@ android {
         }
         return stdout.toString().trim()
     }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 
     defaultConfig {
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
@@ -45,6 +49,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+    implementation 'androidx.core:core-ktx:1.9.0'
 }
 
 afterEvaluate {
