@@ -13,3 +13,21 @@ dependencies {
     implementation project(":PrebidMobile")
     implementation 'com.google.android.gms:play-services-ads:21.0.0'
 }
+
+// GAM Event Handlers specific publishing configuration
+publishing {
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate {
+                from components.release
+            }
+            
+            groupId = rootProject.ext.artifactGroupId
+            artifactId = 'prebid-mobile-sdk-gam-event-handlers'
+            version = rootProject.ext.prebidSdkVersionName
+            
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}

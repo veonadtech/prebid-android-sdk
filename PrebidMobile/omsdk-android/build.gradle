@@ -2,3 +2,32 @@
 // and check buildPrebidMobile.sh script
 configurations.maybeCreate("default")
 artifacts.add("default", file("${omSdkModuleName}-${omSdkVersion}.aar"))
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = rootProject.ext.artifactGroupId
+            artifactId = 'prebid-mobile-sdk-open-measurement'
+            version = rootProject.ext.omSdkVersion
+            
+            artifact("${omSdkModuleName}-${omSdkVersion}.aar") {
+                extension = 'aar'
+            }
+            
+            pom {
+                name = 'Prebid Mobile Open Measurement SDK'
+                description = 'Open Measurement SDK for Prebid Mobile Android'
+                url = 'https://github.com/prebid/prebid-mobile-android'
+                
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}

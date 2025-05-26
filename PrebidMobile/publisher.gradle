@@ -1,3 +1,5 @@
+apply plugin: 'maven-publish'
+
 task javadoc(type: Javadoc, dependsOn: assemble) {
     source = android.sourceSets.main.java.srcDirs
     source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
@@ -18,4 +20,48 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate {
+                from components.release
+            }
+            
+            groupId = rootProject.ext.artifactGroupId
+            artifactId = project.name.toLowerCase().replace('prebidmobile-', 'prebid-mobile-sdk-')
+            version = rootProject.ext.prebidSdkVersionName
+            
+            artifact sourcesJar
+            artifact javadocJar
+            
+            pom {
+                name = project.name
+                description = 'Prebid Mobile SDK for Android'
+                url = 'https://github.com/prebid/prebid-mobile-android'
+                
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id = 'prebid'
+                        name = 'Prebid.org'
+                        email = 'info@prebid.org'
+                    }
+                }
+                
+                scm {
+                    connection = 'scm:git:git://github.com/prebid/prebid-mobile-android.git'
+                    developerConnection = 'scm:git:ssh://github.com:prebid/prebid-mobile-android.git'
+                    url = 'https://github.com/prebid/prebid-mobile-android/tree/master'
+                }
+            }
+        }
+    }
 }

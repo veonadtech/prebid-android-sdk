@@ -1,5 +1,5 @@
 ext {
-    prebidSdkVersionName = "2.1.4"
+    prebidSdkVersionName = "2.1.5"
     prebidSdkMinVersion = 16
     prebidSdkTargetVersion = 32
     prebidSdkCompileVersion = 33
@@ -35,4 +35,7 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url "https://oss.sonatype.org/content/repositories/orgprebid-1079" }
     }
+    
+    // Apply maven-publish plugin to all subprojects
+    apply plugin: 'maven-publish'
 }

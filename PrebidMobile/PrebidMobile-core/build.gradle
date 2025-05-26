@@ -3,6 +3,24 @@ apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
 apply plugin: 'org.jetbrains.kotlin.android'
 
+// Core module specific publishing configuration
+publishing {
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate {
+                from components.release
+            }
+            
+            groupId = rootProject.ext.artifactGroupId
+            artifactId = 'prebid-mobile-sdk-core'
+            version = rootProject.ext.prebidSdkVersionName
+            
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
 android {
     namespace "org.prebid.mobile.core"
 

@@ -1,0 +1,8 @@
+jdk:
+  - openjdk17
+before_install:
+  - chmod +x gradlew
+  - echo "Preparing JitPack environment"
+install:
+  - echo "Building and publishing to Maven Local"
+  - ./gradlew clean build publishToMavenLocal -x test --no-daemon --stacktrace --info

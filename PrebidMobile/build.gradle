@@ -8,3 +8,21 @@ android {
 dependencies {
     api project(':PrebidMobile-core')
 }
+
+// Main SDK artifact configuration
+publishing {
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate {
+                from components.release
+            }
+            
+            groupId = rootProject.ext.artifactGroupId
+            artifactId = 'prebid-mobile-sdk'
+            version = rootProject.ext.prebidSdkVersionName
+            
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
