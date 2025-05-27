@@ -39,8 +39,12 @@ android {
 }
 
 dependencies {
-    implementation project(':PrebidMobile')
-    implementation project(':PrebidMobile-gamEventHandlers')
+//    implementation project(':PrebidMobile')
+//    implementation project(':PrebidMobile-gamEventHandlers')
+
+    implementation("com.github.veonadtech.prebid-android-sdk:prebid-mobile-sdk:v0.0.4")
+    implementation("com.github.veonadtech.prebid-android-sdk:prebid-mobile-sdk-core:v0.0.4")
+    implementation("com.github.veonadtech.prebid-android-sdk:prebid-mobile-sdk-gam-event-handlers:v0.0.4")
 
     // For testing staging releases
 //    implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName"

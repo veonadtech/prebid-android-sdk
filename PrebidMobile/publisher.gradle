@@ -16,7 +16,7 @@ afterEvaluate {
                 artifactId = project.name.toLowerCase().replace('prebidmobile-', 'prebid-mobile-sdk-')
                 version = rootProject.ext.prebidSdkVersionName
                 
-                // Only add sources artifact
+                // Add sources artifact
                 artifact sourcesJar
                 
                 pom {
@@ -44,6 +44,47 @@ afterEvaluate {
                         connection = 'scm:git:git://https://github.com/veonadtech/prebid-android-sdk.git'
                         developerConnection = 'scm:git:ssh://github.com:veonadtech/prebid-android-sdk.git'
                         url = 'https://https://github.com/veonadtech/prebid-android-sdk/tree/master'
+                    }
+                    
+                    // Fix dependency names in POM
+                    withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        
+                        configurations.implementation.allDependencies.each { dep ->
+                            if (dep.group != null && dep.name != 'unspecified') {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                
+                                // Fix OMSDK dependency name
+                                if (dep.name == 'omsdk-android') {
+                                    dependencyNode.appendNode('groupId', rootProject.ext.artifactGroupId)
+                                    dependencyNode.appendNode('artifactId', 'prebid-mobile-sdk-open-measurement')
+                                    dependencyNode.appendNode('version', rootProject.ext.omSdkVersion)
+                                } else {
+                                    dependencyNode.appendNode('groupId', dep.group)
+                                    dependencyNode.appendNode('artifactId', dep.name)
+                                    dependencyNode.appendNode('version', dep.version)
+                                }
+                                dependencyNode.appendNode('scope', 'runtime')
+                            }
+                        }
+                        
+                        configurations.api?.allDependencies?.each { dep ->
+                            if (dep.group != null && dep.name != 'unspecified') {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                
+                                // Fix OMSDK dependency name for API dependencies
+                                if (dep.name == 'omsdk-android') {
+                                    dependencyNode.appendNode('groupId', rootProject.ext.artifactGroupId)
+                                    dependencyNode.appendNode('artifactId', 'prebid-mobile-sdk-open-measurement')
+                                    dependencyNode.appendNode('version', rootProject.ext.omSdkVersion)
+                                } else {
+                                    dependencyNode.appendNode('groupId', dep.group)
+                                    dependencyNode.appendNode('artifactId', dep.name)
+                                    dependencyNode.appendNode('version', dep.version)
+                                }
+                                dependencyNode.appendNode('scope', 'compile')
+                            }
+                        }
                     }
                 }
             }
