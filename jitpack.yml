@@ -4,5 +4,5 @@ before_install:
   - chmod +x gradlew
   - echo "Preparing JitPack environment"
 install:
-  - echo "Building and publishing to Maven Local"
-  - ./gradlew clean publishToMavenLocal -x test -x lint --no-daemon --stacktrace --info
+  - echo "Building and publishing to Maven Local - excluding OMSDK from publishing"
+  - ./gradlew clean :PrebidMobile:publishToMavenLocal :PrebidMobile-core:publishToMavenLocal :PrebidMobile-gamEventHandlers:publishToMavenLocal -x test -x lint --no-daemon --stacktrace --info

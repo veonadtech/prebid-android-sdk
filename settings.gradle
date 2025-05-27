@@ -1,8 +1,7 @@
 include ':PrebidMobile',
         ':PrebidMobile-core',
-        ':PrebidMobile-gamEventHandlers'
-        // OMSDK excluded from JitPack build - it's a pre-built AAR
-        // ':omsdk-android'
+        ':PrebidMobile-gamEventHandlers',
+        ':omsdk-android'
         // Demo app excluded from JitPack build
         // ':PrebidVeonDemo'
         // Other
@@ -10,6 +9,6 @@ include ':PrebidMobile',
 project(':PrebidMobile').projectDir = new File('PrebidMobile')
 project(':PrebidMobile-core').projectDir = new File('PrebidMobile/PrebidMobile-core')
 project(':PrebidMobile-gamEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-gamEventHandlers')
-// project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
+project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
 // project(':PrebidVeonDemo').projectDir = new File('Example/PrebidVeonDemo')
 //project(':DrPrebid').projectDir = new File('tools/drprebid')
