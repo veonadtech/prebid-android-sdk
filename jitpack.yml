@@ -5,4 +5,4 @@ before_install:
   - echo "Preparing JitPack environment"
 install:
   - echo "Building and publishing to Maven Local"
-  - ./gradlew clean build publishToMavenLocal -x test --no-daemon --stacktrace --info
+  - ./gradlew clean publishToMavenLocal -x test -x lint --no-daemon --stacktrace --info

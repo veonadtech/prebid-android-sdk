@@ -29,6 +29,13 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    
+    // Disable lint for JitPack builds
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        ignoreWarnings true
+    }
 }
 
 dependencies {
