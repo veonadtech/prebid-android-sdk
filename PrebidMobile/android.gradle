@@ -49,12 +49,9 @@ android {
         exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/LICENSE'
     }
-
-    // Publishing configuration for Android Library modules
+    
+    // Only enable the release variant publishing without automatic sources/javadoc
     publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
+        singleVariant("release")
     }
 }

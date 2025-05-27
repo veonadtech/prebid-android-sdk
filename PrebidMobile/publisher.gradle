@@ -7,7 +7,7 @@ task javadoc(type: Javadoc, dependsOn: assemble) {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet', 'UTF-8')
-
+    
     failOnError false
 }
 
@@ -26,27 +26,28 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-
+                
                 groupId = rootProject.ext.artifactGroupId
                 artifactId = project.name.toLowerCase().replace('prebidmobile-', 'prebid-mobile-sdk-')
                 version = rootProject.ext.prebidSdkVersionName
-
+                
+                // Manually add sources and javadoc artifacts
                 artifact sourcesJar
                 artifact javadocJar
-
+                
                 pom {
                     name = project.name
                     description = 'Prebid Mobile SDK for Android'
                     url = 'https://https://github.com/veonadtech/prebid-android-sdk'
                     packaging = 'aar'
-
+                    
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
                             url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         }
                     }
-
+                    
                     developers {
                         developer {
                             id = 'prebid'
@@ -54,7 +55,7 @@ afterEvaluate {
                             email = 'info@prebid.org'
                         }
                     }
-
+                    
                     scm {
                         connection = 'scm:git:git://https://github.com/veonadtech/prebid-android-sdk.git'
                         developerConnection = 'scm:git:ssh://github.com:veonadtech/prebid-android-sdk.git'
