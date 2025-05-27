@@ -32,14 +32,12 @@ android {
 }
 
 dependencies {
-    implementation project(':PrebidMobile')
-    implementation project(':PrebidMobile-gamEventHandlers')
+//    implementation project(':PrebidMobile')
+//    implementation project(':PrebidMobile-gamEventHandlers')
 
-    // For testing staging releases
-//    implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-gam-event-handlers:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-admob-adapters:$prebidSdkVersionName"
-//    implementation "org.prebid:prebid-mobile-sdk-max-adapters:$prebidSdkVersionName"
+    implementation 'com.github.veonadtech.prebid-android-sdk:PrebidMobile:0.0.4'
+    implementation 'com.github.veonadtech.prebid-android-sdk:PrebidMobile-core:0.0.4'
+    implementation 'com.github.veonadtech.prebid-android-sdk:PrebidMobile-gamEventHandlers:0.0.4'
 
     // Standard libraries
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
