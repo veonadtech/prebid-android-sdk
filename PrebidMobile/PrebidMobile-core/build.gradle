@@ -30,7 +30,9 @@ android {
 }
 
 dependencies {
-    implementation project(":omsdk-android")
+    // Direct AAR dependency instead of project dependency
+    implementation files('../omsdk-android/omsdk-android-1.4.1.aar')
+    
     implementation 'androidx.annotation:annotation:1.5.0'
     implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
