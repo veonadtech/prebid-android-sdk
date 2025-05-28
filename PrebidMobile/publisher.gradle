@@ -1,16 +1,13 @@
-task javadoc(type: Javadoc) {
+task javadoc(type: Javadoc, dependsOn: assemble) {
     source = android.sourceSets.main.java.srcDirs
+    source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
+
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    
+
     options.addBooleanOption('-ignore-source-errors', true)
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet', 'UTF-8')
-    
-    failOnError false
-    
-    exclude '**/BuildConfig.java'
-    exclude '**/R.java'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -35,7 +32,8 @@ afterEvaluate {
 
                 artifact("$buildDir/outputs/aar/${project.name}-release.aar")
                 artifact sourcesJar
-
+                artifact javadocJar
+                
                 pom {
                     name = project.name
                     description = 'Prebid Mobile SDK for Android'
