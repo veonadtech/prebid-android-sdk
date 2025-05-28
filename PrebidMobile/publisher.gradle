@@ -32,7 +32,6 @@ afterEvaluate {
 
                 artifact("$buildDir/outputs/aar/${project.name}-release.aar")
                 artifact sourcesJar
-                artifact javadocJar
                 
                 pom {
                     name = project.name
