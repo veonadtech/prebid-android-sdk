@@ -143,7 +143,6 @@ class MainActivity : AppCompatActivity() {
             )
 
             BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
-//                gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_universal_interstitial_test2",
                 gamAdUnitId = "ca-app-pub-3940256099942544/1033173712",
                 configId = "test_interstitial",
                 adSize = AdSize(100, 100)
