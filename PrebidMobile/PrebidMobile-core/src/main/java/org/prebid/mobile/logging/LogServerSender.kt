@@ -4,6 +4,7 @@ import android.os.AsyncTask
 import org.json.JSONObject
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
+import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.core.BuildConfig
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.ResponseHandler
@@ -59,7 +60,7 @@ class LogServerSender private constructor() {
     /**
      * Add a log entry to be sent to server
      */
-    fun sendLog(status: GamStatus, message: String) {
+    fun sendLog(status: GamStatus, message: String, adFormat: AdFormat, adUnitId: String) {
         if (!enabled || serverUrl.isNullOrBlank()) return
 
         val entry = LogEntry(
@@ -69,7 +70,9 @@ class LogServerSender private constructor() {
             accountId = PrebidMobile.getPrebidServerAccountId(),
             appVersion = BuildConfig.VERSION,
             adId = PrebidMobile.getAAID(),
-            os = OS
+            os = OS,
+            adFormat = adFormat.name,
+            adUnitId = adUnitId
         )
 
         // Add to queue, remove oldest if queue is full
