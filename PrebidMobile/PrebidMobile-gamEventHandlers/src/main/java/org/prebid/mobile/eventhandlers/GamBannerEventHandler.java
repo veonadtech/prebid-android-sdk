@@ -162,7 +162,8 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
     @Override
     public void trackImpression() {
         if (proxyBanner != null) {
-            proxyBanner.recordManualImpression();
+            // trackImpression is not used when impressions are counted automatically
+//            proxyBanner.recordManualImpression();
         }
     }
 
