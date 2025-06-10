@@ -31,3 +31,7 @@ Run the test script to run unit tests and integration tests.
 ```
 scripts/testPrebidMobile.sh
 ```
+
+## Impression counting method
+
+auto
