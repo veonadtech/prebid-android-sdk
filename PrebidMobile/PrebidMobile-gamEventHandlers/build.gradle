@@ -1,9 +1,15 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
 apply from: '../tests.gradle'
+apply plugin: 'maven-publish'
 
 android {
-    namespace "org.prebid.mobile"
+    namespace "org.prebid.mobile.gamEventHandlers"
+
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         minSdkVersion 19
     }
@@ -13,3 +19,17 @@ dependencies {
     implementation project(":PrebidMobile")
     implementation 'com.google.android.gms:play-services-ads:21.0.0'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+       //         from components.release
+                groupId = "com.github.veonadtech"
+                artifactId = "eventhandlers"
+                version = '1.0.0'
+            }
+        }
+    }
+}
+

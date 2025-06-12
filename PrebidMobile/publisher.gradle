@@ -23,32 +23,37 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
-apply plugin: 'maven-publish'
+//apply plugin: 'maven-publish'
+//
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            maven(MavenPublication) {
+//                groupId = 'com.github.veonadtech'
+//                artifactId = project.name
+//                version = prebidSdkVersionName
+//
+//                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
+//                artifact sourcesJar
+//
+//                pom {
+//                    name = project.name
+//                    description = 'Prebid Mobile SDK for Android'
+//                    url = 'https://github.com/veonadtech/prebid-android-sdk'
+//
+//                    licenses {
+//                        license {
+//                            name = 'The Apache License, Version 2.0'
+//                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                        }
+//                    }
+//                }
 
-afterEvaluate {
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId = 'com.github.veonadtech'
-                artifactId = project.name
-                version = prebidSdkVersionName
-
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-                artifact sourcesJar
-
-                pom {
-                    name = project.name
-                    description = 'Prebid Mobile SDK for Android'
-                    url = 'https://github.com/veonadtech/prebid-android-sdk'
-
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//                artifact("PrebidMobile/omsdk-android/omsdk-android-1.4.1.aar") {
+//                    classifier = "omsdk"
+//                    extension = "aar"
+//                }
+//            }
+//        }
+//    }
+//}

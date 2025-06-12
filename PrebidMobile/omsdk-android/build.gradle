@@ -1,4 +1,25 @@
 // In case of updating version don't forget to update const omSdkVersion in build.gradle (root)
 // and check buildPrebidMobile.sh script
+apply plugin: 'maven-publish'
+
 configurations.maybeCreate("default")
-artifacts.add("default", file("${omSdkModuleName}-${omSdkVersion}.aar"))
+//artifacts.add("default", file("${omSdkModuleName}-${omSdkVersion}.aar"))
+//artifacts.add("default", file("omsdk-android-1.4.1.aar"))
+artifacts.add("default", file("omsdk-android-1.4.1.aar"))
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+//                from components.release
+                groupId = "com.iab.omid.library"
+                artifactId = "prebidorg"
+                version = '1.0.0'
+                artifacts {
+                    artifact "omsdk-android-1.4.1.aar"
+                }
+            }
+        }
+    }
+}
+

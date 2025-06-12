@@ -3,8 +3,26 @@ apply from: 'publisher.gradle'
 
 android {
     namespace "org.prebid.mobile"
+
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
     api project(':PrebidMobile-core')
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+            //    from components.release
+                groupId = "com.github.veonadtech"
+                artifactId = "mobile"
+                version = '1.0.0'
+            }
+        }
+    }
 }
