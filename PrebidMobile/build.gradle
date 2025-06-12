@@ -1,10 +1,23 @@
 apply from: 'android.gradle'
 apply from: 'publisher.gradle'
 
-android {
-    namespace "org.prebid.mobile"
-}
-
 dependencies {
     api project(':PrebidMobile-core')
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // Debug uchun
+                println "Available components: ${components.names}"
+
+                from components.findByName('release')
+                groupId = "com.veonadtech"
+                artifactId = "mobile"
+                version = '1.0.0'
+            }
+        }
+    }
 }

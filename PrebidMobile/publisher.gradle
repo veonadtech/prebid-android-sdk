@@ -1,16 +1,13 @@
-task javadoc(type: Javadoc) {
+task javadoc(type: Javadoc, dependsOn: assemble) {
     source = android.sourceSets.main.java.srcDirs
+    source += file('build/generated/source/buildConfig/release/org/prebid/mobile/core/BuildConfig.java').path
+
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 
     options.addBooleanOption('-ignore-source-errors', true)
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet', 'UTF-8')
-
-    failOnError false
-
-    exclude '**/BuildConfig.java'
-    exclude '**/R.java'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -21,34 +18,4 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
-}
-
-apply plugin: 'maven-publish'
-
-afterEvaluate {
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId = 'com.github.veonadtech'
-                artifactId = project.name
-                version = prebidSdkVersionName
-
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-                artifact sourcesJar
-
-                pom {
-                    name = project.name
-                    description = 'Prebid Mobile SDK for Android'
-                    url = 'https://github.com/veonadtech/prebid-android-sdk'
-
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

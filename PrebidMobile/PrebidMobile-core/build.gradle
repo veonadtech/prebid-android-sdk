@@ -42,3 +42,16 @@ dependencies {
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
     implementation 'androidx.core:core-ktx:1.9.0'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "org.prebid.mobile"
+                artifactId = "core"
+                version = '1.0.0'
+            }
+        }
+    }
+}

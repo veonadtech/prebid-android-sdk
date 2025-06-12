@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 android {
+    namespace "org.prebid.mobile"
     setCompileSdkVersion(rootProject.prebidSdkCompileVersion)
     setBuildToolsVersion(rootProject.prebidSdkBuildToolsVersion)
 

@@ -2,3 +2,21 @@
 // and check buildPrebidMobile.sh script
 configurations.maybeCreate("default")
 artifacts.add("default", file("${omSdkModuleName}-${omSdkVersion}.aar"))
+
+apply plugin: 'maven-publish'
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = "com.iab.omid.library"
+                artifactId = "prebidorg"
+                version = '1.0.0'
+                artifacts {
+                    artifact "omsdk-android-1.4.1.aar"
+                }
+            }
+        }
+    }
+}
+
