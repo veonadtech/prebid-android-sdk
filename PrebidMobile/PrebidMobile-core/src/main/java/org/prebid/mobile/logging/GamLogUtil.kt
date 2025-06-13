@@ -2,6 +2,7 @@ package org.prebid.mobile.logging
 
 import android.util.Log
 import androidx.annotation.Size
+import org.prebid.mobile.api.data.AdFormat
 
 object GamLogUtil {
     private const val GAM_TAG = "GAM"
@@ -32,32 +33,32 @@ object GamLogUtil {
      * Prints a message with INFO priority and default GAM_TAG
      */
     @JvmStatic
-    fun info(message: String, gamStatus: GamStatus) {
-        info(GAM_TAG, message, gamStatus)
+    fun info(message: String, gamStatus: GamStatus, adFormat: AdFormat, adUnitId: String) {
+        info(GAM_TAG, message, gamStatus, adFormat, adUnitId)
     }
 
     /**
      * Prints a message with ERROR priority and default GAM_TAG
      */
     @JvmStatic
-    fun error(message: String) {
-        error(GAM_TAG, message)
+    fun error(message: String, adFormat: AdFormat, adUnitId: String) {
+        error(GAM_TAG, message, adFormat, adUnitId)
     }
 
     /**
      * Prints a message with INFO priority.
      */
     @JvmStatic
-    fun info(@Size(max = 23) tag: String, msg: String, gamStatus: GamStatus) {
-        log(INFO, tag, msg, gamStatus)
+    fun info(@Size(max = 23) tag: String, msg: String, gamStatus: GamStatus, adFormat: AdFormat, adUnitId: String) {
+        log(INFO, tag, msg, gamStatus, adFormat, adUnitId)
     }
 
     /**
      * Prints a message with ERROR priority.
      */
     @JvmStatic
-    fun error(@Size(max = 23) tag: String, msg: String) {
-        log(ERROR, tag, msg, GamStatus.FAILED)
+    fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String) {
+        log(ERROR, tag, msg, GamStatus.FAILED, adFormat = adFormat, adUnitId)
     }
 
     /**
@@ -74,7 +75,7 @@ object GamLogUtil {
     /**
      * Prints information with set priority. Every tag
      */
-    private fun log(messagePriority: Int, tag: String?, message: String?, status: GamStatus) {
+    private fun log(messagePriority: Int, tag: String?, message: String?, status: GamStatus, adFormat: AdFormat, adUnitId: String) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
         val finalTag = getTagWithBase(tag)
         Log.println(messagePriority, finalTag, message)
@@ -82,7 +83,9 @@ object GamLogUtil {
         // Send to server
         LogServerSender.getInstance().sendLog(
             status = status,
-            message = message
+            message = message,
+            adFormat = adFormat,
+            adUnitId = adUnitId
         )
     }
 

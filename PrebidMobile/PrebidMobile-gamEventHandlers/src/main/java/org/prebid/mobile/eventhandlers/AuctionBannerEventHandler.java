@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
 import org.prebid.mobile.logging.GamLogUtil;
@@ -63,6 +64,7 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
     private float cpm;
 
     private boolean isExpectingAppEvent;
+    private Bid executeBid;
 
     /**
      * @param context  activity or application context.
@@ -94,8 +96,6 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
 
         return adSizes;
     }
-
-    private Bid executeBid;
 
     @Override
     public void onEvent(AdEvent adEvent) {
@@ -264,23 +264,23 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
 
         switch (errorCode) {
             case Constants.ERROR_CODE_INTERNAL_ERROR:
-                GamLogUtil.error("Ad failed: GAM SDK encountered an internal error.");
+                GamLogUtil.error("Ad failed: GAM SDK encountered an internal error.", AdFormat.BANNER, gamAdUnitId);
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK encountered an internal error."));
                 break;
             case Constants.ERROR_CODE_INVALID_REQUEST:
-                GamLogUtil.error("Ad failed: GAM SDK - invalid request error.");
+                GamLogUtil.error("Ad failed: GAM SDK - invalid request error.", AdFormat.BANNER, gamAdUnitId);
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - invalid request error."));
                 break;
             case Constants.ERROR_CODE_NETWORK_ERROR:
-                GamLogUtil.error("Ad failed: GAM SDK - network error.");
+                GamLogUtil.error("Ad failed: GAM SDK - network error.", AdFormat.BANNER, gamAdUnitId);
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - network error."));
                 break;
             case Constants.ERROR_CODE_NO_FILL:
-                GamLogUtil.error("Ad failed: GAM SDK - no fill.");
+                GamLogUtil.error("Ad failed: GAM SDK - no fill.", AdFormat.BANNER, gamAdUnitId);
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - no fill."));
                 break;
             default:
-                GamLogUtil.error("Ad failed: GAM SDK - failed with errorCode: " + errorCode);
+                GamLogUtil.error("Ad failed: GAM SDK - failed with errorCode: " + errorCode, AdFormat.BANNER, gamAdUnitId);
                 bannerEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - failed with errorCode: " + errorCode));
         }
     }

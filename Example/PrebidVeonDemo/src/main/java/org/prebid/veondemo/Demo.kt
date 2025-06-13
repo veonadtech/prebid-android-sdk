@@ -46,6 +46,7 @@ class Demo : Application() {
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
         PrebidMobile.useExternalBrowser = true
+        PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
 
         PrebidMobile.initializeSdk(applicationContext) { status ->
             if (status == InitializationStatus.SUCCEEDED) {

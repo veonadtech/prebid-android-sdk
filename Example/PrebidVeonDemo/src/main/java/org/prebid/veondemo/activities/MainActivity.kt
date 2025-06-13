@@ -143,9 +143,9 @@ class MainActivity : AppCompatActivity() {
             )
 
             BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
-                gamAdUnitId = "/ca-app-pub-3940256099942544/1033173712",
-                configId = "banner-interstitial",
-                adSize = AdSize(80, 60)
+                gamAdUnitId = "ca-app-pub-3940256099942544/1033173712",
+                configId = "test_interstitial",
+                adSize = AdSize(100, 100)
             )
 
             BannerFormat.GAM_REWARD_VIDEO ->
