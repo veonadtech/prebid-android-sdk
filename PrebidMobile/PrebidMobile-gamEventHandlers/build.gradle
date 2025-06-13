@@ -4,7 +4,7 @@ apply from: '../tests.gradle'
 apply plugin: 'maven-publish'
 
 android {
-    namespace "org.prebid.mobile.gamEventHandlers"
+    namespace "org.prebid.mobile.gam"
 
     buildFeatures {
         buildConfig true
