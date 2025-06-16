@@ -152,7 +152,7 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
 
     public void setManualImpressionsEnabled(boolean enabled) {
         try {
-            adView.setManualImpressionsEnabled(false);
+            adView.setManualImpressionsEnabled(enabled);
         } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
             GamLogUtil.error("Set manual impressions enabled error: " + throwable.getMessage(), AdFormat.BANNER, adUnitId);

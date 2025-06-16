@@ -174,7 +174,6 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
             return;
         }
 
-        requestBanner.setManualImpressionsEnabled(true);
         requestBanner.loadAd(bid);
     }
 
@@ -292,7 +291,6 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
         } else if (proxyBanner != null) {
             recycledBanner = proxyBanner;
             proxyBanner = null;
-            recycledBanner.setManualImpressionsEnabled(false);
         }
     }
 

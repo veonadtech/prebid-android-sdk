@@ -156,15 +156,13 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
             return;
         }
 
-        requestBanner.setManualImpressionsEnabled(true);
         requestBanner.loadAd(bid);
     }
 
     @Override
     public void trackImpression() {
         if (proxyBanner != null) {
-            // trackImpression is not used when impressions are counted automatically
-//            proxyBanner.recordManualImpression();
+
         }
     }
 
@@ -275,7 +273,6 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
         } else if (proxyBanner != null) {
             recycledBanner = proxyBanner;
             proxyBanner = null;
-            recycledBanner.setManualImpressionsEnabled(false);
         }
     }
 
