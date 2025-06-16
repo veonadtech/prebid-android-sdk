@@ -180,7 +180,7 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
     @Override
     public void trackImpression() {
         if (proxyBanner != null) {
-            proxyBanner.recordManualImpression();
+
         }
     }
 
