@@ -1,15 +1,27 @@
 apply from: '../android.gradle'
 apply from: '../publisher.gradle'
-apply from: '../tests.gradle'
+
+dependencies {
+    implementation project(":PrebidMobile")
+    implementation 'com.google.android.gms:play-services-ads:22.0.0'
+}
 
 android {
-    namespace "org.prebid.mobile"
     defaultConfig {
+        namespace 'org.prebid.mobile.eventhandlers'
         minSdkVersion 19
     }
 }
 
-dependencies {
-    implementation project(":PrebidMobile")
-    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "org.prebid.mobile"
+                artifactId = "eventhandlers"
+                version = '1.0.0'
+            }
+        }
+    }
 }
