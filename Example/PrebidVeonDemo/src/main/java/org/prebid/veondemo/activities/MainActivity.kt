@@ -241,6 +241,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val adUnit = BannerView(this, "prebid-ita-banner-${size.width}x${size.height}", eventHandler).apply {
+            setAutoRefreshDelay(30)
             setBannerListener(defaultBannerListener())
             loadAd()
         }
@@ -251,6 +252,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupGamSimpleBanner(configId: String, adSize: AdSize, adUnitId: String) {
         val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
         val bannerView = BannerView(this, configId, eventHandler)
+        bannerView.setAutoRefreshDelay(30)
         adWrapperView.addView(bannerView)
         bannerView.loadAd()
 
