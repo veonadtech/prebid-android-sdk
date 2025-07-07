@@ -21,11 +21,20 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
+import com.yandex.mobile.ads.banner.BannerAdEventListener
+import com.yandex.mobile.ads.banner.BannerAdSize
+import com.yandex.mobile.ads.banner.BannerAdView
+import com.yandex.mobile.ads.common.AdRequest
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
+import org.prebid.veondemo.network.Network
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.VideoPlacementType
@@ -44,6 +53,7 @@ import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import java.util.EnumSet
+import kotlin.math.roundToInt
 
 enum class BannerFormat(val description: String) {
     AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
@@ -58,13 +68,29 @@ enum class BannerFormat(val description: String) {
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
     GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
     GAM_REWARD_VIDEO("GAM Rewarded Video"),
+
+    YANGO_BANNER("Yandex Banner"),
 }
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+
+        private val networks = arrayListOf(
+            Network( "demo-banner-yandex"),
+            Network("demo-banner-admob"),
+            Network("demo-banner-applovin"),
+            Network( "demo-banner-chartboost")
+        )
+    }
+
     private var adBannerFormat: BannerFormat? = null
     private lateinit var binding: ActivityMainBinding
     private val adWrapperView: ViewGroup get() = binding.adLayout
+
+    private var bannerAd: BannerAdView? = null
+    private var currentAdUnitId: String? = null
+    private var bannerAdSize: BannerAdSize? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,6 +179,11 @@ class MainActivity : AppCompatActivity() {
                     gamAdUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
                     configId = "prebid-ita-video-rewarded-320-480"
                 )
+
+            BannerFormat.YANGO_BANNER -> {
+                configureBannerAdSize()
+                setupYangoBanner(networks[0].adUnitId)
+            }
         }
     }
 
@@ -160,6 +191,98 @@ class MainActivity : AppCompatActivity() {
         adWrapperView.removeAllViewsInLayout()
         binding.banner320x50.removeAllViewsInLayout()
         binding.banner300x250.removeAllViewsInLayout()
+    }
+
+    private fun configureBannerAdSize() {
+        binding.mainContainer.post {
+            binding.mainContainer.requestLayout()
+        }
+
+        binding.mainContainer.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                binding.mainContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val screenHeight = resources.displayMetrics.run { heightPixels / density }.roundToInt()
+                // Calculate the width of the ad, taking into account the padding in the ad container.
+                val adWidthPixels = binding.mainContainer.width
+                val adWidth = (adWidthPixels / resources.displayMetrics.density).roundToInt()
+                val maxAdHeight = screenHeight / 3
+                bannerAdSize = BannerAdSize.inlineSize(this@MainActivity, adWidth, maxAdHeight)
+            }
+        })
+    }
+
+    private fun setupYangoBanner(configId: String) {
+        bannerAdSize = BannerAdSize.inlineSize(this@MainActivity, 300, 250)
+        bannerAdSize?.let { bannerAdSize ->
+            val selectedAdUnitId = configId
+            if (currentAdUnitId != selectedAdUnitId) {
+                destroyBanner()
+                createBanner(selectedAdUnitId, bannerAdSize)
+            }
+            val adRequest = AdRequest.Builder()
+                //.setParameters(getRequestParameters())
+                .setParameters(emptyMap())
+                .build()
+            bannerAd?.loadAd(adRequest)
+        }
+    }
+
+    private fun createBanner(adUnitId: String, bannerAdSize: BannerAdSize) {
+        bannerAd = BannerAdView(this).apply {
+            id = binding.banner.id
+            setAdUnitId(adUnitId)
+            currentAdUnitId = adUnitId
+            setAdSize(bannerAdSize)
+            setBannerAdEventListener(object : BannerAdEventListener {
+                override fun onAdLoaded() {
+                    // If this callback occurs after the activity is destroyed, you
+                    // must call destroy and return or you may get a memory leak.
+                    // Note `isDestroyed` is a method on Activity.
+                    if (isDestroyed) {
+                        bannerAd?.destroy()
+                        return
+                    }
+                }
+
+                override fun onAdFailedToLoad(adRequestError: AdRequestError) {
+                    // Ad failed to load with AdRequestError.
+                    // Attempting to load a new ad from the onAdFailedToLoad() method is strongly discouraged.
+                }
+
+                override fun onAdClicked() {
+                    // Called when a click is recorded for an ad.
+                }
+
+                override fun onLeftApplication() {
+                    // Called when user is about to leave application (e.g., to go to the browser), as a result of clicking on the ad.
+                }
+
+                override fun onReturnedToApplication() {
+                    // Called when user returned to application after click.
+                }
+
+                override fun onImpression(impressionData: ImpressionData?) {
+                    // Called when an impression is recorded for an ad.
+                }
+            })
+        }
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT,
+        ).apply {
+            bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+        }
+        adWrapperView.addView(bannerAd, params)
+    }
+
+    private fun destroyBanner() {
+        bannerAd?.let {
+            it.destroy()
+            adWrapperView.removeAllViewsInLayout()
+        }
+        bannerAd = null
+        currentAdUnitId = null
     }
 
     private fun setupSimpleBanner(configId: String, size: AdSize) {

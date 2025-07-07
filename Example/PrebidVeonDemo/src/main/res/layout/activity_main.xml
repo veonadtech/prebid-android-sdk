@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
+        android:id="@+id/mainContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -60,6 +61,12 @@
                 android:layout_height="match_parent">
 
             </FrameLayout>
+
+            <com.yandex.mobile.ads.banner.BannerAdView
+                android:id="@+id/banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
 
             <FrameLayout
                 android:id="@+id/banner_300x250"
