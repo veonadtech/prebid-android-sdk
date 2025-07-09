@@ -24,7 +24,8 @@ class MultiAdLoader(
     private val adSize: AdSize,
     private val gamAdUnitId: String? = null,
     private val yandexAdUnitId: String? = null,
-    private val priorityOrder: List<AdPlatformSDK>? = null
+    private val priorityOrder: List<AdPlatformSDK>? = null,
+    private val autoRefreshDelay: Int = 0
 
 ) {
 
@@ -49,6 +50,7 @@ class MultiAdLoader(
                 return
             }
 
+            destroy()
             when (priorityOrder[currentProviderIndex]) {
                 AdPlatformSDK.PREBID -> loadPrebidAd(adSize)
                 AdPlatformSDK.GAM -> loadGamAd(adSize)
@@ -85,6 +87,7 @@ class MultiAdLoader(
                     listener?.onAdClosed(bannerView, AdPlatformSDK.PREBID)
                 }
             })
+            setAutoRefreshDelay(autoRefreshDelay)
             loadAd()
         }
     }
@@ -204,47 +207,3 @@ class MultiAdLoader(
     }
 
 }
-
-//class MultiAdBannerView {
-//
-//    private fun setupGamBanner(configId: String, adSize: AdSize, adUnitId: String) {
-//        val adUnit = BannerAdUnit(configId, adSize.width, adSize.height).apply {
-//            bannerParameters = BannerParameters().apply {
-//                api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
-//            }
-//            setAutoRefreshInterval(30)
-//        }
-//
-//        val adView = AdManagerAdView(this)
-//        adView.adUnitId = adUnitId
-//        adView.setAdSizes(com.google.android.gms.ads.AdSize(320, 50))
-//
-//        adView.adListener = object : AdListener() {
-//            override fun onAdClicked() = showToast("onAdClicked")
-//            override fun onAdClosed() = showToast("onAdClosed")
-//            override fun onAdFailedToLoad(adError: LoadAdError) = showToast("onAdFailedToLoad")
-//            override fun onAdImpression() = showToast("onAdImpression")
-//            override fun onAdOpened() = showToast("onAdOpened")
-//            override fun onAdLoaded() {
-//                showToast("onAdLoaded")
-//                AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
-//                    override fun success(width: Int, height: Int) {
-//                        adView.setAdSizes(
-//                            com.google.android.gms.ads.AdSize(
-//                                width,
-//                                height
-//                            )
-//                        )
-//                    }
-//
-//                    override fun failure(error: PbFindSizeError) {}
-//                })
-//            }
-//        }
-//
-//        val request = AdManagerAdRequest.Builder().build()
-//        adUnit.fetchDemand(request) { adView.loadAd(request) }
-//        adWrapperView.addView(adView)
-//    }
-//
-//}

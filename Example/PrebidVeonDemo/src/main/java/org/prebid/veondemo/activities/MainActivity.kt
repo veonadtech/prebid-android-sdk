@@ -205,18 +205,14 @@ class MainActivity : AppCompatActivity() {
                 setupYangoBanner(yangoNetworks[0].adUnitId)
             }
 
-            BannerFormat.YANGO_BANNER -> {
-                configureBannerAdSize()
-                setupYangoBanner(yangoNetworks[0].adUnitId)
-            }
-
             BannerFormat.MULTI_AD_BANNER -> {
                 setupMultiAdBanner(
                     configId = "beeline_uz_android_manual_veon_test_320x50",
                     adSize = AdSize(320, 50),
                     gamAdUnitId = "",//"/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
                     yandexAdUnitId = yangoNetworks[0].adUnitId,//"",//networks[0].adUnitId,
-                    priorityOrder = listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)
+                    priorityOrder = listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID),
+                    autoRefreshDelay = 30
                 )
             }
         }
@@ -428,7 +424,8 @@ class MainActivity : AppCompatActivity() {
                                    adSize: AdSize,
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
-                                   priorityOrder: List<AdPlatformSDK>) {
+                                   priorityOrder: List<AdPlatformSDK>,
+                                   autoRefreshDelay: Int) {
         val adLoader = MultiAdLoader(
             context = this,
             configId = configId,
