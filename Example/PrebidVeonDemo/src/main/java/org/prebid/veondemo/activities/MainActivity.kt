@@ -28,22 +28,33 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.admanager.AdManagerAdRequest
+import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequest
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
-import org.prebid.veondemo.network.Network
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.BannerAdUnit
+import org.prebid.mobile.BannerParameters
+import org.prebid.mobile.Signals
+import org.prebid.mobile.addendum.AdViewUtils
+import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
+import org.prebid.mobile.api.rendering.MultiAdLoader
+import org.prebid.mobile.api.rendering.MultiAdLoader.AdPlatformSDK
 import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
+import org.prebid.mobile.api.rendering.listeners.MultiAdLoaderListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
@@ -52,6 +63,7 @@ import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
 import org.prebid.veondemo.databinding.ActivityMainBinding
+import org.prebid.veondemo.network.Network
 import java.util.EnumSet
 import kotlin.math.roundToInt
 
@@ -66,17 +78,20 @@ enum class BannerFormat(val description: String) {
     VIDEO_INTERSTITIAL("Video Interstitial"),
 
     GAM_SIMPLE_BANNER("GAM Simple Banner"),
+    GAM_BANNER("GAM Banner"),
     GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
     GAM_REWARD_VIDEO("GAM Rewarded Video"),
 
     YANGO_BANNER("Yandex Banner"),
+
+    MULTI_AD_BANNER("Multi Ad Banner")
 }
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        private val networks = arrayListOf(
+        private val yangoNetworks = arrayListOf(
             Network( "demo-banner-yandex"),
             Network("demo-banner-admob"),
             Network("demo-banner-applovin"),
@@ -166,6 +181,11 @@ class MainActivity : AppCompatActivity() {
                 configId = "prebid-ita-banner-320-50",
                 adSize = AdSize(320, 50),
                 adUnitId = "/6355419/Travel/Europe/France/Paris"
+
+            BannerFormat.GAM_BANNER -> setupGamBanner(
+                configId = "prebid-ita-banner-320-50",
+                adSize = AdSize(358, 200),
+                adUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_universal_358x200_test2"
             )
 
             BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
@@ -182,7 +202,22 @@ class MainActivity : AppCompatActivity() {
 
             BannerFormat.YANGO_BANNER -> {
                 configureBannerAdSize()
-                setupYangoBanner(networks[0].adUnitId)
+                setupYangoBanner(yangoNetworks[0].adUnitId)
+            }
+
+            BannerFormat.YANGO_BANNER -> {
+                configureBannerAdSize()
+                setupYangoBanner(yangoNetworks[0].adUnitId)
+            }
+
+            BannerFormat.MULTI_AD_BANNER -> {
+                setupMultiAdBanner(
+                    configId = "beeline_uz_android_manual_veon_test_320x50",
+                    adSize = AdSize(320, 50),
+                    gamAdUnitId = "",//"/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
+                    yandexAdUnitId = yangoNetworks[0].adUnitId,//"",//networks[0].adUnitId,
+                    priorityOrder = listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)
+                )
             }
         }
     }
@@ -218,7 +253,7 @@ class MainActivity : AppCompatActivity() {
             val selectedAdUnitId = configId
             if (currentAdUnitId != selectedAdUnitId) {
                 destroyBanner()
-                createBanner(selectedAdUnitId, bannerAdSize)
+                createYangoBanner(selectedAdUnitId, bannerAdSize)
             }
             val adRequest = AdRequest.Builder()
                 //.setParameters(getRequestParameters())
@@ -228,7 +263,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createBanner(adUnitId: String, bannerAdSize: BannerAdSize) {
+    private fun createYangoBanner(adUnitId: String, bannerAdSize: BannerAdSize) {
         bannerAd = BannerAdView(this).apply {
             id = binding.banner.id
             setAdUnitId(adUnitId)
@@ -387,6 +422,109 @@ class MainActivity : AppCompatActivity() {
             override fun onAdUrlClicked(url: String?) = showToast("onAdUrlClicked")
             override fun onAdClosed(bannerView: BannerView?) = showToast("onAdClosed")
         })
+    }
+
+    private fun setupMultiAdBanner(configId: String,
+                                   adSize: AdSize,
+                                   gamAdUnitId: String,
+                                   yandexAdUnitId: String,
+                                   priorityOrder: List<AdPlatformSDK>) {
+        val adLoader = MultiAdLoader(
+            context = this,
+            configId = configId,
+            adSize = adSize,
+            gamAdUnitId = gamAdUnitId,
+            yandexAdUnitId = yandexAdUnitId,
+            priorityOrder = priorityOrder
+        )
+
+        adLoader.setListener(object : MultiAdLoaderListener {
+            override fun onAdLoaded(adView: View, sdk: AdPlatformSDK) {
+                adWrapperView.removeAllViews()
+                adWrapperView.addView(adView)
+                showToast("Ad loaded from: ${sdk.name}")
+            }
+
+            override fun onAdFailed(bannerView: BannerView?, error: String?, sdk: AdPlatformSDK?) {
+                val errorMsg = error ?: "Unknown error"
+                val sdkName = sdk?.name ?: "unknown SDK"
+                showToast("Ad failed ($sdkName): $errorMsg")
+            }
+
+            override fun onAdClicked(bannerView: BannerView?, sdk: AdPlatformSDK) {
+                showToast("Ad clicked (${sdk.name})")
+            }
+
+            override fun onLeftApplication(sdk: AdPlatformSDK) {
+                showToast("Left app (${sdk.name})")
+            }
+
+            override fun onReturnedToApplication(sdk: AdPlatformSDK) {
+                showToast("Returned to app (${sdk.name})")
+            }
+
+            override fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK) {
+                showToast("Impression tracked (${sdk.name})")
+            }
+
+            override fun onAdUrlClicked(url: String?, sdk: AdPlatformSDK) {
+                showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
+            }
+
+            override fun onAdClosed(bannerView: BannerView?, sdk: AdPlatformSDK) {
+                showToast("Ad closed (${sdk.name})")
+            }
+
+            override fun onAdDisplayed(bannerView: BannerView?, sdk: AdPlatformSDK) {
+                showToast("Ad displayed (${sdk.name})")
+            }
+
+            override fun onAdOpened(sdk: AdPlatformSDK) {
+                showToast("Ad opened (${sdk.name})")
+            }
+        })
+
+        adLoader.loadAd()
+    }
+
+    private fun setupGamBanner(configId: String, adSize: AdSize, adUnitId: String) {
+        val adUnit = BannerAdUnit(configId, adSize.width, adSize.height).apply {
+            bannerParameters = BannerParameters().apply {
+                api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
+            }
+            setAutoRefreshInterval(30)
+        }
+
+        val adView = AdManagerAdView(this)
+        adView.adUnitId = adUnitId
+        adView.setAdSizes(com.google.android.gms.ads.AdSize(320, 50))
+
+        adView.adListener = object : AdListener() {
+            override fun onAdClicked() = showToast("onAdClicked")
+            override fun onAdClosed() = showToast("onAdClosed")
+            override fun onAdFailedToLoad(adError: LoadAdError) = showToast("onAdFailedToLoad")
+            override fun onAdImpression() = showToast("onAdImpression")
+            override fun onAdOpened() = showToast("onAdOpened")
+            override fun onAdLoaded() {
+                showToast("onAdLoaded")
+                AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
+                    override fun success(width: Int, height: Int) {
+                        adView.setAdSizes(
+                            com.google.android.gms.ads.AdSize(
+                                width,
+                                height
+                            )
+                        )
+                    }
+
+                    override fun failure(error: PbFindSizeError) {}
+                })
+            }
+        }
+
+        val request = AdManagerAdRequest.Builder().build()
+        adUnit.fetchDemand(request) { adView.loadAd(request) }
+        adWrapperView.addView(adView)
     }
 
     private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
