@@ -207,11 +207,11 @@ class MainActivity : AppCompatActivity() {
 
             BannerFormat.MULTI_AD_BANNER -> {
                 setupMultiAdBanner(
-                    configId = "beeline_uz_android_manual_veon_test_320x50",
                     adSize = AdSize(320, 50),
-                    gamAdUnitId = "",//"/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
-                    yandexAdUnitId = yangoNetworks[0].adUnitId,//"",//networks[0].adUnitId,
-                    priorityOrder = listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID),
+                    configId = "",//""beeline_uz_android_manual_veon_test_320x50",
+                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
+                    yandexAdUnitId = "sds",//yangoNetworks[0].adUnitId,
+                    priorityOrder = listOf(AdPlatformSDK.PREBID, AdPlatformSDK.GAM, AdPlatformSDK.YANDEX),
                     autoRefreshDelay = 30
                 )
             }
@@ -420,19 +420,21 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupMultiAdBanner(configId: String,
-                                   adSize: AdSize,
+    private fun setupMultiAdBanner(adSize: AdSize,
+                                   configId: String,
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
                                    priorityOrder: List<AdPlatformSDK>,
                                    autoRefreshDelay: Int) {
+
         val adLoader = MultiAdLoader(
             context = this,
-            configId = configId,
             adSize = adSize,
+            configId = configId,
             gamAdUnitId = gamAdUnitId,
             yandexAdUnitId = yandexAdUnitId,
-            priorityOrder = priorityOrder
+            priorityOrder = priorityOrder,
+            autoRefreshDelay = autoRefreshDelay
         )
 
         adLoader.setListener(object : MultiAdLoaderListener {
