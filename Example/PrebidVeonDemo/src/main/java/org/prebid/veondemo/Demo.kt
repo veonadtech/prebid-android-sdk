@@ -32,9 +32,24 @@ class Demo : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initSdkConfig()
         initTestPrebidSDK()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
+    }
+
+    private fun initSdkConfig() {
+        Log.i(TAG, "Load SDK priority started")
+        AsyncSdkConfigLoader().loadSdkConfig(object : AsyncSdkConfigLoader.SdkConfigResponseHandler {
+            override fun onSdkConfigReceived(sdks: List<AdPlatformSDK>) {
+                Log.i(TAG, "Successfully loaded SDK priority order from server: ${sdks.joinToString()}")
+                SdkConfigHolder.priorityOrderSDK = sdks
+            }
+
+            override fun onError(error: String) {
+                Log.e(TAG, "Failed to load SDK config: $error")
+            }
+        })
     }
 
     private fun initTestPrebidSDK() {

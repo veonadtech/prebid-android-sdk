@@ -1,7 +1,6 @@
 package org.prebid.mobile.api.rendering
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.LoadAdError
@@ -17,7 +16,6 @@ import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.MultiAdLoaderListener
-import org.prebid.mobile.rendering.sdk.AsyncSdkConfigLoader
 
 class MultiAdLoader(
 
@@ -26,12 +24,9 @@ class MultiAdLoader(
     private val configId: String?,
     private val gamAdUnitId: String?,
     private val yandexAdUnitId: String?,
-    private val autoRefreshDelay: Int = 0
+    private val autoRefreshDelay: Int = 0,
+    private val priorityOrder: List<AdPlatformSDK> = listOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
 ) {
-    companion object {
-        @JvmStatic
-        private val TAG: String = MultiAdLoader::class.java.simpleName
-    }
 
     private val loadedAds = mutableMapOf<AdPlatformSDK, View>()
     private val failedSDKs = mutableSetOf<AdPlatformSDK>()
@@ -40,11 +35,6 @@ class MultiAdLoader(
     private var gamAdView: AdManagerAdView? = null
     private var yandexAdView: BannerAdView? = null
     private var listener: MultiAdLoaderListener? = null
-//    json
-//    {
-//        "priority": ["GAM", "YANDEX", "PREBID"]
-//    }
-    private var priorityOrder: List<AdPlatformSDK> = listOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
 
     enum class AdPlatformSDK { PREBID, GAM, YANDEX }
 
@@ -53,22 +43,6 @@ class MultiAdLoader(
     }
 
     fun loadAd() {
-        Log.i(TAG, "Load SDK priority started")
-        AsyncSdkConfigLoader().loadSdkConfig(object : AsyncSdkConfigLoader.SdkConfigResponseHandler {
-            override fun onSdkConfigReceived(sdks: List<AdPlatformSDK>) {
-                Log.i(TAG, "Successfully loaded SDK priority order from server: ${sdks.joinToString()}")
-                priorityOrder = sdks
-                loadAds()
-            }
-
-            override fun onError(error: String) {
-                loadAds()
-                Log.e(TAG, "Failed to load SDK config: $error")
-            }
-        })
-    }
-
-    private fun loadAds() {
         loadedAds.clear()
         failedSDKs.clear()
         currentProviderIndex = 0

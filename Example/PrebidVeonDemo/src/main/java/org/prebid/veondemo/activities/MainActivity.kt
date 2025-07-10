@@ -62,6 +62,7 @@ import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
+import org.prebid.veondemo.SdkConfigHolder
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import org.prebid.veondemo.network.Network
 import java.util.EnumSet
@@ -424,7 +425,8 @@ class MainActivity : AppCompatActivity() {
                                    configId: String,
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
-                                   autoRefreshDelay: Int) {
+                                   autoRefreshDelay: Int,
+                                   priorityOrder: List<AdPlatformSDK>) {
 
         val adLoader = MultiAdLoader(
             context = this,
@@ -432,7 +434,8 @@ class MainActivity : AppCompatActivity() {
             configId = configId,
             gamAdUnitId = gamAdUnitId,
             yandexAdUnitId = yandexAdUnitId,
-            autoRefreshDelay = autoRefreshDelay
+            autoRefreshDelay = autoRefreshDelay,
+            priorityOrder = priorityOrder
         )
 
         adLoader.setListener(object : MultiAdLoaderListener {
