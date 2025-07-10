@@ -20,12 +20,17 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
+
 import androidx.annotation.VisibleForTesting;
+
 import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
+import org.prebid.mobile.logging.SdkAdStatus;
+import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.interstitial.InterstitialManagerDisplayDelegate;
 import org.prebid.mobile.rendering.listeners.CreativeViewListener;
 import org.prebid.mobile.rendering.listeners.WebViewDelegate;
@@ -54,6 +59,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
 
     private boolean isEndCard = false;
     private boolean resolved;
+    private AdFormat adFormat = AdFormat.BANNER;
 
     public HTMLCreative(
             Context context,
@@ -96,21 +102,23 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
 
         PrebidWebViewBase prebidWebView = null;
         if (adType == AdFormat.BANNER) {
+            adFormat = AdFormat.BANNER;
             //do all banner
             prebidWebView = (PrebidWebViewBanner) ViewPool.getInstance()
-                                                          .getUnoccupiedView(contextReference.get(),
-                                                                  null,
-                                                                  adType,
-                                                                  interstitialManager
-                                                          );
+                    .getUnoccupiedView(contextReference.get(),
+                            null,
+                            adType,
+                            interstitialManager
+                    );
         } else if (adType == AdFormat.INTERSTITIAL) {
+            adFormat = AdFormat.INTERSTITIAL;
             //do all interstitials
             prebidWebView = (PrebidWebViewInterstitial) ViewPool.getInstance()
-                                                                .getUnoccupiedView(contextReference.get(),
-                                                                        null,
-                                                                        adType,
-                                                                        interstitialManager
-                                                                );
+                    .getUnoccupiedView(contextReference.get(),
+                            null,
+                            adType,
+                            interstitialManager
+                    );
         }
 
         if (prebidWebView == null) {
@@ -127,8 +135,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
             String msg = "No HTML in creative data";
             LogUtil.error(TAG, msg);
             throw new AdException(AdException.SERVER_ERROR, msg);
-        }
-        else {
+        } else {
             html = injectingScriptContent(html);
             prebidWebView.loadHTML(html, width, height);
             setCreativeView(prebidWebView);
@@ -285,6 +292,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
 
         if (shouldFireImpression && isViewable) {
             LogUtil.debug(TAG, "Impression fired");
+            SdkLogUtil.info("ad impression", SdkAdStatus.IMPRESSION, adFormat, getCreativeModel().getAdConfiguration().getConfigId(), SdkType.PREBID);
             getCreativeModel().trackDisplayAdEvent(TrackingEvent.Events.IMPRESSION);
         }
         getCreativeView().onWindowFocusChanged(isViewable);
@@ -348,8 +356,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
                 return html;
             }
             return omAdSessionManager.injectValidationScriptIntoHtml(html);
-        }
-        catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             LogUtil.error(TAG, "Failed to inject script content into html  " + Log.getStackTraceString(e));
             return html;
         }

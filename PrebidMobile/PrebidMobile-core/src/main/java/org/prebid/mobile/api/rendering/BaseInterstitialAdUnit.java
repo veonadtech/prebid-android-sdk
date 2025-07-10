@@ -31,11 +31,15 @@ import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.DataObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.data.Position;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
+import org.prebid.mobile.logging.SdkAdStatus;
+import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.interfaces.InterstitialControllerListener;
@@ -51,15 +55,12 @@ import java.util.Set;
 public abstract class BaseInterstitialAdUnit {
 
     private static final String TAG = BaseInterstitialAdUnit.class.getSimpleName();
-
+    private final WeakReference<Context> weakContext;
     protected AdUnitConfiguration adUnitConfig;
-
     private BidLoader bidLoader;
     private BidResponse bidResponse;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
-
-    private final WeakReference<Context> weakContext;
     private final BidRequesterListener bidRequesterListener = createBidRequesterListener();
     private final InterstitialControllerListener controllerListener = createInterstitialControllerListener();
 
@@ -119,8 +120,8 @@ public abstract class BaseInterstitialAdUnit {
                 break;
             default:
                 notifyErrorListener(new AdException(
-                    AdException.INTERNAL_ERROR,
-                    "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
+                        AdException.INTERNAL_ERROR,
+                        "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
                 ));
         }
     }
@@ -130,8 +131,8 @@ public abstract class BaseInterstitialAdUnit {
      */
     @Deprecated
     public void addContextData(
-        String key,
-        String value
+            String key,
+            String value
     ) {
         adUnitConfig.addExtData(key, value);
     }
@@ -141,8 +142,8 @@ public abstract class BaseInterstitialAdUnit {
      */
     @Deprecated
     public void updateContextData(
-        String key,
-        Set<String> value
+            String key,
+            Set<String> value
     ) {
         adUnitConfig.addExtData(key, value);
     }
@@ -213,15 +214,15 @@ public abstract class BaseInterstitialAdUnit {
 
 
     public void addExtData(
-        String key,
-        String value
+            String key,
+            String value
     ) {
         adUnitConfig.addExtData(key, value);
     }
 
     public void updateExtData(
-        String key,
-        Set<String> value
+            String key,
+            Set<String> value
     ) {
         adUnitConfig.addExtData(key, value);
     }
@@ -258,12 +259,12 @@ public abstract class BaseInterstitialAdUnit {
         adUnitConfig.clearExtKeywords();
     }
 
-    public void setAppContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
-    }
-
     public ContentObject getAppContent() {
         return adUnitConfig.getAppContent();
+    }
+
+    public void setAppContent(ContentObject content) {
+        adUnitConfig.setAppContent(content);
     }
 
     public void addUserData(DataObject dataObject) {
@@ -442,29 +443,34 @@ public abstract class BaseInterstitialAdUnit {
         return new InterstitialControllerListener() {
             @Override
             public void onInterstitialReadyForDisplay() {
+                SdkLogUtil.info("interstitial loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_TO_DISPLAY_PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_LOADED);
             }
 
             @Override
             public void onInterstitialClicked() {
+                SdkLogUtil.info("interstitial clicked", SdkAdStatus.CLICKED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_CLICKED);
             }
 
             @Override
             public void onInterstitialFailedToLoad(AdException exception) {
+                SdkLogUtil.error(exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "ad failed", AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_FOR_LOAD);
                 notifyErrorListener(exception);
             }
 
             @Override
             public void onInterstitialDisplayed() {
+                SdkLogUtil.info("interstitial displayed", SdkAdStatus.DISPLAYED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_FOR_LOAD);
                 notifyAdEventListener(AdListenerEvent.AD_DISPLAYED);
             }
 
             @Override
             public void onInterstitialClosed() {
+                SdkLogUtil.info("interstitial closed", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_CLOSE);
                 notifyAdEventListener(AdListenerEvent.USER_RECEIVED_PREBID_REWARD);
             }

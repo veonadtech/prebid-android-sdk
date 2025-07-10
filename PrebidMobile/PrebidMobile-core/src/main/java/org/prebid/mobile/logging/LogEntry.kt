@@ -7,7 +7,7 @@ import org.prebid.mobile.LogUtil
  * Represents a single log entry to be sent to server
  */
 data class LogEntry(
-    val status: GamStatus,
+    val status: SdkAdStatus,
     val message: String,
     val timestamp: String,
     val accountId: String,
@@ -15,7 +15,8 @@ data class LogEntry(
     val adId: String,
     val os: String,
     val adFormat: String,
-    val adUnitId: String
+    val adUnitId: String,
+    val sdkType: SdkType
 ) {
 
     fun toJson(): JSONObject {
@@ -30,6 +31,7 @@ data class LogEntry(
             json.put("os", os)
             json.put("adUnitId", adUnitId)
             json.put("adFormat", adFormat)
+            json.put("sdkType", sdkType.name)
         } catch (e: Exception) {
             LogUtil.error("LogEntry", "Error converting to JSON: ${e.message}")
         }
