@@ -424,7 +424,6 @@ class MainActivity : AppCompatActivity() {
                                    configId: String,
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
-                                   priorityOrder: List<AdPlatformSDK>,
                                    autoRefreshDelay: Int) {
 
         val adLoader = MultiAdLoader(
@@ -433,13 +432,12 @@ class MainActivity : AppCompatActivity() {
             configId = configId,
             gamAdUnitId = gamAdUnitId,
             yandexAdUnitId = yandexAdUnitId,
-            priorityOrder = priorityOrder,
             autoRefreshDelay = autoRefreshDelay
         )
 
         adLoader.setListener(object : MultiAdLoaderListener {
             override fun onAdLoaded(adView: View, sdk: AdPlatformSDK) {
-                adWrapperView.removeAllViews()
+               // adWrapperView.removeAllViews()
                 adWrapperView.addView(adView)
                 showToast("Ad loaded from: ${sdk.name}")
             }
