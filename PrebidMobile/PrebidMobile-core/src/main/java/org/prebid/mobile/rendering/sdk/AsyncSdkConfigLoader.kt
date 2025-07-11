@@ -4,7 +4,7 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import org.json.JSONObject
-import org.prebid.mobile.api.rendering.MultiAdLoader.AdPlatformSDK
+import org.prebid.mobile.api.data.AdPlatformSDK
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
 import org.prebid.mobile.rendering.networking.ResponseHandler

@@ -21,8 +21,8 @@ import android.util.Log
 import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
+import org.prebid.mobile.api.data.AdPlatformSDK
 import org.prebid.mobile.api.data.InitializationStatus
-import org.prebid.mobile.api.rendering.MultiAdLoader.AdPlatformSDK
 import org.prebid.mobile.rendering.sdk.AsyncSdkConfigLoader
 import org.prebid.veondemo.utils.Settings
 

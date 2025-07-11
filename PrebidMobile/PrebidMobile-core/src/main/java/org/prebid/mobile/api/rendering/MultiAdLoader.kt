@@ -14,6 +14,7 @@ import com.yandex.mobile.ads.common.AdRequest
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.api.data.AdPlatformSDK
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.MultiAdLoaderListener
@@ -36,8 +37,6 @@ class MultiAdLoader(
     private var gamAdView: AdManagerAdView? = null
     private var yandexAdView: BannerAdView? = null
     private var listener: MultiAdLoaderListener? = null
-
-    enum class AdPlatformSDK { PREBID, GAM, YANDEX }
 
     fun setListener(listener: MultiAdLoaderListener) {
         this.listener = listener
