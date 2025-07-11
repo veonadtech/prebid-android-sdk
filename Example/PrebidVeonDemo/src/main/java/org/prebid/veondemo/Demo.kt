@@ -22,7 +22,13 @@ import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
+import org.prebid.mobile.api.rendering.MultiAdLoader.AdPlatformSDK
+import org.prebid.mobile.rendering.sdk.AsyncSdkConfigLoader
 import org.prebid.veondemo.utils.Settings
+
+object SdkConfigHolder {
+    var priorityOrderSDK: List<AdPlatformSDK> = listOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
+}
 
 class Demo : Application() {
 
@@ -39,10 +45,10 @@ class Demo : Application() {
     }
 
     private fun initSdkConfig() {
-        Log.i(TAG, "Load SDK priority started")
+        Log.d(TAG, "Load SDK priority started")
         AsyncSdkConfigLoader().loadSdkConfig(object : AsyncSdkConfigLoader.SdkConfigResponseHandler {
             override fun onSdkConfigReceived(sdks: List<AdPlatformSDK>) {
-                Log.i(TAG, "Successfully loaded SDK priority order from server: ${sdks.joinToString()}")
+                Log.d(TAG, "Successfully loaded SDK priority order from server: ${sdks.joinToString()}")
                 SdkConfigHolder.priorityOrderSDK = sdks
             }
 

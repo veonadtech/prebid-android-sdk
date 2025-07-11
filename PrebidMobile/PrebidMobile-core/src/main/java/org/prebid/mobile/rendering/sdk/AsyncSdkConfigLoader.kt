@@ -9,7 +9,6 @@ import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
 import org.prebid.mobile.rendering.networking.ResponseHandler
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
-import java.lang.ref.WeakReference
 
 class AsyncSdkConfigLoader {
 
@@ -20,7 +19,7 @@ class AsyncSdkConfigLoader {
     }
 
     private var configRequestAsyncTask: AsyncTask<*, *, *>? = null
-    private lateinit var weakHandler: WeakReference<SdkConfigResponseHandler>
+    private var responseHandler: SdkConfigResponseHandler? = null
     private var retryCount = 0
 
     interface SdkConfigResponseHandler {
@@ -31,7 +30,7 @@ class AsyncSdkConfigLoader {
     fun loadSdkConfig(handler: SdkConfigResponseHandler) {
         cancelTask()
         retryCount = 0
-        weakHandler = WeakReference(handler)
+        responseHandler = handler
         executeRequest()
     }
 
@@ -96,13 +95,13 @@ class AsyncSdkConfigLoader {
 
     private fun notifySuccess(sdks: List<AdPlatformSDK>) {
         Handler(Looper.getMainLooper()).post {
-            weakHandler.get()?.onSdkConfigReceived(sdks)
+            responseHandler?.onSdkConfigReceived(sdks)
         }
     }
 
     private fun notifyError(error: String) {
         Handler(Looper.getMainLooper()).post {
-            weakHandler.get()?.onError(error)
+            responseHandler?.onError(error)
         }
     }
 

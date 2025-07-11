@@ -208,12 +208,12 @@ class MainActivity : AppCompatActivity() {
 
             BannerFormat.MULTI_AD_BANNER -> {
                 setupMultiAdBanner(
-                    adSize = AdSize(320, 50),
-                    configId = "",//""beeline_uz_android_manual_veon_test_320x50",
-                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
-                    yandexAdUnitId = "sds",//yangoNetworks[0].adUnitId,
-                    priorityOrder = listOf(AdPlatformSDK.PREBID, AdPlatformSDK.GAM, AdPlatformSDK.YANDEX),
-                    autoRefreshDelay = 30
+                    adSize = AdSize(358, 200),
+                    configId = "beeline_uz_android_universal_358x200_test2",
+                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_universal_358x200_test2",
+                    yandexAdUnitId = yangoNetworks[0].adUnitId,
+                    autoRefreshDelay = 30,
+                    priorityOrder = SdkConfigHolder.priorityOrderSDK //listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
                 )
             }
         }
@@ -440,8 +440,8 @@ class MainActivity : AppCompatActivity() {
 
         adLoader.setListener(object : MultiAdLoaderListener {
             override fun onAdLoaded(adView: View, sdk: AdPlatformSDK) {
-               // adWrapperView.removeAllViews()
                 adWrapperView.addView(adView)
+                Log.d("onAdLoaded", "Ad loaded from: ${sdk.name}")
                 showToast("Ad loaded from: ${sdk.name}")
             }
 

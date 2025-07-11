@@ -1,6 +1,7 @@
 package org.prebid.mobile.api.rendering
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.LoadAdError
@@ -61,8 +62,8 @@ class MultiAdLoader(
         while (currentProviderIndex < priorityOrder.size) {
             val currentSDK = priorityOrder[currentProviderIndex]
 
-            loadedAds[currentSDK]?.let {
-                listener?.onAdLoaded(it, currentSDK)
+            loadedAds[currentSDK]?.let { view ->
+                listener?.onAdLoaded(view, currentSDK)
                 cancelOtherRequests(currentSDK)
                 return
             } ?: run {
@@ -88,8 +89,10 @@ class MultiAdLoader(
         bannerView = BannerView(context, configId, adSize).apply {
             setBannerListener(object : BannerViewListener {
                 override fun onAdLoaded(bannerView: BannerView?) {
-                    loadedAds[AdPlatformSDK.PREBID] = this@apply
-                    checkPriorityAndNotify()
+                    if (loadedAds[AdPlatformSDK.PREBID] == null) {
+                        loadedAds[AdPlatformSDK.PREBID] = this@apply
+                        checkPriorityAndNotify()
+                    }
                 }
 
                 override fun onAdDisplayed(bannerView: BannerView?) {
@@ -133,8 +136,10 @@ class MultiAdLoader(
             setAdSizes(com.google.android.gms.ads.AdSize(adSize.width, adSize.height))
             adListener = object : AdListener() {
                 override fun onAdLoaded() {
-                    loadedAds[AdPlatformSDK.GAM] = this@apply
-                    checkPriorityAndNotify()
+                    if (loadedAds[AdPlatformSDK.GAM] == null) {
+                        loadedAds[AdPlatformSDK.GAM] = this@apply
+                        checkPriorityAndNotify()
+                    }
                 }
 
                 override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -180,8 +185,10 @@ class MultiAdLoader(
 
             setBannerAdEventListener(object : BannerAdEventListener {
                 override fun onAdLoaded() {
-                    loadedAds[AdPlatformSDK.YANDEX] = this@apply
-                    checkPriorityAndNotify()
+                    if (loadedAds[AdPlatformSDK.YANDEX] == null) {
+                        loadedAds[AdPlatformSDK.YANDEX] = this@apply
+                        checkPriorityAndNotify()
+                    }
                 }
 
                 override fun onAdFailedToLoad(error: AdRequestError) {
