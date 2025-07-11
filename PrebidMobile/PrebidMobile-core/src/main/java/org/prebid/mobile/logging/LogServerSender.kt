@@ -152,7 +152,7 @@ class LogServerSender private constructor() {
     }
 
     private fun getTimeStamp(): String {
-        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
         simpleFormat.timeZone = TimeZone.getTimeZone("UTC")
         return simpleFormat.format(Date())
     }
