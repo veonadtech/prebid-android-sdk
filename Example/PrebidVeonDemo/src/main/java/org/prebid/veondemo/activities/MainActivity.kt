@@ -32,6 +32,8 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
+import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
+import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -50,11 +52,13 @@ import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
-import org.prebid.mobile.api.rendering.MultiAdLoader
+import org.prebid.mobile.api.multiadloader.MultiBannerLoader
+import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
 import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import org.prebid.mobile.api.rendering.listeners.MultiAdLoaderListener
+import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
+import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
@@ -74,29 +78,38 @@ enum class BannerFormat(val description: String) {
     SIMPLE_TEST_BANNER("Simple Test Banner"),
     SIMPLE_BANNER("Simple Banner"),
     INTERSTITIAL_BANNER("Interstitial Banner"),
+    RENDERING_INTERSTITIAL_BANNER("Rendering Interstitial"),
+    GAM_INTERSTITIAL("GAM Interstitial"),
     VIDEO_REWARDED("Rewarded Video"),
     VIDEO_IN_BANNER("Video Banner"),
     VIDEO_INTERSTITIAL("Video Interstitial"),
 
-    GAM_SIMPLE_BANNER("GAM Simple Banner"),
+    RENDERING_SIMPLE_BANNER("Rendering Banner"),
     GAM_BANNER("GAM Banner"),
-    GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
     GAM_REWARD_VIDEO("GAM Rewarded Video"),
 
     YANGO_BANNER("Yandex Banner"),
 
-    MULTI_AD_BANNER("Multi Ad Banner")
+    MULTI_AD_BANNER("Multi Ad Banner"),
+    MULTI_INTERSTITIAL_BANNER("Multi Interstitial Banner")
 }
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        private val yangoNetworks = arrayListOf(
+        private val yangoBanerNetworks = arrayListOf(
             Network( "demo-banner-yandex"),
             Network("demo-banner-admob"),
             Network("demo-banner-applovin"),
             Network( "demo-banner-chartboost")
+        )
+
+        private val yangoInterstitialNetworks = arrayListOf(
+            Network("demo-interstitial-yandex"),
+            Network("demo-interstitial-admob"),
+            Network("demo-interstitial-applovin"),
+            Network("demo-interstitial-chartboost")
         )
     }
 
@@ -178,10 +191,10 @@ class MainActivity : AppCompatActivity() {
                 cpm = 50F
             )
 
-            BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner(
                 configId = "prebid-ita-banner-320-50",
                 adSize = AdSize(320, 50),
                 adUnitId = "/6355419/Travel/Europe/France/Paris"
+            BannerFormat.RENDERING_SIMPLE_BANNER -> setupRenderingSimpleBanner(
 
             BannerFormat.GAM_BANNER -> setupGamBanner(
                 configId = "prebid-ita-banner-320-50",
@@ -189,7 +202,13 @@ class MainActivity : AppCompatActivity() {
                 adUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_universal_358x200_test2"
             )
 
-            BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
+            BannerFormat.RENDERING_INTERSTITIAL_BANNER -> setupRenderingInterstitialBanner(
+                gamAdUnitId = "ca-app-pub-3940256099942544/1033173712",
+                configId = "test_interstitial",
+                adSize = AdSize(100, 100)
+            )
+
+            BannerFormat.GAM_INTERSTITIAL -> setupGamInterstitialBanner(
                 gamAdUnitId = "ca-app-pub-3940256099942544/1033173712",
                 configId = "test_interstitial",
                 adSize = AdSize(100, 100)
@@ -203,17 +222,28 @@ class MainActivity : AppCompatActivity() {
 
             BannerFormat.YANGO_BANNER -> {
                 configureBannerAdSize()
-                setupYangoBanner(yangoNetworks[0].adUnitId)
+                setupYangoBanner(yangoBanerNetworks[0].adUnitId)
             }
 
             BannerFormat.MULTI_AD_BANNER -> {
                 setupMultiAdBanner(
-                    adSize = AdSize(358, 200),
-                    configId = "beeline_uz_android_universal_358x200_test2",
-                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_universal_358x200_test2",
-                    yandexAdUnitId = yangoNetworks[0].adUnitId,
+                    adSize = AdSize(320, 50),
+                    configId = "beeline_uz_android_manual_veon_test_320x50",
+                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
+                    yandexAdUnitId = yangoBanerNetworks[0].adUnitId,
                     autoRefreshDelay = 30,
-                    priorityOrder = SdkConfigHolder.priorityOrderSDK //listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
+                    priorityOrder =// SdkConfigHolder.priorityOrderSDK
+                listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
+                )
+            }
+
+            BannerFormat.MULTI_INTERSTITIAL_BANNER -> {
+                setupMultiInterstitialAd(
+                    configId = "beeline_uz_android_wheel_test2_interstitial",
+                    gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_test2_interstitial",
+                    yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId,
+                    priorityOrder = //SdkConfigHolder.priorityOrderSDK
+                listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
                 )
             }
         }
@@ -404,7 +434,7 @@ class MainActivity : AppCompatActivity() {
         slot.addView(adUnit)
     }
 
-    private fun setupGamSimpleBanner(configId: String, adSize: AdSize, adUnitId: String) {
+    private fun setupRenderingSimpleBanner(configId: String, adSize: AdSize, adUnitId: String) {
         val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
         val bannerView = BannerView(this, configId, eventHandler)
         bannerView.setAutoRefreshDelay(30)
@@ -428,7 +458,7 @@ class MainActivity : AppCompatActivity() {
                                    autoRefreshDelay: Int,
                                    priorityOrder: List<AdPlatformSDK>) {
 
-        val adLoader = MultiAdLoader(
+        val adLoader = MultiBannerLoader(
             context = this,
             adSize = adSize,
             configId = configId,
@@ -438,7 +468,7 @@ class MainActivity : AppCompatActivity() {
             priorityOrder = priorityOrder
         )
 
-        adLoader.setListener(object : MultiAdLoaderListener {
+        adLoader.setListener(object : MultiBannerViewListener {
             override fun onAdLoaded(adView: View, sdk: AdPlatformSDK) {
                 adWrapperView.addView(adView)
                 Log.d("onAdLoaded", "Ad loaded from: ${sdk.name}")
@@ -527,7 +557,7 @@ class MainActivity : AppCompatActivity() {
         adWrapperView.addView(adView)
     }
 
-    private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
+    private fun setupRenderingInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
         val eventHandler = GamInterstitialEventHandler(this, gamAdUnitId)
         InterstitialAdUnit(this, configId, eventHandler).apply {
             setMinSizePercentage(adSize)
@@ -544,6 +574,88 @@ class MainActivity : AppCompatActivity() {
             })
             loadAd()
         }
+    }
+
+    private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
+        // 1. Create InterstitialAdUnit
+        val adUnit = org.prebid.mobile.InterstitialAdUnit(configId, 80, 60)
+
+        // 2. Make a bid request to Prebid Server
+        val request = AdManagerAdRequest.Builder().build()
+        adUnit.fetchDemand(request) {
+
+            // 3. Load a GAM interstitial ad
+            AdManagerInterstitialAd.load(
+                this,
+                gamAdUnitId,
+                request,
+                object : AdManagerInterstitialAdLoadCallback() {
+
+                    override fun onAdLoaded(adManagerInterstitialAd: AdManagerInterstitialAd) {
+                        super.onAdLoaded(adManagerInterstitialAd)
+
+                        // 4.  Present the interstitial ad
+                        adManagerInterstitialAd.show(this@MainActivity)
+                    }
+
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        super.onAdFailedToLoad(loadAdError)
+                        Log.e("GAM", "Ad failed to load: $loadAdError")
+                    }
+                })
+        }
+    }
+
+    private fun setupMultiInterstitialAd(
+        configId: String,
+        gamAdUnitId: String,
+        yandexAdUnitId: String,
+        priorityOrder: List<AdPlatformSDK>
+    ) {
+
+        val interstitialLoader = MultiInterstitialAdLoader(
+            context = this,
+            configId = configId,
+            gamAdUnitId = gamAdUnitId,
+            yandexAdUnitId = yandexAdUnitId,
+            priorityOrder = priorityOrder
+        )
+
+        interstitialLoader.setListener(object : MultiInterstitialAdListener {
+            override fun onAdLoaded(sdk: AdPlatformSDK) {
+                Log.d("Interstitial", "Ad loaded from: ${sdk.name}")
+                showToast("Interstitial loaded from: ${sdk.name}")
+                interstitialLoader.showAd()
+            }
+
+            override fun onAdFailed(error: String?, sdk: AdPlatformSDK?) {
+                val errorMsg = error ?: "Unknown error"
+                val sdkName = sdk?.name ?: "unknown SDK"
+                showToast("Interstitial failed ($sdkName): $errorMsg")
+            }
+
+            override fun onAdDisplayed(sdk: AdPlatformSDK) {
+                showToast("Interstitial displayed (${sdk.name})")
+            }
+
+            override fun onAdFailedToShow(error: String?, sdk: AdPlatformSDK?) {
+                showToast("Interstitial failed to show (${sdk?.name}): $error")
+            }
+
+            override fun onAdClicked(sdk: AdPlatformSDK) {
+                showToast("Interstitial clicked (${sdk.name})")
+            }
+
+            override fun onAdClosed(sdk: AdPlatformSDK) {
+                showToast("Interstitial closed (${sdk.name})")
+            }
+
+            override fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK) {
+                showToast("Interstitial impression (${sdk.name})")
+            }
+        })
+
+        interstitialLoader.loadAd()
     }
 
     private fun setupGamRewardVideo(gamAdUnitId: String, configId: String) {

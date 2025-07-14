@@ -1,11 +1,11 @@
-package org.prebid.mobile.api.rendering.listeners
+package org.prebid.mobile.api.multiadloader.listeners
 
 import android.view.View
 import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.api.data.AdPlatformSDK
 import org.prebid.mobile.api.rendering.BannerView
 
-interface MultiAdLoaderListener {
+interface MultiBannerViewListener {
 
     fun onAdLoaded(adView: View, sdk: AdPlatformSDK)
     fun onAdFailed(bannerView: BannerView?, error: String?, sdk: AdPlatformSDK?)
