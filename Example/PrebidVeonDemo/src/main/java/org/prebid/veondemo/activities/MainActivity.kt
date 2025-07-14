@@ -610,7 +610,7 @@ class MainActivity : AppCompatActivity() {
         configId: String,
         gamAdUnitId: String,
         yandexAdUnitId: String,
-        priorityOrder: List<AdPlatformSDK>
+        priorityOrder: MutableList<AdPlatformSDK>
     ) {
 
         val interstitialLoader = MultiInterstitialAdLoader(
