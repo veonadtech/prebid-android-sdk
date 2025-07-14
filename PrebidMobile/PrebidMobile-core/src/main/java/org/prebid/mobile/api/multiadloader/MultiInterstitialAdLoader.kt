@@ -27,192 +27,174 @@ class MultiInterstitialAdLoader(
     private val configId: String?,
     private val gamAdUnitId: String?,
     private val yandexAdUnitId: String?,
-    private val priorityOrder: MutableList<AdPlatformSDK> = mutableListOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
+    private val priorityOrder: MutableList<AdPlatformSDK> = mutableListOf(
+        AdPlatformSDK.YANDEX,
+        AdPlatformSDK.GAM,
+        AdPlatformSDK.PREBID
+    )
 ) {
-    private var currentProviderIndex = 0
-    private var prebidInterstitial: InterstitialAdUnit? = null
-    private var gamInterstitial: AdManagerInterstitialAd? = null
-    private var yandexInterstitial: InterstitialAd? = null
     private var selectedSDK: AdPlatformSDK? = null
     private var listener: MultiInterstitialAdListener? = null
+
+    private val adLoaders = mapOf(
+        AdPlatformSDK.PREBID to PrebidAdLoader(),
+        AdPlatformSDK.GAM to GamAdLoader(),
+        AdPlatformSDK.YANDEX to YandexAdLoader()
+    )
 
     fun setListener(listener: MultiInterstitialAdListener) {
         this.listener = listener
     }
 
     fun loadAd() {
-        currentProviderIndex = 0
         destroy()
-
-        val currentPriorityOrder = priorityOrder.toList()
-        currentPriorityOrder.forEach { sdk ->
-            when (sdk) {
-                AdPlatformSDK.PREBID -> loadPrebidInterstitial()
-                AdPlatformSDK.GAM -> loadGamInterstitial()
-                AdPlatformSDK.YANDEX -> loadYandexInterstitial()
-            }
-        }
-    }
-
-    private fun checkPriorityAndNotify() {
-        if (priorityOrder.isEmpty()) {
-            listener?.onAdFailed("All prioritized ad providers failed to load ad", null)
-        } else {
-            when (val currentSDK = priorityOrder[0]) {
-                AdPlatformSDK.PREBID -> if (prebidInterstitial != null) {
-                    selectedSDK = currentSDK
-                    cancelOtherRequests(currentSDK)
-                    listener?.onAdLoaded(currentSDK)
-                    return
-                }
-
-                AdPlatformSDK.GAM -> if (gamInterstitial != null) {
-                    selectedSDK = currentSDK
-                    cancelOtherRequests(currentSDK)
-                    listener?.onAdLoaded(currentSDK)
-                    return
-                }
-
-                AdPlatformSDK.YANDEX -> if (yandexInterstitial != null) {
-                    selectedSDK = currentSDK
-                    cancelOtherRequests(currentSDK)
-                    listener?.onAdLoaded(currentSDK)
-                    return
-                }
-            }
-        }
-    }
-
-    private fun loadPrebidInterstitial() {
-        if (configId.isNullOrEmpty()) {
-            handleAdFailed("ConfigId is empty", AdPlatformSDK.PREBID)
-            return
-        }
-
-        prebidInterstitial = InterstitialAdUnit(context, configId, EnumSet.of(AdUnitFormat.BANNER)).apply {
-            setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-                override fun onAdLoaded(unit: InterstitialAdUnit?) {
-                    checkPriorityAndNotify()
-                }
-
-                override fun onAdDisplayed(unit: InterstitialAdUnit?) {
-                    listener?.onAdDisplayed(AdPlatformSDK.PREBID)
-                }
-
-                override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) {
-                    handleAdFailed(e?.message ?: "Unknown error", AdPlatformSDK.PREBID)
-                }
-
-                override fun onAdClicked(unit: InterstitialAdUnit?) {
-                    listener?.onAdClicked(AdPlatformSDK.PREBID)
-                }
-
-                override fun onAdClosed(unit: InterstitialAdUnit?) {
-                    listener?.onAdClosed(AdPlatformSDK.PREBID)
-                }
-            })
-            loadAd()
-        }
-    }
-
-    private fun loadGamInterstitial() {
-        if (gamAdUnitId.isNullOrEmpty()) {
-            handleAdFailed("GAM AdUnitId is empty", AdPlatformSDK.GAM)
-            return
-        }
-
-        val request = AdManagerAdRequest.Builder().build()
-        AdManagerInterstitialAd.load(context, gamAdUnitId, request, object : AdManagerInterstitialAdLoadCallback() {
-            override fun onAdLoaded(interstitialAd: AdManagerInterstitialAd) {
-                gamInterstitial = interstitialAd
-                checkPriorityAndNotify()
-            }
-
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                handleAdFailed(loadAdError.message, AdPlatformSDK.GAM)
-            }
-        })
-    }
-
-    private fun loadYandexInterstitial() {
-        if (yandexAdUnitId.isNullOrEmpty()) {
-            handleAdFailed("Yandex AdUnitId is empty", AdPlatformSDK.YANDEX)
-            return
-        }
-
-        InterstitialAdLoader(context).apply {
-            setAdLoadListener(object : InterstitialAdLoadListener {
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    yandexInterstitial = interstitialAd.apply {
-                        setAdEventListener(object : InterstitialAdEventListener {
-                            override fun onAdShown() {
-                                listener?.onAdDisplayed(AdPlatformSDK.YANDEX)
-                            }
-
-                            override fun onAdFailedToShow(adError: AdError) {
-                                listener?.onAdFailedToShow(adError.description, AdPlatformSDK.YANDEX)
-                            }
-
-                            override fun onAdDismissed() {
-                                listener?.onAdClosed(AdPlatformSDK.YANDEX)
-                            }
-
-                            override fun onAdClicked() {
-                                listener?.onAdClicked(AdPlatformSDK.YANDEX)
-                            }
-
-                            override fun onAdImpression(impressionData: ImpressionData?) {
-                                listener?.onImpression(impressionData, AdPlatformSDK.YANDEX)
-                            }
-                        })
-                    }
-                    checkPriorityAndNotify()
-                }
-
-                override fun onAdFailedToLoad(error: AdRequestError) {
-                    handleAdFailed(error.description, AdPlatformSDK.YANDEX)
-                }
-            })
-            loadAd(AdRequestConfiguration.Builder(yandexAdUnitId).build())
-        }
-    }
-
-    private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
-        priorityOrder.removeAll { it == sdk }
-        listener?.onAdFailed(error, sdk)
-        checkPriorityAndNotify()
-    }
-
-    private fun cancelOtherRequests(successfulSdk: AdPlatformSDK) {
-        priorityOrder.forEach { sdk ->
-            if (sdk != successfulSdk) {
-                when (sdk) {
-                    AdPlatformSDK.PREBID -> {
-                        prebidInterstitial?.destroy()
-                        prebidInterstitial = null
-                    }
-                    AdPlatformSDK.GAM -> gamInterstitial = null
-                    AdPlatformSDK.YANDEX -> yandexInterstitial = null
-                }
-            }
+        selectedSDK = null
+        val order = priorityOrder.toList()
+        order.forEach { sdk ->
+            adLoaders[sdk]?.load()
         }
     }
 
     fun showAd() {
-        when {
-            prebidInterstitial != null && selectedSDK == AdPlatformSDK.PREBID -> prebidInterstitial?.show()
-            gamInterstitial != null && selectedSDK == AdPlatformSDK.GAM -> gamInterstitial?.show(context as Activity)
-            yandexInterstitial != null && selectedSDK == AdPlatformSDK.YANDEX -> yandexInterstitial?.show(context as Activity)
-            else -> listener?.onAdFailedToShow("No loaded interstitial ad to show", null)
+        selectedSDK?.let { sdk ->
+            adLoaders[sdk]?.show()
+        } ?: run {
+            listener?.onAdFailedToShow("No loaded interstitial ad to show", null)
         }
     }
 
     fun destroy() {
-        prebidInterstitial?.destroy()
-        prebidInterstitial = null
-        gamInterstitial = null
-        yandexInterstitial = null
-        selectedSDK = null
+        adLoaders.values.forEach { it.destroy() }
     }
 
+    private fun handleAdLoaded(sdk: AdPlatformSDK) {
+        if (priorityOrder.firstOrNull() == sdk && adLoaders[sdk] != null) {
+            selectedSDK = sdk
+            cancelOtherRequests(sdk)
+            listener?.onAdLoaded(sdk)
+        }
+    }
+
+    private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
+        priorityOrder.remove(sdk)
+        listener?.onAdFailed(error, sdk)
+    }
+
+    private fun cancelOtherRequests(successfulSdk: AdPlatformSDK) {
+        priorityOrder.filter { it != successfulSdk }.forEach { sdk ->
+            adLoaders[sdk]?.destroy()
+        }
+    }
+
+    private inner class PrebidAdLoader : AdLoader {
+        private var interstitial: InterstitialAdUnit? = null
+
+        override fun load() {
+            if (configId.isNullOrEmpty()) {
+                handleAdFailed("ConfigId is empty", AdPlatformSDK.PREBID)
+                return
+            }
+
+            interstitial = InterstitialAdUnit(context, configId, EnumSet.of(AdUnitFormat.BANNER)).apply {
+                setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
+                    override fun onAdLoaded(unit: InterstitialAdUnit?) = handleAdLoaded(AdPlatformSDK.PREBID)
+                    override fun onAdDisplayed(unit: InterstitialAdUnit?) = listener?.onAdDisplayed(AdPlatformSDK.PREBID) ?: Unit
+                    override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) =
+                        handleAdFailed(e?.message ?: "Unknown error", AdPlatformSDK.PREBID)
+                    override fun onAdClicked(unit: InterstitialAdUnit?) = listener?.onAdClicked(AdPlatformSDK.PREBID) ?: Unit
+                    override fun onAdClosed(unit: InterstitialAdUnit?) = listener?.onAdClosed(AdPlatformSDK.PREBID) ?: Unit
+                })
+                loadAd()
+            }
+        }
+
+        override fun show() {
+            interstitial?.show()
+        }
+
+        override fun destroy() {
+            interstitial?.destroy()
+            interstitial = null
+        }
+    }
+
+    private inner class GamAdLoader : AdLoader {
+        private var interstitial: AdManagerInterstitialAd? = null
+
+        override fun load() {
+            if (gamAdUnitId.isNullOrEmpty()) {
+                handleAdFailed("GAM AdUnitId is empty", AdPlatformSDK.GAM)
+                return
+            }
+
+            val request = AdManagerAdRequest.Builder().build()
+            AdManagerInterstitialAd.load(context, gamAdUnitId, request, object : AdManagerInterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: AdManagerInterstitialAd) {
+                    interstitial = interstitialAd
+                    handleAdLoaded(AdPlatformSDK.GAM)
+                }
+
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                    handleAdFailed(loadAdError.message, AdPlatformSDK.GAM)
+                }
+            })
+        }
+
+        override fun show() {
+            interstitial?.show(context as Activity)
+        }
+
+        override fun destroy() {
+            interstitial = null
+        }
+    }
+
+    private inner class YandexAdLoader : AdLoader {
+        private var interstitial: InterstitialAd? = null
+
+        override fun load() {
+            if (yandexAdUnitId.isNullOrEmpty()) {
+                handleAdFailed("Yandex AdUnitId is empty", AdPlatformSDK.YANDEX)
+                return
+            }
+
+            InterstitialAdLoader(context).apply {
+                setAdLoadListener(object : InterstitialAdLoadListener {
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        interstitial = interstitialAd.apply {
+                            setAdEventListener(object : InterstitialAdEventListener {
+                                override fun onAdShown() = listener?.onAdDisplayed(AdPlatformSDK.YANDEX) ?: Unit
+                                override fun onAdFailedToShow(adError: AdError) =
+                                    listener?.onAdFailedToShow(adError.description, AdPlatformSDK.YANDEX) ?: Unit
+                                override fun onAdDismissed() = listener?.onAdClosed(AdPlatformSDK.YANDEX) ?: Unit
+                                override fun onAdClicked() = listener?.onAdClicked(AdPlatformSDK.YANDEX) ?: Unit
+                                override fun onAdImpression(impressionData: ImpressionData?) =
+                                    listener?.onImpression(impressionData, AdPlatformSDK.YANDEX) ?: Unit
+                            })
+                        }
+                        handleAdLoaded(AdPlatformSDK.YANDEX)
+                    }
+
+                    override fun onAdFailedToLoad(error: AdRequestError) {
+                        handleAdFailed(error.description, AdPlatformSDK.YANDEX)
+                    }
+                })
+                loadAd(AdRequestConfiguration.Builder(yandexAdUnitId).build())
+            }
+        }
+
+        override fun show() {
+            interstitial?.show(context as Activity)
+        }
+
+        override fun destroy() {
+            interstitial = null
+        }
+    }
+
+    private interface AdLoader {
+        fun load()
+        fun show()
+        fun destroy()
+    }
 }
