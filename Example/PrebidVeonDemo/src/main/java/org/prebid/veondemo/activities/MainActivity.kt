@@ -243,7 +243,7 @@ class MainActivity : AppCompatActivity() {
                     gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_test2_interstitial",
                     yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId,
                     priorityOrder = //SdkConfigHolder.priorityOrderSDK
-                listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
+                mutableListOf(AdPlatformSDK.PREBID, AdPlatformSDK.YANDEX, AdPlatformSDK.GAM)// SdkConfigHolder.priorityOrderSDK
                 )
             }
         }

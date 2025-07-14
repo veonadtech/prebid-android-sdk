@@ -27,13 +27,13 @@ class MultiInterstitialAdLoader(
     private val configId: String?,
     private val gamAdUnitId: String?,
     private val yandexAdUnitId: String?,
-    private val priorityOrder: List<AdPlatformSDK> = listOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
+    private val priorityOrder: MutableList<AdPlatformSDK> = mutableListOf(AdPlatformSDK.YANDEX, AdPlatformSDK.GAM, AdPlatformSDK.PREBID)
 ) {
-    private val failedSDKs = mutableSetOf<AdPlatformSDK>()
     private var currentProviderIndex = 0
     private var prebidInterstitial: InterstitialAdUnit? = null
     private var gamInterstitial: AdManagerInterstitialAd? = null
     private var yandexInterstitial: InterstitialAd? = null
+    private var selectedSDK: AdPlatformSDK? = null
     private var listener: MultiInterstitialAdListener? = null
 
     fun setListener(listener: MultiInterstitialAdListener) {
@@ -41,11 +41,11 @@ class MultiInterstitialAdLoader(
     }
 
     fun loadAd() {
-        failedSDKs.clear()
         currentProviderIndex = 0
         destroy()
 
-        priorityOrder.forEach { sdk ->
+        val currentPriorityOrder = priorityOrder.toList()
+        currentPriorityOrder.forEach { sdk ->
             when (sdk) {
                 AdPlatformSDK.PREBID -> loadPrebidInterstitial()
                 AdPlatformSDK.GAM -> loadGamInterstitial()
@@ -55,33 +55,31 @@ class MultiInterstitialAdLoader(
     }
 
     private fun checkPriorityAndNotify() {
-        while (currentProviderIndex < priorityOrder.size) {
-            val currentSDK = priorityOrder[currentProviderIndex]
-
-            when (currentSDK) {
+        if (priorityOrder.isEmpty()) {
+            listener?.onAdFailed("All prioritized ad providers failed to load ad", null)
+        } else {
+            when (val currentSDK = priorityOrder[0]) {
                 AdPlatformSDK.PREBID -> if (prebidInterstitial != null) {
+                    selectedSDK = currentSDK
                     cancelOtherRequests(currentSDK)
+                    listener?.onAdLoaded(currentSDK)
                     return
                 }
+
                 AdPlatformSDK.GAM -> if (gamInterstitial != null) {
+                    selectedSDK = currentSDK
                     cancelOtherRequests(currentSDK)
+                    listener?.onAdLoaded(currentSDK)
                     return
                 }
+
                 AdPlatformSDK.YANDEX -> if (yandexInterstitial != null) {
+                    selectedSDK = currentSDK
                     cancelOtherRequests(currentSDK)
+                    listener?.onAdLoaded(currentSDK)
                     return
                 }
             }
-
-            if (failedSDKs.contains(currentSDK)) {
-                currentProviderIndex++
-            } else {
-                return
-            }
-        }
-
-        if (failedSDKs.size == priorityOrder.size) {
-            listener?.onAdFailed("All prioritized ad providers failed to load ad", priorityOrder.last())
         }
     }
 
@@ -94,7 +92,6 @@ class MultiInterstitialAdLoader(
         prebidInterstitial = InterstitialAdUnit(context, configId, EnumSet.of(AdUnitFormat.BANNER)).apply {
             setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
                 override fun onAdLoaded(unit: InterstitialAdUnit?) {
-                    listener?.onAdLoaded(AdPlatformSDK.PREBID)
                     checkPriorityAndNotify()
                 }
 
@@ -128,7 +125,6 @@ class MultiInterstitialAdLoader(
         AdManagerInterstitialAd.load(context, gamAdUnitId, request, object : AdManagerInterstitialAdLoadCallback() {
             override fun onAdLoaded(interstitialAd: AdManagerInterstitialAd) {
                 gamInterstitial = interstitialAd
-                listener?.onAdLoaded(AdPlatformSDK.GAM)
                 checkPriorityAndNotify()
             }
 
@@ -147,7 +143,6 @@ class MultiInterstitialAdLoader(
         InterstitialAdLoader(context).apply {
             setAdLoadListener(object : InterstitialAdLoadListener {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    listener?.onAdLoaded(AdPlatformSDK.YANDEX)
                     yandexInterstitial = interstitialAd.apply {
                         setAdEventListener(object : InterstitialAdEventListener {
                             override fun onAdShown() {
@@ -183,7 +178,7 @@ class MultiInterstitialAdLoader(
     }
 
     private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
-        failedSDKs.add(sdk)
+        priorityOrder.removeAll { it == sdk }
         listener?.onAdFailed(error, sdk)
         checkPriorityAndNotify()
     }
@@ -205,9 +200,9 @@ class MultiInterstitialAdLoader(
 
     fun showAd() {
         when {
-            prebidInterstitial != null -> prebidInterstitial?.show()
-            gamInterstitial != null -> gamInterstitial?.show(context as Activity)
-            yandexInterstitial != null -> yandexInterstitial?.show(context as Activity)
+            prebidInterstitial != null && selectedSDK == AdPlatformSDK.PREBID -> prebidInterstitial?.show()
+            gamInterstitial != null && selectedSDK == AdPlatformSDK.GAM -> gamInterstitial?.show(context as Activity)
+            yandexInterstitial != null && selectedSDK == AdPlatformSDK.YANDEX -> yandexInterstitial?.show(context as Activity)
             else -> listener?.onAdFailedToShow("No loaded interstitial ad to show", null)
         }
     }
@@ -217,7 +212,7 @@ class MultiInterstitialAdLoader(
         prebidInterstitial = null
         gamInterstitial = null
         yandexInterstitial = null
-        failedSDKs.clear()
+        selectedSDK = null
     }
 
 }
