@@ -23,6 +23,7 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import java.util.EnumSet
 
 class MultiInterstitialAdLoader(
+
     private val context: Context,
     private val configId: String?,
     private val gamAdUnitId: String?,
@@ -33,6 +34,7 @@ class MultiInterstitialAdLoader(
         AdPlatformSDK.PREBID
     )
 ) {
+
     private var selectedSDK: AdPlatformSDK? = null
     private var listener: MultiInterstitialAdListener? = null
 
@@ -197,4 +199,5 @@ class MultiInterstitialAdLoader(
         fun show()
         fun destroy()
     }
+
 }

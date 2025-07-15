@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
                     yandexAdUnitId = yangoBanerNetworks[0].adUnitId,
                     autoRefreshDelay = 30,
                     priorityOrder =// SdkConfigHolder.priorityOrderSDK
-                listOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
+                mutableListOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
                 )
             }
 
@@ -243,7 +243,7 @@ class MainActivity : AppCompatActivity() {
                     gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_test2_interstitial",
                     yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId,
                     priorityOrder = //SdkConfigHolder.priorityOrderSDK
-                mutableListOf(AdPlatformSDK.PREBID, AdPlatformSDK.YANDEX, AdPlatformSDK.GAM)// SdkConfigHolder.priorityOrderSDK
+                mutableListOf( AdPlatformSDK.GAM, AdPlatformSDK.PREBID, AdPlatformSDK.YANDEX)// SdkConfigHolder.priorityOrderSDK
                 )
             }
         }
@@ -456,7 +456,7 @@ class MainActivity : AppCompatActivity() {
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
                                    autoRefreshDelay: Int,
-                                   priorityOrder: List<AdPlatformSDK>) {
+                                   priorityOrder: MutableList<AdPlatformSDK>) {
 
         val adLoader = MultiBannerLoader(
             context = this,
