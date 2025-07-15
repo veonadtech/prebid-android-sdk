@@ -24,8 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
+import org.prebid.mobile.logging.SdkAdStatus;
+import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.display.BidResponseCache;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
@@ -245,48 +249,54 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyListenerError(AdException e) {
-        LogUtil.debug(TAG, "onAdFailed");
+        SdkLogUtil.error(e.getLocalizedMessage() != null ? e.getLocalizedMessage() : "ad failed", AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
+        LogUtil.debug(TAG, "onAdFailed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdFailed(e);
         }
     }
 
     private void notifyListenerClicked() {
-        LogUtil.debug(TAG, "onAdClicked");
+        SdkLogUtil.info("ad clicked", SdkAdStatus.CLICKED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
+        LogUtil.debug(TAG, "onAdClicked prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdClicked();
         }
     }
 
     private void notifyUrlClicked(String url) {
-        LogUtil.debug(TAG, "onAdClickedUrl");
+        LogUtil.debug(TAG, "onAdClickedUrl prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdUrlClicked(url);
         }
     }
 
     private void notifyListenerClose() {
-        LogUtil.debug(TAG, "onAdClosed");
+        SdkLogUtil.info("ad closed", SdkAdStatus.CLOSED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
+        LogUtil.debug(TAG, "onAdClosed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdClosed();
         }
     }
 
     private void notifyListenerDisplayed() {
-        LogUtil.debug(TAG, "onAdDisplayed");
+        SdkLogUtil.info("ad displayed", SdkAdStatus.DISPLAYED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
+        LogUtil.debug(TAG, "onAdDisplayed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdDisplayed();
         }
     }
 
     private void notifyListenerLoaded() {
-        LogUtil.debug(TAG, "onAdLoaded");
+        SdkLogUtil.info("ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
+        LogUtil.debug(TAG, "onAdLoaded prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdLoaded();
         }
     }
 
     private void notifyVideoPaused() {
+        SdkLogUtil.info("video paused", SdkAdStatus.PAUSED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
         LogUtil.debug(TAG, "onVideoPaused");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoPaused();
@@ -294,6 +304,7 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyVideoResumed() {
+        SdkLogUtil.info("video resumed", SdkAdStatus.RESUMED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
         LogUtil.debug(TAG, "onVideoResumed");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoResumed();
@@ -301,6 +312,7 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyVideoMuted() {
+        SdkLogUtil.info("video muted", SdkAdStatus.MUTED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
         LogUtil.debug(TAG, "onVideoMuted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoMuted();
@@ -308,6 +320,7 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyVideoUnMuted() {
+        SdkLogUtil.info("video unmuted", SdkAdStatus.UNMUTED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
         LogUtil.debug(TAG, "onVideoUnMuted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoUnMuted();
@@ -315,6 +328,7 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyVideoCompleted() {
+        SdkLogUtil.info("video completed", SdkAdStatus.COMPLETED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
         LogUtil.debug(TAG, "onVideoCompleted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoCompleted();

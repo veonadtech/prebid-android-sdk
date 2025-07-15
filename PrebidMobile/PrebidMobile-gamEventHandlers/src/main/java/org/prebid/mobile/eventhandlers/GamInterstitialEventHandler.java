@@ -27,7 +27,8 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
-import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.InterstitialEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.InterstitialEventListener;
@@ -194,23 +195,23 @@ public class GamInterstitialEventHandler implements InterstitialEventHandler, Ga
         switch (errorCode) {
             case Constants.ERROR_CODE_INTERNAL_ERROR:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK encountered an internal error."));
-                GamLogUtil.error("Ad failed: GAM SDK encountered an internal error.", AdFormat.INTERSTITIAL, gamAdUnitId);
+                SdkLogUtil.error("Ad failed: GAM SDK encountered an internal error.", AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
                 break;
             case Constants.ERROR_CODE_INVALID_REQUEST:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - invalid request error."));
-                GamLogUtil.error("Ad failed: GAM SDK - invalid request error.", AdFormat.INTERSTITIAL, gamAdUnitId);
+                SdkLogUtil.error("Ad failed: GAM SDK - invalid request error.", AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
                 break;
             case Constants.ERROR_CODE_NETWORK_ERROR:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - network error."));
-                GamLogUtil.error("Ad failed: GAM SDK - network error.", AdFormat.INTERSTITIAL, gamAdUnitId);
+                SdkLogUtil.error("Ad failed: GAM SDK - network error.", AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
                 break;
             case Constants.ERROR_CODE_NO_FILL:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - no fill."));
-                GamLogUtil.error("Ad failed: GAM SDK - no fill.", AdFormat.INTERSTITIAL, gamAdUnitId);
+                SdkLogUtil.error("Ad failed: GAM SDK - no fill.", AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
                 break;
             default:
                 interstitialEventListener.onAdFailed(new AdException(AdException.THIRD_PARTY, "GAM SDK - failed with errorCode: " + errorCode));
-                GamLogUtil.error("Ad failed: GAM SDK - failed with errorCode: " + errorCode, AdFormat.INTERSTITIAL, gamAdUnitId);
+                SdkLogUtil.error("Ad failed: GAM SDK - failed with errorCode: " + errorCode, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
         }
     }
 }

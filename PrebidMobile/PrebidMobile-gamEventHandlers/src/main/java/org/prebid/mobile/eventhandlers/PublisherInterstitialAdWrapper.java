@@ -35,8 +35,9 @@ import com.google.android.gms.ads.admanager.AppEventListener;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
-import org.prebid.mobile.logging.GamLogUtil;
-import org.prebid.mobile.logging.GamStatus;
+import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkAdStatus;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
@@ -67,14 +68,14 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             interstitialAd.setFullScreenContentCallback(PublisherInterstitialAdWrapper.this);
             interstitialAd.setAppEventListener(PublisherInterstitialAdWrapper.this);
 
-            GamLogUtil.info("Ad loaded", GamStatus.LOADED, AdFormat.INTERSTITIAL, adUnitId);
+            SdkLogUtil.info("Ad loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
         }
 
         @Override
         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             interstitialAd = null;
-            GamLogUtil.error("Ad failed to load " + loadAdError.getMessage(), AdFormat.INTERSTITIAL, adUnitId);
-            GamLogUtil.error("Ad failed to load " + loadAdError.getResponseInfo(), AdFormat.INTERSTITIAL, adUnitId);
+            SdkLogUtil.error("Ad failed to load " + loadAdError.getMessage(), AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
+            SdkLogUtil.error("Ad failed to load " + loadAdError.getResponseInfo(), AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
             notifyErrorListener(loadAdError.getCode());
         }
     };
@@ -95,7 +96,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
         try {
             return new PublisherInterstitialAdWrapper(activity, gamAdUnitId, eventListener);
         } catch (Throwable throwable) {
-            GamLogUtil.error("Failed to create PublisherInterstitialAdWrapper instance", AdFormat.INTERSTITIAL, gamAdUnitId);
+            SdkLogUtil.error("Failed to create PublisherInterstitialAdWrapper instance", AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
         }
         return null;
@@ -118,7 +119,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
 
     @Override
     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-        GamLogUtil.error("Ad failed to show fullscreen" + adError.getMessage(), AdFormat.INTERSTITIAL, adUnitId);
+        SdkLogUtil.error("Ad failed to show fullscreen" + adError.getMessage(), AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
         interstitialAd = null;
         notifyErrorListener(adError.getCode());
     }
@@ -126,24 +127,24 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
     @Override
     public void onAdShowedFullScreenContent() {
         listener.onEvent(AdEvent.DISPLAYED);
-        GamLogUtil.info("Ad showed fullscreen", GamStatus.DISPLAYED, AdFormat.INTERSTITIAL, adUnitId);
+        SdkLogUtil.info("Ad showed fullscreen", SdkAdStatus.DISPLAYED, AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
     }
 
     @Override
     public void onAdDismissedFullScreenContent() {
         listener.onEvent(AdEvent.CLOSED);
-        GamLogUtil.info("Ad dismissed fullscreen", GamStatus.CLOSED, AdFormat.INTERSTITIAL, adUnitId);
+        SdkLogUtil.info("Ad dismissed fullscreen", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
     }
 
     @Override
     public void onAdClicked() {
         listener.onEvent(AdEvent.CLICKED);
-        GamLogUtil.info("Ad clicked", GamStatus.CLICKED, AdFormat.INTERSTITIAL, adUnitId);
+        SdkLogUtil.info("Ad clicked", SdkAdStatus.CLICKED, AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
     }
 
     @Override
     public void onAdImpression() {
-        GamLogUtil.info("Ad impression", GamStatus.IMPRESSION, AdFormat.INTERSTITIAL, adUnitId);
+        SdkLogUtil.info("Ad impression", SdkAdStatus.IMPRESSION, AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
     }
 
     //endregion ==================== GAM FullScreenContentCallback Implementation
@@ -167,7 +168,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
 
         if (interstitialAd == null) {
             LogUtil.error(TAG, "show: Failure. Interstitial ad is null.");
-            GamLogUtil.error("Show: Failure. Interstitial ad is null.", AdFormat.INTERSTITIAL, adUnitId);
+            SdkLogUtil.error("Show: Failure. Interstitial ad is null.", AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
             return;
         }
 
@@ -175,7 +176,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             interstitialAd.show(activity);
         } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
-            GamLogUtil.error("Show ad error: " + throwable.getMessage(), AdFormat.INTERSTITIAL, adUnitId);
+            SdkLogUtil.error("Show ad error: " + throwable.getMessage(), AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
         }
     }
 
@@ -191,7 +192,7 @@ public class PublisherInterstitialAdWrapper extends FullScreenContentCallback im
             AdManagerInterstitialAd.load(activityWeakReference.get(), adUnitId, adRequest, adLoadCallback);
         } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
-            GamLogUtil.error("Load ad error: " + throwable.getMessage(), AdFormat.INTERSTITIAL, adUnitId);
+            SdkLogUtil.error("Load ad error: " + throwable.getMessage(), AdFormat.INTERSTITIAL, adUnitId, SdkType.GAM);
         }
     }
 

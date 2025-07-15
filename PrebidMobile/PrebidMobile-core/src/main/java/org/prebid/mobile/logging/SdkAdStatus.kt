@@ -1,0 +1,5 @@
+package org.prebid.mobile.logging
+
+enum class SdkAdStatus {
+    CLICKED, CLOSED, FAILED, IMPRESSION, LOADED, OPENED, DISPLAYED, PAUSED, RESUMED, MUTED, UNMUTED, COMPLETED
+}
