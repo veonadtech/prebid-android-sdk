@@ -105,20 +105,20 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
             adFormat = AdFormat.BANNER;
             //do all banner
             prebidWebView = (PrebidWebViewBanner) ViewPool.getInstance()
-                    .getUnoccupiedView(contextReference.get(),
-                            null,
-                            adType,
-                            interstitialManager
-                    );
+                                                          .getUnoccupiedView(contextReference.get(),
+                                                                  null,
+                                                                  adType,
+                                                                  interstitialManager
+                                                          );
         } else if (adType == AdFormat.INTERSTITIAL) {
             adFormat = AdFormat.INTERSTITIAL;
             //do all interstitials
             prebidWebView = (PrebidWebViewInterstitial) ViewPool.getInstance()
-                    .getUnoccupiedView(contextReference.get(),
-                            null,
-                            adType,
-                            interstitialManager
-                    );
+                                                                .getUnoccupiedView(contextReference.get(),
+                                                                        null,
+                                                                        adType,
+                                                                        interstitialManager
+                                                                );
         }
 
         if (prebidWebView == null) {

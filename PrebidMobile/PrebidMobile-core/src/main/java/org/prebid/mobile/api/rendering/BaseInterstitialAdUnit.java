@@ -120,8 +120,8 @@ public abstract class BaseInterstitialAdUnit {
                 break;
             default:
                 notifyErrorListener(new AdException(
-                        AdException.INTERNAL_ERROR,
-                        "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
+                    AdException.INTERNAL_ERROR,
+                    "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
                 ));
         }
     }
@@ -131,8 +131,8 @@ public abstract class BaseInterstitialAdUnit {
      */
     @Deprecated
     public void addContextData(
-            String key,
-            String value
+        String key,
+        String value
     ) {
         adUnitConfig.addExtData(key, value);
     }
@@ -142,8 +142,8 @@ public abstract class BaseInterstitialAdUnit {
      */
     @Deprecated
     public void updateContextData(
-            String key,
-            Set<String> value
+        String key,
+        Set<String> value
     ) {
         adUnitConfig.addExtData(key, value);
     }
@@ -214,15 +214,15 @@ public abstract class BaseInterstitialAdUnit {
 
 
     public void addExtData(
-            String key,
-            String value
+        String key,
+        String value
     ) {
         adUnitConfig.addExtData(key, value);
     }
 
     public void updateExtData(
-            String key,
-            Set<String> value
+        String key,
+        Set<String> value
     ) {
         adUnitConfig.addExtData(key, value);
     }
