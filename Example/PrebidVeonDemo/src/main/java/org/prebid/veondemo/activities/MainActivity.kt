@@ -191,10 +191,11 @@ class MainActivity : AppCompatActivity() {
                 cpm = 50F
             )
 
-                configId = "prebid-ita-banner-320-50",
-                adSize = AdSize(320, 50),
-                adUnitId = "/6355419/Travel/Europe/France/Paris"
             BannerFormat.RENDERING_SIMPLE_BANNER -> setupRenderingSimpleBanner(
+                configId = "beeline_uz_android_manual_veon_320x50",
+                adSize = AdSize(320, 50),
+                adUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_prebid2_320x50"
+            )
 
             BannerFormat.GAM_BANNER -> setupGamBanner(
                 configId = "prebid-ita-banner-320-50",
