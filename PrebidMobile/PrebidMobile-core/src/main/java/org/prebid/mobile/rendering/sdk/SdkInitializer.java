@@ -2,7 +2,6 @@ package org.prebid.mobile.rendering.sdk;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -14,7 +13,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
-import org.prebid.mobile.logging.GamLogUtil;
+import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
@@ -63,7 +62,7 @@ public class SdkInitializer {
             }
         });
 
-        GamLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
+        SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
 
         try {
             // todo using internal api until pluginrenderer feature is released

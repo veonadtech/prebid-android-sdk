@@ -60,7 +60,7 @@ class LogServerSender private constructor() {
     /**
      * Add a log entry to be sent to server
      */
-    fun sendLog(status: GamStatus, message: String, adFormat: AdFormat, adUnitId: String) {
+    fun sendLog(status: SdkAdStatus, message: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
         if (!enabled || serverUrl.isNullOrBlank()) return
 
         val entry = LogEntry(
@@ -72,7 +72,8 @@ class LogServerSender private constructor() {
             adId = PrebidMobile.getAAID(),
             os = OS,
             adFormat = adFormat.name,
-            adUnitId = adUnitId
+            adUnitId = adUnitId,
+            sdkType = sdkType
         )
 
         // Add to queue, remove oldest if queue is full
@@ -151,7 +152,7 @@ class LogServerSender private constructor() {
     }
 
     private fun getTimeStamp(): String {
-        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        val simpleFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
         simpleFormat.timeZone = TimeZone.getTimeZone("UTC")
         return simpleFormat.format(Date())
     }

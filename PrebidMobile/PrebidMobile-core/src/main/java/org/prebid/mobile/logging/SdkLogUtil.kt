@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.annotation.Size
 import org.prebid.mobile.api.data.AdFormat
 
-object GamLogUtil {
+object SdkLogUtil {
     private const val GAM_TAG = "GAM"
 
     const val NONE = -1
@@ -33,32 +33,32 @@ object GamLogUtil {
      * Prints a message with INFO priority and default GAM_TAG
      */
     @JvmStatic
-    fun info(message: String, gamStatus: GamStatus, adFormat: AdFormat, adUnitId: String) {
-        info(GAM_TAG, message, gamStatus, adFormat, adUnitId)
+    fun info(message: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+        info(GAM_TAG, message, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
     /**
      * Prints a message with ERROR priority and default GAM_TAG
      */
     @JvmStatic
-    fun error(message: String, adFormat: AdFormat, adUnitId: String) {
-        error(GAM_TAG, message, adFormat, adUnitId)
+    fun error(message: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+        error(GAM_TAG, message, adFormat, adUnitId, sdkType)
     }
 
     /**
      * Prints a message with INFO priority.
      */
     @JvmStatic
-    fun info(@Size(max = 23) tag: String, msg: String, gamStatus: GamStatus, adFormat: AdFormat, adUnitId: String) {
-        log(INFO, tag, msg, gamStatus, adFormat, adUnitId)
+    fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+        log(INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
     /**
      * Prints a message with ERROR priority.
      */
     @JvmStatic
-    fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String) {
-        log(ERROR, tag, msg, GamStatus.FAILED, adFormat = adFormat, adUnitId)
+    fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+        log(ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -75,7 +75,15 @@ object GamLogUtil {
     /**
      * Prints information with set priority. Every tag
      */
-    private fun log(messagePriority: Int, tag: String?, message: String?, status: GamStatus, adFormat: AdFormat, adUnitId: String) {
+    private fun log(
+        messagePriority: Int,
+        tag: String?,
+        message: String?,
+        status: SdkAdStatus,
+        adFormat: AdFormat,
+        adUnitId: String,
+        sdkType: SdkType
+    ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
         val finalTag = getTagWithBase(tag)
         Log.println(messagePriority, finalTag, message)
@@ -85,7 +93,8 @@ object GamLogUtil {
             status = status,
             message = message,
             adFormat = adFormat,
-            adUnitId = adUnitId
+            adUnitId = adUnitId,
+            sdkType = sdkType
         )
     }
 
