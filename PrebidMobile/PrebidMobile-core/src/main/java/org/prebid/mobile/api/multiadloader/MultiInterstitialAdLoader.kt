@@ -37,6 +37,7 @@ class MultiInterstitialAdLoader(
 
     private var selectedSDK: AdPlatformSDK? = null
     private var listener: MultiInterstitialAdListener? = null
+    private var currentLoaderIndex = 0
 
     private val adLoaders = mapOf(
         AdPlatformSDK.PREBID to PrebidAdLoader(),
@@ -51,9 +52,16 @@ class MultiInterstitialAdLoader(
     fun loadAd() {
         destroy()
         selectedSDK = null
+
         val order = priorityOrder.toList()
         order.forEach { sdk ->
-            adLoaders[sdk]?.load()
+            if (sdk != AdPlatformSDK.PREBID) {
+                adLoaders[sdk]?.load()
+            }
+        }
+
+        if (priorityOrder.firstOrNull() == AdPlatformSDK.PREBID) {
+            adLoaders[AdPlatformSDK.PREBID]?.load()
         }
     }
 
@@ -74,17 +82,29 @@ class MultiInterstitialAdLoader(
             selectedSDK = sdk
             cancelOtherRequests(sdk)
             listener?.onAdLoaded(sdk)
+        } else {
+            handlePrebidLoad(true)
         }
     }
 
     private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
         priorityOrder.remove(sdk)
+        handlePrebidLoad(false)
         listener?.onAdFailed(error, sdk)
     }
 
     private fun cancelOtherRequests(successfulSdk: AdPlatformSDK) {
         priorityOrder.filter { it != successfulSdk }.forEach { sdk ->
             adLoaders[sdk]?.destroy()
+        }
+    }
+
+    private fun handlePrebidLoad(isAdLoaded: Boolean) {
+        if (isAdLoaded) {
+            currentLoaderIndex++
+        }
+        if (priorityOrder.getOrNull(currentLoaderIndex) == AdPlatformSDK.PREBID) {
+            adLoaders[AdPlatformSDK.PREBID]?.load()
         }
     }
 
