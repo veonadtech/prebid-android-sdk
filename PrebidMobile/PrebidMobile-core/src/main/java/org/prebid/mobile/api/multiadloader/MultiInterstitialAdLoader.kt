@@ -87,19 +87,21 @@ class MultiInterstitialAdLoader(
         Log.d(TAG, "Handle Ad loaded: $sdk")
         currentLoaderIndex++
         loadedSDK.add(sdk)
-        selectSdkIfFirstPriority(sdk, true)
+        selectSdkIfFirstPriority(sdk)
     }
 
     private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
         Log.d(TAG, "Ad failed $sdk: $error")
         priorityOrder.remove(sdk)
-        selectSdkIfFirstPriority(sdk, false)
+        selectSdkIfFirstPriority(sdk)
         listener?.onAdFailed(error, sdk)
     }
 
-    private fun selectSdkIfFirstPriority(sdk: AdPlatformSDK, isAdLoaded: Boolean) {
+    private fun selectSdkIfFirstPriority(sdk: AdPlatformSDK) {
         if (isFirstPriorityAndLoaded()) {
-            setSelectedSdk(sdk)
+            selectedSDK = sdk
+            cancelOtherRequests(sdk)
+            listener?.onAdLoaded(sdk)
         } else {
             maybeLoadPrebid(sdk)
         }
@@ -109,18 +111,12 @@ class MultiInterstitialAdLoader(
         return loadedSDK.contains(priorityOrder.firstOrNull())
     }
 
-    private fun setSelectedSdk(sdk: AdPlatformSDK) {
-        selectedSDK = sdk
-        cancelOtherRequests(sdk)
-        listener?.onAdLoaded(sdk)
-    }
-
-
     private fun cancelOtherRequests(successfulSdk: AdPlatformSDK) {
-        priorityOrder.filter { it != successfulSdk }.forEach { sdk ->
-            adLoaders[sdk]?.destroy()
-            Log.d(TAG, "Ad destroyed $sdk")
-        }
+        adLoaders
+            .filterKeys { it != successfulSdk }
+            .forEach { (_, loader) ->
+                loader.destroy()
+            }
     }
 
     private fun maybeLoadPrebid(sdk: AdPlatformSDK) {
@@ -162,6 +158,7 @@ class MultiInterstitialAdLoader(
         override fun destroy() {
             interstitial?.destroy()
             interstitial = null
+            Log.d(TAG, "Ad destroyed: ${AdPlatformSDK.PREBID}")
         }
     }
 
@@ -194,6 +191,7 @@ class MultiInterstitialAdLoader(
 
         override fun destroy() {
             interstitial = null
+            Log.d(TAG, "Ad destroyed: ${AdPlatformSDK.GAM}")
         }
     }
 
@@ -238,6 +236,7 @@ class MultiInterstitialAdLoader(
 
         override fun destroy() {
             interstitial = null
+            Log.d(TAG, "Ad destroyed: ${AdPlatformSDK.YANDEX}")
         }
     }
 
