@@ -2,6 +2,7 @@ package org.prebid.mobile.api.multiadloader
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
@@ -23,7 +24,6 @@ import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import java.util.EnumSet
 
 class MultiInterstitialAdLoader(
-
     private val context: Context,
     private val configId: String?,
     private val gamAdUnitId: String?,
@@ -35,9 +35,15 @@ class MultiInterstitialAdLoader(
     )
 ) {
 
+    companion object {
+        private val TAG = MultiInterstitialAdLoader::class.java.simpleName
+    }
+
     private var selectedSDK: AdPlatformSDK? = null
+    private var loadedSDK: MutableList<AdPlatformSDK> = mutableListOf()
     private var listener: MultiInterstitialAdListener? = null
     private var currentLoaderIndex = 0
+    private var isPrebidLoadStarted = false
 
     private val adLoaders = mapOf(
         AdPlatformSDK.PREBID to PrebidAdLoader(),
@@ -78,32 +84,49 @@ class MultiInterstitialAdLoader(
     }
 
     private fun handleAdLoaded(sdk: AdPlatformSDK) {
-        if (priorityOrder.firstOrNull() == sdk && adLoaders[sdk] != null) {
-            selectedSDK = sdk
-            cancelOtherRequests(sdk)
-            listener?.onAdLoaded(sdk)
-        } else {
-            handlePrebidLoad(true)
-        }
+        Log.d(TAG, "Handle Ad loaded: $sdk")
+        currentLoaderIndex++
+        loadedSDK.add(sdk)
+        selectSdkIfFirstPriority(sdk, true)
     }
 
     private fun handleAdFailed(error: String?, sdk: AdPlatformSDK) {
+        Log.d(TAG, "Ad failed $sdk: $error")
         priorityOrder.remove(sdk)
-        handlePrebidLoad(false)
+        selectSdkIfFirstPriority(sdk, false)
         listener?.onAdFailed(error, sdk)
     }
+
+    private fun selectSdkIfFirstPriority(sdk: AdPlatformSDK, isAdLoaded: Boolean) {
+        if (isFirstPriorityAndLoaded()) {
+            setSelectedSdk(sdk)
+        } else {
+            maybeLoadPrebid(sdk)
+        }
+    }
+
+    private fun isFirstPriorityAndLoaded(): Boolean {
+        return loadedSDK.contains(priorityOrder.firstOrNull())
+    }
+
+    private fun setSelectedSdk(sdk: AdPlatformSDK) {
+        selectedSDK = sdk
+        cancelOtherRequests(sdk)
+        listener?.onAdLoaded(sdk)
+    }
+
 
     private fun cancelOtherRequests(successfulSdk: AdPlatformSDK) {
         priorityOrder.filter { it != successfulSdk }.forEach { sdk ->
             adLoaders[sdk]?.destroy()
+            Log.d(TAG, "Ad destroyed $sdk")
         }
     }
 
-    private fun handlePrebidLoad(isAdLoaded: Boolean) {
-        if (isAdLoaded) {
-            currentLoaderIndex++
-        }
-        if (priorityOrder.getOrNull(currentLoaderIndex) == AdPlatformSDK.PREBID) {
+    private fun maybeLoadPrebid(sdk: AdPlatformSDK) {
+        if (sdk == AdPlatformSDK.PREBID) return
+        Log.d(TAG, "May be Prebid Load")
+        if (priorityOrder.getOrNull(currentLoaderIndex) == AdPlatformSDK.PREBID && !isPrebidLoadStarted) {
             adLoaders[AdPlatformSDK.PREBID]?.load()
         }
     }
@@ -112,6 +135,8 @@ class MultiInterstitialAdLoader(
         private var interstitial: InterstitialAdUnit? = null
 
         override fun load() {
+            Log.d(TAG, "Prebid Ad loading")
+            isPrebidLoadStarted = true
             if (configId.isNullOrEmpty()) {
                 handleAdFailed("ConfigId is empty", AdPlatformSDK.PREBID)
                 return
@@ -144,6 +169,7 @@ class MultiInterstitialAdLoader(
         private var interstitial: AdManagerInterstitialAd? = null
 
         override fun load() {
+            Log.d(TAG, "GAM Ad loading")
             if (gamAdUnitId.isNullOrEmpty()) {
                 handleAdFailed("GAM AdUnitId is empty", AdPlatformSDK.GAM)
                 return
@@ -156,11 +182,11 @@ class MultiInterstitialAdLoader(
                     handleAdLoaded(AdPlatformSDK.GAM)
                 }
 
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    handleAdFailed(loadAdError.message, AdPlatformSDK.GAM)
-                }
-            })
-        }
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        handleAdFailed(loadAdError.message, AdPlatformSDK.GAM)
+                    }
+                })
+            }
 
         override fun show() {
             interstitial?.show(context as Activity)
@@ -175,6 +201,7 @@ class MultiInterstitialAdLoader(
         private var interstitial: InterstitialAd? = null
 
         override fun load() {
+            Log.d(TAG, "Yandex Ad loading")
             if (yandexAdUnitId.isNullOrEmpty()) {
                 handleAdFailed("Yandex AdUnitId is empty", AdPlatformSDK.YANDEX)
                 return
