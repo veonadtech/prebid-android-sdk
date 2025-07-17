@@ -144,6 +144,7 @@ class MultiInterstitialAdLoader(
                     override fun onAdDisplayed(unit: InterstitialAdUnit?) = listener?.onAdDisplayed(SdkType.PREBID) ?: Unit
                     override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) =
                         handleAdFailed(e?.message ?: "Unknown error", SdkType.PREBID)
+
                     override fun onAdClicked(unit: InterstitialAdUnit?) = listener?.onAdClicked(SdkType.PREBID) ?: Unit
                     override fun onAdClosed(unit: InterstitialAdUnit?) = listener?.onAdClosed(SdkType.PREBID) ?: Unit
                 })
@@ -179,15 +180,15 @@ class MultiInterstitialAdLoader(
                     SdkLogUtil.info("GAM Ad loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM)
                 }
 
-                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                        handleAdFailed(loadAdError.message, SdkType.GAM)
-                        SdkLogUtil.info(
-                            "GAM Ad failed to load: ${loadAdError.message}", SdkAdStatus.FAILED,
-                            AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM
-                        )
-                    }
-                })
-            }
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                    handleAdFailed(loadAdError.message, SdkType.GAM)
+                    SdkLogUtil.info(
+                        "GAM Ad failed to load: ${loadAdError.message}", SdkAdStatus.FAILED,
+                        AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM
+                    )
+                }
+            })
+        }
 
         override fun show() {
             interstitial?.show(context as Activity)
@@ -221,6 +222,7 @@ class MultiInterstitialAdLoader(
                                         AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
                                     )
                                 }
+
                                 override fun onAdFailedToShow(adError: AdError) {
                                     listener?.onAdFailedToShow(adError.description, SdkType.YANDEX) ?: Unit
                                     SdkLogUtil.info(
@@ -228,6 +230,7 @@ class MultiInterstitialAdLoader(
                                         AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
                                     )
                                 }
+
                                 override fun onAdDismissed() {
                                     listener?.onAdClosed(SdkType.YANDEX) ?: Unit
                                     SdkLogUtil.info(
@@ -235,6 +238,7 @@ class MultiInterstitialAdLoader(
                                         AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
                                     )
                                 }
+
                                 override fun onAdClicked() {
                                     listener?.onAdClicked(SdkType.YANDEX) ?: Unit
                                     SdkLogUtil.info(
@@ -242,6 +246,7 @@ class MultiInterstitialAdLoader(
                                         AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
                                     )
                                 }
+
                                 override fun onAdImpression(impressionData: ImpressionData?) {
                                     listener?.onImpression(impressionData, SdkType.YANDEX) ?: Unit
                                     SdkLogUtil.info(
