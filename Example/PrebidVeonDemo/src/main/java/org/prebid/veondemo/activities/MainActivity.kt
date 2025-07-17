@@ -46,7 +46,7 @@ import org.prebid.mobile.BannerParameters
 import org.prebid.mobile.Signals
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
-import org.prebid.mobile.api.data.AdPlatformSDK
+import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
@@ -234,7 +234,7 @@ class MainActivity : AppCompatActivity() {
                     yandexAdUnitId = yangoBanerNetworks[0].adUnitId,
                     autoRefreshDelay = 30,
                     priorityOrder =// SdkConfigHolder.priorityOrderSDK
-                mutableListOf(AdPlatformSDK.GAM, AdPlatformSDK.YANDEX, AdPlatformSDK.PREBID)// SdkConfigHolder.priorityOrderSDK
+                mutableListOf(SdkType.GAM, SdkType.PREBID, SdkType.YANDEX)// SdkConfigHolder.priorityOrderSDK
                 )
             }
 
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                     gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_test2_interstitial",
                     yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId,
                     priorityOrder = //SdkConfigHolder.priorityOrderSDK
-                mutableListOf( AdPlatformSDK.GAM, AdPlatformSDK.PREBID, AdPlatformSDK.YANDEX)// SdkConfigHolder.priorityOrderSDK
+                mutableListOf(SdkType.GAM, SdkType.PREBID, SdkType.YANDEX)// SdkConfigHolder.priorityOrderSDK
                 )
             }
         }
@@ -457,7 +457,7 @@ class MainActivity : AppCompatActivity() {
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
                                    autoRefreshDelay: Int,
-                                   priorityOrder: MutableList<AdPlatformSDK>) {
+                                   priorityOrder: MutableList<SdkType>) {
 
         val adLoader = MultiBannerLoader(
             context = this,
@@ -470,47 +470,47 @@ class MainActivity : AppCompatActivity() {
         )
 
         adLoader.setListener(object : MultiBannerViewListener {
-            override fun onAdLoaded(adView: View, sdk: AdPlatformSDK) {
+            override fun onAdLoaded(adView: View, sdk: SdkType) {
                 adWrapperView.addView(adView)
                 Log.d("onAdLoaded", "Ad loaded from: ${sdk.name}")
                 showToast("Ad loaded from: ${sdk.name}")
             }
 
-            override fun onAdFailed(bannerView: BannerView?, error: String?, sdk: AdPlatformSDK?) {
+            override fun onAdFailed(bannerView: BannerView?, error: String?, sdk: SdkType?) {
                 val errorMsg = error ?: "Unknown error"
                 val sdkName = sdk?.name ?: "unknown SDK"
                 showToast("Ad failed ($sdkName): $errorMsg")
             }
 
-            override fun onAdClicked(bannerView: BannerView?, sdk: AdPlatformSDK) {
+            override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) {
                 showToast("Ad clicked (${sdk.name})")
             }
 
-            override fun onLeftApplication(sdk: AdPlatformSDK) {
+            override fun onLeftApplication(sdk: SdkType) {
                 showToast("Left app (${sdk.name})")
             }
 
-            override fun onReturnedToApplication(sdk: AdPlatformSDK) {
+            override fun onReturnedToApplication(sdk: SdkType) {
                 showToast("Returned to app (${sdk.name})")
             }
 
-            override fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK) {
+            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) {
                 showToast("Impression tracked (${sdk.name})")
             }
 
-            override fun onAdUrlClicked(url: String?, sdk: AdPlatformSDK) {
+            override fun onAdUrlClicked(url: String?, sdk: SdkType) {
                 showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
             }
 
-            override fun onAdClosed(bannerView: BannerView?, sdk: AdPlatformSDK) {
+            override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) {
                 showToast("Ad closed (${sdk.name})")
             }
 
-            override fun onAdDisplayed(bannerView: BannerView?, sdk: AdPlatformSDK) {
+            override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) {
                 showToast("Ad displayed (${sdk.name})")
             }
 
-            override fun onAdOpened(sdk: AdPlatformSDK) {
+            override fun onAdOpened(sdk: SdkType) {
                 showToast("Ad opened (${sdk.name})")
             }
         })
@@ -611,7 +611,7 @@ class MainActivity : AppCompatActivity() {
         configId: String,
         gamAdUnitId: String,
         yandexAdUnitId: String,
-        priorityOrder: MutableList<AdPlatformSDK>
+        priorityOrder: MutableList<SdkType>
     ) {
 
         val interstitialLoader = MultiInterstitialAdLoader(
@@ -623,35 +623,35 @@ class MainActivity : AppCompatActivity() {
         )
 
         interstitialLoader.setListener(object : MultiInterstitialAdListener {
-            override fun onAdLoaded(sdk: AdPlatformSDK) {
+            override fun onAdLoaded(sdk: SdkType) {
                 Log.d("Interstitial", "Ad loaded from: ${sdk.name}")
                 showToast("Interstitial loaded from: ${sdk.name}")
                 interstitialLoader.showAd()
             }
 
-            override fun onAdFailed(error: String?, sdk: AdPlatformSDK?) {
+            override fun onAdFailed(error: String?, sdk: SdkType?) {
                 val errorMsg = error ?: "Unknown error"
                 val sdkName = sdk?.name ?: "unknown SDK"
                 showToast("Interstitial failed ($sdkName): $errorMsg")
             }
 
-            override fun onAdDisplayed(sdk: AdPlatformSDK) {
+            override fun onAdDisplayed(sdk: SdkType) {
                 showToast("Interstitial displayed (${sdk.name})")
             }
 
-            override fun onAdFailedToShow(error: String?, sdk: AdPlatformSDK?) {
+            override fun onAdFailedToShow(error: String?, sdk: SdkType?) {
                 showToast("Interstitial failed to show (${sdk?.name}): $error")
             }
 
-            override fun onAdClicked(sdk: AdPlatformSDK) {
+            override fun onAdClicked(sdk: SdkType) {
                 showToast("Interstitial clicked (${sdk.name})")
             }
 
-            override fun onAdClosed(sdk: AdPlatformSDK) {
+            override fun onAdClosed(sdk: SdkType) {
                 showToast("Interstitial closed (${sdk.name})")
             }
 
-            override fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK) {
+            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) {
                 showToast("Interstitial impression (${sdk.name})")
             }
         })

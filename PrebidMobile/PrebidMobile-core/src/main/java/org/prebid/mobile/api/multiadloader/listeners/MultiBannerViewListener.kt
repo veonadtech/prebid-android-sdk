@@ -2,20 +2,20 @@ package org.prebid.mobile.api.multiadloader.listeners
 
 import android.view.View
 import com.yandex.mobile.ads.common.ImpressionData
-import org.prebid.mobile.api.data.AdPlatformSDK
+import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.rendering.BannerView
 
 interface MultiBannerViewListener {
 
-    fun onAdLoaded(adView: View, sdk: AdPlatformSDK)
-    fun onAdFailed(bannerView: BannerView?, error: String?, sdk: AdPlatformSDK?)
-    fun onAdClicked(bannerView: BannerView?, sdk: AdPlatformSDK)
-    fun onLeftApplication(sdk: AdPlatformSDK)
-    fun onReturnedToApplication(sdk: AdPlatformSDK)
-    fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK)
-    fun onAdUrlClicked(url: String?, sdk: AdPlatformSDK)
-    fun onAdClosed(bannerView: BannerView?, sdk: AdPlatformSDK)
-    fun onAdDisplayed(bannerView: BannerView?, sdk: AdPlatformSDK)
-    fun onAdOpened(sdk: AdPlatformSDK)
+    fun onAdLoaded(adView: View, sdk: SdkType)
+    fun onAdFailed(bannerView: BannerView?, error: String?, sdk: SdkType?)
+    fun onAdClicked(bannerView: BannerView?, sdk: SdkType)
+    fun onLeftApplication(sdk: SdkType)
+    fun onReturnedToApplication(sdk: SdkType)
+    fun onImpression(impressionData: ImpressionData?, sdk: SdkType)
+    fun onAdUrlClicked(url: String?, sdk: SdkType)
+    fun onAdClosed(bannerView: BannerView?, sdk: SdkType)
+    fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType)
+    fun onAdOpened(sdk: SdkType)
 
 }

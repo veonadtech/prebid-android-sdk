@@ -4,7 +4,7 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import org.json.JSONObject
-import org.prebid.mobile.api.data.AdPlatformSDK
+import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
 import org.prebid.mobile.rendering.networking.ResponseHandler
@@ -23,7 +23,7 @@ class AsyncSdkConfigLoader {
     private var retryCount = 0
 
     interface SdkConfigResponseHandler {
-        fun onSdkConfigReceived(sdks: List<AdPlatformSDK>)
+        fun onSdkConfigReceived(sdks: List<SdkType>)
         fun onError(error: String)
     }
 
@@ -84,16 +84,16 @@ class AsyncSdkConfigLoader {
         }
     }
 
-    private fun parseConfigResponse(json: String): List<AdPlatformSDK> {
+    private fun parseConfigResponse(json: String): List<SdkType> {
         val jsonObject = JSONObject(json)
         val priorityArray = jsonObject.getJSONArray("priority")
 
         return List(priorityArray.length()) { index ->
-            AdPlatformSDK.valueOf(priorityArray.getString(index))
+            SdkType.valueOf(priorityArray.getString(index))
         }
     }
 
-    private fun notifySuccess(sdks: List<AdPlatformSDK>) {
+    private fun notifySuccess(sdks: List<SdkType>) {
         Handler(Looper.getMainLooper()).post {
             responseHandler?.onSdkConfigReceived(sdks)
         }

@@ -1,16 +1,16 @@
 package org.prebid.mobile.api.multiadloader.listeners
 
 import com.yandex.mobile.ads.common.ImpressionData
-import org.prebid.mobile.api.data.AdPlatformSDK
+import org.prebid.mobile.api.data.SdkType
 
 interface MultiInterstitialAdListener {
 
-    fun onAdLoaded(sdk: AdPlatformSDK)
-    fun onAdFailed(error: String?, sdk: AdPlatformSDK?)
-    fun onAdDisplayed(sdk: AdPlatformSDK)
-    fun onAdFailedToShow(error: String?, sdk: AdPlatformSDK?)
-    fun onAdClicked(sdk: AdPlatformSDK)
-    fun onAdClosed(sdk: AdPlatformSDK)
-    fun onImpression(impressionData: ImpressionData?, sdk: AdPlatformSDK)
+    fun onAdLoaded(sdk: SdkType)
+    fun onAdFailed(error: String?, sdk: SdkType?)
+    fun onAdDisplayed(sdk: SdkType)
+    fun onAdFailedToShow(error: String?, sdk: SdkType?)
+    fun onAdClicked(sdk: SdkType)
+    fun onAdClosed(sdk: SdkType)
+    fun onImpression(impressionData: ImpressionData?, sdk: SdkType)
 
 }

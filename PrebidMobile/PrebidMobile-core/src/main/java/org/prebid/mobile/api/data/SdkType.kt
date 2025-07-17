@@ -1,5 +1,5 @@
 package org.prebid.mobile.api.data
 
-enum class AdPlatformSDK {
+enum class SdkType {
     PREBID, GAM, YANDEX
 }

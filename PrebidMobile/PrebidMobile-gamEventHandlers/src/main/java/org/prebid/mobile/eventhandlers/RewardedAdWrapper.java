@@ -40,7 +40,7 @@ import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.eventhandlers.utils.GamUtils;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.logging.SdkAdStatus;
-import org.prebid.mobile.logging.SdkType;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
