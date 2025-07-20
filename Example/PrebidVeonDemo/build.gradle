@@ -48,11 +48,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
 
     // Advertisement
-    implementation 'com.google.android.gms:play-services-ads:21.0.0'
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
     implementation "com.applovin:applovin-sdk:11.5.3"
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1" // For Applovin Max
     implementation "com.yandex.android:mobileads-mediation:7.14.1.0"
-    implementation("com.yandex.ads.mediation:mobileads-extras:7.14.1.0")
+    implementation "com.yandex.ads.mediation:mobileads-extras:7.14.1.0"
 
     // Image Downloader
     implementation "com.github.bumptech.glide:glide:4.14.2"
