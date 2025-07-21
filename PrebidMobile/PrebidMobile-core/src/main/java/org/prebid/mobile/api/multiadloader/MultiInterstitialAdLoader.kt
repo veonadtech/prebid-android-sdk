@@ -172,7 +172,7 @@ class MultiInterstitialAdLoader(
                     getSdkState(highPrioritySdk) == SdkState.FAILED
                 }
 
-                if (allHighPriorityFailed && highPrioritySDKs.isNotEmpty()) {
+                if (allHighPriorityFailed) {
                     setSdkState(SdkType.PREBID, SdkState.LOADING)
                     adLoaders[SdkType.PREBID]?.load()
                 }
