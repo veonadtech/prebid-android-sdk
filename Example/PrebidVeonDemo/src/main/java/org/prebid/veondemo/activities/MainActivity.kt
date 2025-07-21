@@ -481,38 +481,14 @@ class MainActivity : AppCompatActivity() {
                 val sdkName = sdk?.name ?: "unknown SDK"
                 showToast("Ad failed ($sdkName): $errorMsg")
             }
-
-            override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) {
-                showToast("Ad clicked (${sdk.name})")
-            }
-
-            override fun onLeftApplication(sdk: SdkType) {
-                showToast("Left app (${sdk.name})")
-            }
-
-            override fun onReturnedToApplication(sdk: SdkType) {
-                showToast("Returned to app (${sdk.name})")
-            }
-
-            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) {
-                showToast("Impression tracked (${sdk.name})")
-            }
-
-            override fun onAdUrlClicked(url: String?, sdk: SdkType) {
-                showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
-            }
-
-            override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) {
-                showToast("Ad closed (${sdk.name})")
-            }
-
-            override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) {
-                showToast("Ad displayed (${sdk.name})")
-            }
-
-            override fun onAdOpened(sdk: SdkType) {
-                showToast("Ad opened (${sdk.name})")
-            }
+            override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) = showToast("Ad clicked (${sdk.name})")
+            override fun onLeftApplication(sdk: SdkType) = showToast("Left app (${sdk.name})")
+            override fun onReturnedToApplication(sdk: SdkType) = showToast("Returned to app (${sdk.name})")
+            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) = showToast("Impression tracked (${sdk.name})")
+            override fun onAdUrlClicked(url: String?, sdk: SdkType) = showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
+            override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad closed (${sdk.name})")
+            override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad displayed (${sdk.name})")
+            override fun onAdOpened(sdk: SdkType) = showToast("Ad opened (${sdk.name})")
         })
 
         adLoader.loadAd()
@@ -578,14 +554,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
-        // 1. Create InterstitialAdUnit
         val adUnit = org.prebid.mobile.InterstitialAdUnit(configId, 80, 60)
-
-        // 2. Make a bid request to Prebid Server
         val request = AdManagerAdRequest.Builder().build()
         adUnit.fetchDemand(request) {
-
-            // 3. Load a GAM interstitial ad
             AdManagerInterstitialAd.load(
                 this,
                 gamAdUnitId,
@@ -594,8 +565,6 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onAdLoaded(adManagerInterstitialAd: AdManagerInterstitialAd) {
                         super.onAdLoaded(adManagerInterstitialAd)
-
-                        // 4.  Present the interstitial ad
                         adManagerInterstitialAd.show(this@MainActivity)
                     }
 
@@ -634,26 +603,11 @@ class MainActivity : AppCompatActivity() {
                 val sdkName = sdk?.name ?: "unknown SDK"
                 showToast("Interstitial failed ($sdkName): $errorMsg")
             }
-
-            override fun onAdDisplayed(sdk: SdkType) {
-                showToast("Interstitial displayed (${sdk.name})")
-            }
-
-            override fun onAdFailedToShow(error: String?, sdk: SdkType?) {
-                showToast("Interstitial failed to show (${sdk?.name}): $error")
-            }
-
-            override fun onAdClicked(sdk: SdkType) {
-                showToast("Interstitial clicked (${sdk.name})")
-            }
-
-            override fun onAdClosed(sdk: SdkType) {
-                showToast("Interstitial closed (${sdk.name})")
-            }
-
-            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) {
-                showToast("Interstitial impression (${sdk.name})")
-            }
+            override fun onAdDisplayed(sdk: SdkType) = showToast("Interstitial displayed (${sdk.name})")
+            override fun onAdFailedToShow(error: String?, sdk: SdkType?) = showToast("Interstitial failed to show (${sdk?.name}): $error")
+            override fun onAdClicked(sdk: SdkType) = showToast("Interstitial clicked (${sdk.name})")
+            override fun onAdClosed(sdk: SdkType) = showToast("Interstitial closed (${sdk.name})")
+            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) = showToast("Interstitial impression (${sdk.name})")
         })
 
         interstitialLoader.loadAd()

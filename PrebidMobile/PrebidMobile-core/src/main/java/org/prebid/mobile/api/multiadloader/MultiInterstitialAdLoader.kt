@@ -42,17 +42,28 @@ class MultiInterstitialAdLoader(
         private val TAG = MultiInterstitialAdLoader::class.java.simpleName
     }
 
+    enum class SdkState {
+        NOT_STARTED,
+        LOADING,
+        LOADED,
+        FAILED
+    }
+
     private var selectedSDK: SdkType? = null
-    private var loadedSDK: MutableList<SdkType> = mutableListOf()
     private var listener: MultiInterstitialAdListener? = null
-    private var currentLoaderIndex = 0
-    private var isPrebidLoadStarted = false
+    private val sdkStates = mutableMapOf<SdkType, SdkState>()
 
     private val adLoaders = mapOf(
         SdkType.PREBID to PrebidAdLoader(),
         SdkType.GAM to GamAdLoader(),
         SdkType.YANDEX to YandexAdLoader()
     )
+
+    init {
+        SdkType.values().forEach { sdk ->
+            sdkStates[sdk] = SdkState.NOT_STARTED
+        }
+    }
 
     fun setListener(listener: MultiInterstitialAdListener) {
         this.listener = listener
@@ -62,14 +73,20 @@ class MultiInterstitialAdLoader(
         destroy()
         selectedSDK = null
 
+        sdkStates.keys.forEach { sdk ->
+            sdkStates[sdk] = SdkState.NOT_STARTED
+        }
+
         val order = priorityOrder.toList()
         order.forEach { sdk ->
             if (sdk != SdkType.PREBID) {
+                setSdkState(sdk, SdkState.LOADING)
                 adLoaders[sdk]?.load()
             }
         }
 
         if (priorityOrder.firstOrNull() == SdkType.PREBID) {
+            setSdkState(SdkType.PREBID, SdkState.LOADING)
             adLoaders[SdkType.PREBID]?.load()
         }
     }
@@ -84,16 +101,27 @@ class MultiInterstitialAdLoader(
 
     fun destroy() {
         adLoaders.values.forEach { it.destroy() }
+        sdkStates.keys.forEach { sdk ->
+            sdkStates[sdk] = SdkState.NOT_STARTED
+        }
+    }
+
+    private fun setSdkState(sdk: SdkType, state: SdkState) {
+        sdkStates[sdk] = state
+    }
+
+    private fun getSdkState(sdk: SdkType): SdkState {
+        return sdkStates[sdk] ?: SdkState.NOT_STARTED
     }
 
     private fun handleAdLoaded(sdk: SdkType) {
-        currentLoaderIndex++
-        loadedSDK.add(sdk)
+        setSdkState(sdk, SdkState.LOADED)
         selectSdkIfFirstPriority(sdk)
     }
 
     private fun handleAdFailed(error: String?, sdk: SdkType) {
         Log.d(TAG, "Ad failed $sdk: $error")
+        setSdkState(sdk, SdkState.FAILED)
         priorityOrder.remove(sdk)
         selectSdkIfFirstPriority(sdk)
         listener?.onAdFailed(error, sdk)
@@ -101,16 +129,26 @@ class MultiInterstitialAdLoader(
 
     private fun selectSdkIfFirstPriority(sdk: SdkType) {
         if (isFirstPriorityAndLoaded()) {
-            selectedSDK = sdk
-            cancelOtherRequests(sdk)
-            listener?.onAdLoaded(sdk)
+            selectedSDK = getFirstLoadedSdk()
+            selectedSDK?.let {
+                cancelOtherRequests(it)
+                listener?.onAdLoaded(it)
+            }
         } else {
             maybeLoadPrebid(sdk)
         }
     }
 
     private fun isFirstPriorityAndLoaded(): Boolean {
-        return loadedSDK.contains(priorityOrder.firstOrNull())
+        return priorityOrder.firstOrNull()?.let { firstPriority ->
+            getSdkState(firstPriority) == SdkState.LOADED
+        } ?: false
+    }
+
+    private fun getFirstLoadedSdk(): SdkType? {
+        return priorityOrder.firstOrNull { sdk ->
+            getSdkState(sdk) == SdkState.LOADED
+        }
     }
 
     private fun cancelOtherRequests(successfulSdk: SdkType) {
@@ -118,13 +156,27 @@ class MultiInterstitialAdLoader(
             .filter { it != successfulSdk }
             .forEach { sdk ->
                 adLoaders[sdk]?.destroy()
+                setSdkState(sdk, SdkState.NOT_STARTED)
             }
     }
 
     private fun maybeLoadPrebid(sdk: SdkType) {
         if (sdk == SdkType.PREBID) return
-        if (priorityOrder.getOrNull(currentLoaderIndex) == SdkType.PREBID && !isPrebidLoadStarted) {
-            adLoaders[SdkType.PREBID]?.load()
+
+        if (getSdkState(SdkType.PREBID) == SdkState.NOT_STARTED && priorityOrder.contains(SdkType.PREBID)) {
+            val prebidIndex = priorityOrder.indexOf(SdkType.PREBID)
+            if (prebidIndex != -1) {
+                val highPrioritySDKs = priorityOrder.take(prebidIndex)
+
+                val allHighPriorityFailed = highPrioritySDKs.all { highPrioritySdk ->
+                    getSdkState(highPrioritySdk) == SdkState.FAILED
+                }
+
+                if (allHighPriorityFailed && highPrioritySDKs.isNotEmpty()) {
+                    setSdkState(SdkType.PREBID, SdkState.LOADING)
+                    adLoaders[SdkType.PREBID]?.load()
+                }
+            }
         }
     }
 
@@ -132,7 +184,6 @@ class MultiInterstitialAdLoader(
         private var interstitial: InterstitialAdUnit? = null
 
         override fun load() {
-            isPrebidLoadStarted = true
             if (configId.isNullOrEmpty()) {
                 handleAdFailed("ConfigId is empty", SdkType.PREBID)
                 return
