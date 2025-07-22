@@ -60,7 +60,6 @@ import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
-import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler

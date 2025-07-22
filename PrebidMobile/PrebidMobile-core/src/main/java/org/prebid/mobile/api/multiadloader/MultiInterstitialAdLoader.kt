@@ -2,7 +2,6 @@ package org.prebid.mobile.api.multiadloader
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
@@ -15,6 +14,7 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import org.prebid.mobile.LogUtil
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.SdkType
@@ -117,7 +117,7 @@ class MultiInterstitialAdLoader(
     }
 
     private fun handleAdFailed(error: String?, sdk: SdkType) {
-        Log.d(TAG, "Ad failed $sdk: $error")
+        LogUtil.debug(TAG, "Ad failed $sdk: $error")
         setSdkState(sdk, SdkState.FAILED)
         priorityOrder.remove(sdk)
         selectSdkIfFirstPriority(sdk)
@@ -207,7 +207,7 @@ class MultiInterstitialAdLoader(
         override fun destroy() {
             interstitial?.destroy()
             interstitial = null
-            Log.d(TAG, "Ad destroyed: ${SdkType.PREBID}")
+            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.PREBID}")
         }
     }
 
@@ -244,7 +244,7 @@ class MultiInterstitialAdLoader(
 
         override fun destroy() {
             interstitial = null
-            Log.d(TAG, "Ad destroyed: ${SdkType.GAM}")
+            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.GAM}")
         }
     }
 
@@ -321,7 +321,7 @@ class MultiInterstitialAdLoader(
 
         override fun destroy() {
             interstitial = null
-            Log.d(TAG, "Ad destroyed: ${SdkType.YANDEX}")
+            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.YANDEX}")
         }
     }
 
