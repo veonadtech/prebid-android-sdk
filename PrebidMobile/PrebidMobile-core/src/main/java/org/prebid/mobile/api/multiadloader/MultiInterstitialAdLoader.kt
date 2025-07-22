@@ -22,6 +22,7 @@ import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
+import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 import java.util.EnumSet
@@ -31,11 +32,6 @@ class MultiInterstitialAdLoader(
     private val configId: String?,
     private val gamAdUnitId: String?,
     private val yandexAdUnitId: String?,
-    private val priorityOrder: MutableList<SdkType> = mutableListOf(
-        SdkType.YANDEX,
-        SdkType.GAM,
-        SdkType.PREBID
-    )
 ) {
 
     companion object {
@@ -52,6 +48,7 @@ class MultiInterstitialAdLoader(
     private var selectedSDK: SdkType? = null
     private var listener: MultiInterstitialAdListener? = null
     private val sdkStates = mutableMapOf<SdkType, SdkState>()
+    private val priorityOrder = SdkConfigHolder.priorityOrderSDK.toMutableList()
 
     private val adLoaders = mapOf(
         SdkType.PREBID to PrebidAdLoader(),

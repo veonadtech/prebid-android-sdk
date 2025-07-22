@@ -21,14 +21,8 @@ import android.util.Log
 import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
-import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.data.InitializationStatus
-import org.prebid.mobile.rendering.sdk.AsyncSdkConfigLoader
 import org.prebid.veondemo.utils.Settings
-
-object SdkConfigHolder {
-    var priorityOrderSDK: List<SdkType> = listOf(SdkType.YANDEX, SdkType.GAM, SdkType.PREBID)
-}
 
 class Demo : Application() {
 
@@ -38,24 +32,9 @@ class Demo : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        initSdkConfig()
         initTestPrebidSDK()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
-    }
-
-    private fun initSdkConfig() {
-        Log.d(TAG, "Load SDK priority started")
-        AsyncSdkConfigLoader().loadSdkConfig(object : AsyncSdkConfigLoader.SdkConfigResponseHandler {
-            override fun onSdkConfigReceived(sdks: List<SdkType>) {
-                Log.d(TAG, "Successfully loaded SDK priority order from server: ${sdks.joinToString()}")
-                SdkConfigHolder.priorityOrderSDK = sdks
-            }
-
-            override fun onError(error: String) {
-                Log.e(TAG, "Failed to load SDK config: $error")
-            }
-        })
     }
 
     private fun initTestPrebidSDK() {

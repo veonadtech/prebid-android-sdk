@@ -46,27 +46,27 @@ import org.prebid.mobile.BannerParameters
 import org.prebid.mobile.Signals
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
-import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.data.AdUnitFormat
+import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.rendering.BannerView
-import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.multiadloader.MultiBannerLoader
 import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
+import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
+import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
+import org.prebid.mobile.api.rendering.BannerView
+import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
-import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
+import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
 import org.prebid.mobile.eventhandlers.AuctionListener
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
 import org.prebid.veondemo.R
-import org.prebid.veondemo.SdkConfigHolder
 import org.prebid.veondemo.databinding.ActivityMainBinding
 import org.prebid.veondemo.network.Network
 import java.util.EnumSet
@@ -232,9 +232,7 @@ class MainActivity : AppCompatActivity() {
                     configId = "beeline_uz_android_manual_veon_test_320x50",
                     gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_manual_veon_test_320x50",
                     yandexAdUnitId = yangoBanerNetworks[0].adUnitId,
-                    autoRefreshDelay = 30,
-                    priorityOrder =// SdkConfigHolder.priorityOrderSDK
-                mutableListOf(SdkType.GAM, SdkType.PREBID, SdkType.YANDEX)// SdkConfigHolder.priorityOrderSDK
+                    autoRefreshDelay = 30
                 )
             }
 
@@ -242,9 +240,7 @@ class MainActivity : AppCompatActivity() {
                 setupMultiInterstitialAd(
                     configId = "beeline_uz_android_wheel_test2_interstitial",
                     gamAdUnitId = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_test2_interstitial",
-                    yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId,
-                    priorityOrder = //SdkConfigHolder.priorityOrderSDK
-                mutableListOf(SdkType.GAM, SdkType.PREBID, SdkType.YANDEX)// SdkConfigHolder.priorityOrderSDK
+                    yandexAdUnitId = yangoInterstitialNetworks[0].adUnitId
                 )
             }
         }

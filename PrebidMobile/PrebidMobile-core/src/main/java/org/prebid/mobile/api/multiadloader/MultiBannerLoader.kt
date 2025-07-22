@@ -20,6 +20,7 @@ import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
+import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 
@@ -29,12 +30,7 @@ class MultiBannerLoader(
     private val configId: String?,
     private val gamAdUnitId: String?,
     private val yandexAdUnitId: String?,
-    private val autoRefreshDelay: Int = 0,
-    private val priorityOrder: MutableList<SdkType> = mutableListOf(
-        SdkType.YANDEX,
-        SdkType.GAM,
-        SdkType.PREBID
-    )
+    private val autoRefreshDelay: Int = 30
 ) {
 
     companion object {
@@ -43,6 +39,7 @@ class MultiBannerLoader(
 
     private var selectedSDK: SdkType? = null
     private var listener: MultiBannerViewListener? = null
+    private val priorityOrder: MutableList<SdkType> = SdkConfigHolder.priorityOrderSDK.toMutableList()
 
     private val adLoaders = mapOf(
         SdkType.GAM to GamAdLoader(),
