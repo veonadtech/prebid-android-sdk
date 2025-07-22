@@ -452,8 +452,7 @@ class MainActivity : AppCompatActivity() {
                                    configId: String,
                                    gamAdUnitId: String,
                                    yandexAdUnitId: String,
-                                   autoRefreshDelay: Int,
-                                   priorityOrder: MutableList<SdkType>) {
+                                   autoRefreshDelay: Int) {
 
         val adLoader = MultiBannerLoader(
             context = this,
@@ -462,7 +461,6 @@ class MainActivity : AppCompatActivity() {
             gamAdUnitId = gamAdUnitId,
             yandexAdUnitId = yandexAdUnitId,
             autoRefreshDelay = autoRefreshDelay,
-            priorityOrder = priorityOrder
         )
 
         adLoader.setListener(object : MultiBannerViewListener {
@@ -575,16 +573,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupMultiInterstitialAd(
         configId: String,
         gamAdUnitId: String,
-        yandexAdUnitId: String,
-        priorityOrder: MutableList<SdkType>
+        yandexAdUnitId: String
     ) {
 
         val interstitialLoader = MultiInterstitialAdLoader(
             context = this,
             configId = configId,
             gamAdUnitId = gamAdUnitId,
-            yandexAdUnitId = yandexAdUnitId,
-            priorityOrder = priorityOrder
+            yandexAdUnitId = yandexAdUnitId
         )
 
         interstitialLoader.setListener(object : MultiInterstitialAdListener {
