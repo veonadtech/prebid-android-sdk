@@ -64,7 +64,7 @@ class Demo : Application() {
         PrebidMobile.setPrebidServerAccountId("test")
         PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid-01.veonadx.com/openrtb2/auction"))
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
-        PrebidMobile.setTimeoutMillis(3000)
+        PrebidMobile.setTimeoutMillis(500)
         PrebidMobile.setShareGeoLocation(true)
         PrebidMobile.useExternalBrowser = true
         PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
