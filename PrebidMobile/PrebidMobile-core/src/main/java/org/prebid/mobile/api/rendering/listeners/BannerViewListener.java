@@ -53,6 +53,8 @@ public interface BannerViewListener {
      */
     void onAdClicked(BannerView bannerView);
 
+    void onAdUrlClicked(String url);
+
     /**
      * Executed when modal window (e.g. browser) on top of bannerView is closed.
      *

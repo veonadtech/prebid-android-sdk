@@ -46,4 +46,9 @@
     <string name="in_app_video_rewarded">In-App Video Rewarded</string>
     <string name="in_app_native">In-App Native</string>
 
+    <string name="multi_ad">Multi Ad</string>
+    <string name="multi_ad_interstitial">Multi Ad Interstitial</string>
+
+
+
 </resources>
