@@ -47,6 +47,11 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    implementation "com.yandex.android:mobileads-mediation:7.14.1.0"
+    implementation "com.yandex.ads.mediation:mobileads-extras:7.14.1.0"
+
+    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
 }
 
 afterEvaluate {

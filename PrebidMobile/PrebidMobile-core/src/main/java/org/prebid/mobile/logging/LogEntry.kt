@@ -2,6 +2,7 @@ package org.prebid.mobile.logging
 
 import org.json.JSONObject
 import org.prebid.mobile.LogUtil
+import org.prebid.mobile.api.data.SdkType
 
 /**
  * Represents a single log entry to be sent to server

@@ -5,6 +5,7 @@ import org.json.JSONObject
 import org.prebid.mobile.LogUtil
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
+import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.core.BuildConfig
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.ResponseHandler

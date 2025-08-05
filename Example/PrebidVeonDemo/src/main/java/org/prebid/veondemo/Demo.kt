@@ -42,7 +42,7 @@ class Demo : Application() {
 
         PrebidMobile.setPrebidServerAccountId("uz.beeline.odp")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
-        PrebidMobile.setTimeoutMillis(3000)
+        PrebidMobile.setTimeoutMillis(500)
         PrebidMobile.setShareGeoLocation(true)
         PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
 
