@@ -18,8 +18,9 @@ package org.prebid.veondemo.activities.ads.inapp
 import android.os.Bundle
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.rendering.BannerView
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class InAppDisplayBannerMraidResizeWithErrorsActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppDisplayBannerMraidResizeWithErrorsActivity : BaseAdActivity() {
 
     companion object {
         const val CONFIG_ID = "prebid-demo-mraid-resize-with-errors"

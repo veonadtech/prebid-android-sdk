@@ -26,13 +26,20 @@ android {
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
         buildConfigField "String", "VERSION", "\"${versionName}\""
         buildConfigField "String", "OMSDK_VERSION", "\"${omSdkVersion}\""
+        multiDexEnabled true
+    }
+    testOptions {
+        unitTests.all {
+            jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+            systemProperty 'robolectric.invokedynamic.enable', 'false'
+        }
     }
 }
 
 dependencies {
     implementation project(":omsdk-android")
 
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.9.1'
 
     implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'

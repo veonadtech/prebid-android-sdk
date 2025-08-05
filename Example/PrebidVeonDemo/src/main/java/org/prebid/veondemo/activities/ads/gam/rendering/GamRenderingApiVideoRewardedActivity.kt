@@ -16,16 +16,19 @@
 package org.prebid.veondemo.activities.ads.gam.rendering
 
 import android.os.Bundle
+import android.util.Log
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
 import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
+import org.prebid.mobile.rendering.interstitial.rewarded.Reward
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamRenderingApiVideoRewardedActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamRenderingApiVideoRewardedActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-app-original-api-video-interstitial"
-        const val CONFIG_ID = "prebid-ita-video-rewarded-320-480"
+        const val CONFIG_ID = "prebid-demo-video-rewarded-endcard-time-close-button"
     }
 
     private var adUnit: RewardedAdUnit? = null
@@ -49,7 +52,9 @@ class GamRenderingApiVideoRewardedActivity : org.prebid.veondemo.activities.Base
             override fun onAdFailed(rewardedAdUnit: RewardedAdUnit?, exception: AdException?) {}
             override fun onAdClicked(rewardedAdUnit: RewardedAdUnit?) {}
             override fun onAdClosed(rewardedAdUnit: RewardedAdUnit?) {}
-            override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?) {}
+            override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?, reward: Reward?) {
+                Log.d("AdExample", "User earned reward: $reward")
+            }
         })
         adUnit?.loadAd()
     }

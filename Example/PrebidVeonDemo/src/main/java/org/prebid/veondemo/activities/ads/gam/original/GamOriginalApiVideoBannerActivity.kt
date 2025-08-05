@@ -12,13 +12,14 @@ import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.AdViewUtils.PbFindSizeListener
 import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.data.AdUnitFormat
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
 
-class GamOriginalApiVideoBannerActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiVideoBannerActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-original-api-video-banner"
-        const val CONFIG_ID = "prebid-ita-video-outstream-original-api"
+        const val CONFIG_ID = "prebid-demo-video-outstream-original-api"
         const val WIDTH = 300
         const val HEIGHT = 250
     }

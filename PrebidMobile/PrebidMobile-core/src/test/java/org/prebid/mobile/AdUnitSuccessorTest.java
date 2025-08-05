@@ -18,6 +18,7 @@
 package org.prebid.mobile;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
@@ -31,6 +32,7 @@ import org.prebid.mobile.api.data.AdUnitFormat;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.reflection.AdUnitReflection;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
+import org.prebid.mobile.rendering.models.AdPosition;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -82,13 +84,44 @@ public class AdUnitSuccessorTest {
     }
 
     @Test
-    public void testBannerAdUnitAddSize() throws Exception {
+    public void testBannerAdUnitAddSize() {
         BannerAdUnit adUnit = new BannerAdUnit(testConfigId, width, height);
         adUnit.addAdditionalSize(300, height);
         assertEquals(2, adUnit.getSizes().size());
         adUnit.addAdditionalSize(width, height);
         assertEquals(2, adUnit.getSizes().size());
     }
+
+    @Test
+    public void testGpidParameter() {
+        BannerAdUnit adUnit = new BannerAdUnit(testConfigId, width, height);
+        String expectedGpid = "/12345/home_screen#identifier";
+        adUnit.setGpid(expectedGpid);
+
+        AdUnitConfiguration configuration = adUnit.getConfiguration();
+        assertEquals(expectedGpid, configuration.getGpid());
+    }
+
+    @Test
+    public void adPosition_empty() {
+        BannerAdUnit adUnit = new BannerAdUnit(testConfigId, width, height);
+
+        AdUnitConfiguration configuration = adUnit.getConfiguration();
+        assertEquals(AdPosition.UNDEFINED, configuration.getAdPosition());
+        assertEquals(AdPosition.UNDEFINED.getValue(), configuration.getAdPositionValue());
+    }
+
+    @Test
+    public void adPosition() {
+        BannerAdUnit adUnit = new BannerAdUnit(testConfigId, width, height);
+        adUnit.setAdPosition(AdPosition.SIDEBAR);
+
+        AdUnitConfiguration configuration = adUnit.getConfiguration();
+        assertEquals(AdPosition.SIDEBAR, configuration.getAdPosition());
+        assertEquals(AdPosition.SIDEBAR.getValue(), configuration.getAdPositionValue());
+    }
+
+
 
     @Test
     public void testBannerParametersCreation() {
@@ -147,7 +180,7 @@ public class AdUnitSuccessorTest {
         AdUnitConfiguration configuration = (AdUnitConfiguration) adUnit.getConfiguration();
 
         assertEquals(testConfigId, configuration.getConfigId());
-        assertEquals(EnumSet.of(AdFormat.VAST), configuration.getAdFormats());
+        assertEquals(EnumSet.of(AdFormat.INTERSTITIAL, AdFormat.VAST), configuration.getAdFormats());
     }
 
     @Test
@@ -155,7 +188,7 @@ public class AdUnitSuccessorTest {
         RewardedVideoAdUnit adUnit = new RewardedVideoAdUnit(testConfigId);
         AdUnitConfiguration configuration = adUnit.getConfiguration();
         assertEquals(testConfigId, configuration.getConfigId());
-        assertEquals(EnumSet.of(AdFormat.VAST), configuration.getAdFormats());
+        assertEquals(EnumSet.of(AdFormat.INTERSTITIAL, AdFormat.VAST), configuration.getAdFormats());
     }
 
     @Test
@@ -186,7 +219,10 @@ public class AdUnitSuccessorTest {
         parameters.setProtocols(Arrays.asList(Signals.Protocols.VAST_2_0, Signals.Protocols.VAST_3_0));
         parameters.setStartDelay(Signals.StartDelay.PreRoll);
         parameters.setPlacement(Signals.Placement.InBanner);
+        parameters.setPlcmt(Signals.Plcmt.Standalone);
         parameters.setLinearity(1);
+        parameters.setBattr(Arrays.asList(Signals.CreativeAttribute.AudioButton, Signals.CreativeAttribute.TextOnly));
+        parameters.setSkippable(true);
 
         videoBaseAdUnit.setVideoParameters(parameters);
 
@@ -204,6 +240,8 @@ public class AdUnitSuccessorTest {
         Signals.StartDelay startDelay = testedVideoParameters.getStartDelay();
         Signals.Placement placement = testedVideoParameters.getPlacement();
         Integer linearity = testedVideoParameters.getLinearity();
+        List<Signals.CreativeAttribute> battr = testedVideoParameters.getBattr();
+        Boolean skippable = testedVideoParameters.getSkippable();
 
         //then
         assertEquals(2, api.size());
@@ -220,7 +258,10 @@ public class AdUnitSuccessorTest {
         assertTrue(protocols.contains(new Signals.Protocols(2)) && protocols.contains(new Signals.Protocols(3)));
         assertEquals(new Signals.StartDelay(0), startDelay);
         assertEquals(new Signals.Placement(2), placement);
+        assertEquals(new Signals.Plcmt(4), testedVideoParameters.getPlcmt());
         assertEquals(new Integer(1), linearity);
+        assertTrue(battr.contains(new Signals.CreativeAttribute(12)) && battr.contains(new Signals.CreativeAttribute(15)));
+        assertTrue(skippable);
     }
 
     private void setupAndCheckVideoParametersHelper(BannerBaseAdUnit videoBaseAdUnit) {
@@ -237,6 +278,7 @@ public class AdUnitSuccessorTest {
         parameters.setStartDelay(Signals.StartDelay.PreRoll);
         parameters.setPlacement(Signals.Placement.InBanner);
         parameters.setLinearity(1);
+        parameters.setPlcmt(Signals.Plcmt.Standalone);
 
         videoBaseAdUnit.setVideoParameters(parameters);
 
@@ -254,6 +296,8 @@ public class AdUnitSuccessorTest {
         Signals.StartDelay startDelay = testedVideoParameters.getStartDelay();
         Signals.Placement placement = testedVideoParameters.getPlacement();
         Integer linearity = testedVideoParameters.getLinearity();
+        List<Signals.CreativeAttribute> battr = testedVideoParameters.getBattr();
+        Boolean skippable = testedVideoParameters.getSkippable();
 
         //then
         assertEquals(2, api.size());
@@ -271,5 +315,8 @@ public class AdUnitSuccessorTest {
         assertEquals(new Signals.StartDelay(0), startDelay);
         assertEquals(new Signals.Placement(2), placement);
         assertEquals(new Integer(1), linearity);
+        assertEquals(new Signals.Plcmt(4), testedVideoParameters.getPlcmt());
+        assertNull(battr);
+        assertNull(skippable);
     }
 }

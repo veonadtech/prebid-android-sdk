@@ -25,8 +25,9 @@ import org.prebid.mobile.BannerParameters
 import org.prebid.mobile.Signals
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiDisplayBanner320x50Activity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiDisplayBanner320x50Activity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner"
@@ -65,10 +66,14 @@ class GamOriginalApiDisplayBanner320x50Activity : org.prebid.veondemo.activities
 
         val request = AdManagerAdRequest.Builder().build()
         adUnit = BannerAdUnit(CONFIG_ID, WIDTH, HEIGHT)
+        setOpenRtbConfig()
 
         val parameters = BannerParameters()
         parameters.api = listOf(Signals.Api.MRAID_3, Signals.Api.OMID_1)
         adUnit?.bannerParameters = parameters
+
+        // Optional: the activation of the native impression tracker
+        adUnit?.activatePrebidImpressionTracker(adView)
 
         adUnit?.setAutoRefreshInterval(refreshTimeSeconds)
         adUnit?.fetchDemand(request) {
@@ -76,10 +81,24 @@ class GamOriginalApiDisplayBanner320x50Activity : org.prebid.veondemo.activities
         }
     }
 
+    /**
+     * Optional. Sets additional parameters.
+     */
+    private fun setOpenRtbConfig() {
+        adUnit?.impOrtbConfig = """
+            {
+              "bidfloor": 0.01,
+              "banner": {
+                "battr": [1,2,3,4]
+              }
+            }
+        """
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 
 }

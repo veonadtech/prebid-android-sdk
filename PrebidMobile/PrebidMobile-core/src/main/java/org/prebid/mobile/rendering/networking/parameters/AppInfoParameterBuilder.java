@@ -52,9 +52,11 @@ public class AppInfoParameterBuilder extends ParameterBuilder {
             app.ver = appVersion;
         }
 
-        String bundle = AppInfoManager.getPackageName();
+        String bundle = TargetingParams.getBundleName();
         if (Utils.isNotBlank(bundle)) {
             app.bundle = bundle;
+        } else if (Utils.isNotBlank(AppInfoManager.getPackageName())) {
+            app.bundle = AppInfoManager.getPackageName();
         }
 
         String storeUrl = TargetingParams.getStoreUrl();
@@ -72,17 +74,10 @@ public class AppInfoParameterBuilder extends ParameterBuilder {
             app.domain = domain;
         }
 
-        app.contentObject = adConfiguration.getAppContent();
-
         app.getExt().put("prebid", Prebid.getJsonObjectForApp(BasicParameterBuilder.DISPLAY_MANAGER_VALUE, PrebidMobile.SDK_VERSION));
         final Map<String, Set<String>> extDataDictionary = TargetingParams.getExtDataDictionary();
         if (!extDataDictionary.isEmpty()) {
             app.getExt().put("data", Utils.toJson(extDataDictionary));
-        }
-
-        Set<String> extKeywords = TargetingParams.getExtKeywordsSet();
-        if (extKeywords.size() > 0) {
-            app.keywords = TextUtils.join(",", extKeywords);
         }
     }
 }

@@ -16,11 +16,18 @@
 
 package org.prebid.mobile;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
+
 import android.app.Activity;
 import android.os.Bundle;
+
 import com.google.android.gms.ads.admanager.AdManagerAdRequest;
-import com.google.android.gms.ads.formats.NativeCustomTemplateAd;
-import okhttp3.mockwebserver.MockWebServer;
+import com.google.android.gms.ads.nativead.NativeCustomFormatAd;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +41,7 @@ import org.prebid.mobile.addendum.AdViewUtils;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.httpclient.FakeHttp;
 import org.robolectric.util.Scheduler;
 
@@ -41,13 +49,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
-import static org.robolectric.Shadows.shadowOf;
+import okhttp3.mockwebserver.MockWebServer;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = BaseSetup.testSDK)
+@LooperMode(LEGACY)
 public class UtilTest extends BaseSetup {
 
     class TestObject {
@@ -402,7 +416,7 @@ public class UtilTest extends BaseSetup {
     public void testFindNativeLoadedDFP() {
         String mockedResponse = MockPrebidServerResponses.validResponsePrebidNativeNativeBid();
         String cacheId = CacheManager.save(mockedResponse);
-        NativeCustomTemplateAd nativeCustomTemplateAd = Mockito.mock(NativeCustomTemplateAd.class);
+        NativeCustomFormatAd nativeCustomTemplateAd = Mockito.mock(NativeCustomFormatAd.class);
         Mockito.when(nativeCustomTemplateAd.getText("isPrebid")).thenReturn("1");
         Mockito.when(nativeCustomTemplateAd.getText("hb_cache_id_local")).thenReturn(cacheId);
         AdViewUtils.findNative(nativeCustomTemplateAd, new PrebidNativeAdListener() {
@@ -427,7 +441,7 @@ public class UtilTest extends BaseSetup {
     public void testFindNativeNotValidDFP() {
         String mockedResponse = MockPrebidServerResponses.validResponsePrebidNativeNativeBid();
         String cacheId = CacheManager.save(mockedResponse);
-        NativeCustomTemplateAd nativeCustomTemplateAd = Mockito.mock(NativeCustomTemplateAd.class);
+        NativeCustomFormatAd nativeCustomTemplateAd = Mockito.mock(NativeCustomFormatAd.class);
         Mockito.when(nativeCustomTemplateAd.getText("isPrebid")).thenReturn("1");
         Mockito.when(nativeCustomTemplateAd.getText("hb_cache_id_local")).thenReturn("cacheId");
         AdViewUtils.findNative(nativeCustomTemplateAd, new PrebidNativeAdListener() {
@@ -452,7 +466,7 @@ public class UtilTest extends BaseSetup {
     public void testFindNativeNotFoundDFP() {
         String mockedResponse = MockPrebidServerResponses.validResponsePrebidNativeNativeBid();
         String cacheId = CacheManager.save(mockedResponse);
-        NativeCustomTemplateAd nativeCustomTemplateAd = Mockito.mock(NativeCustomTemplateAd.class);
+        NativeCustomFormatAd nativeCustomTemplateAd = Mockito.mock(NativeCustomFormatAd.class);
         Mockito.when(nativeCustomTemplateAd.getText("isPrebid")).thenReturn("0");
         Mockito.when(nativeCustomTemplateAd.getText("hb_cache_id_local")).thenReturn(cacheId);
         AdViewUtils.findNative(nativeCustomTemplateAd, new PrebidNativeAdListener() {
@@ -476,7 +490,7 @@ public class UtilTest extends BaseSetup {
 
 
 class BaseSetup {
-    public static final int testSDK = 21;
+    public static final int testSDK = 23;
 
     protected MockWebServer server;
     protected Scheduler uiScheduler, bgScheduler;

@@ -20,10 +20,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.json.JSONObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
-import org.prebid.mobile.rendering.listeners.AdIdFetchListener;
 import org.prebid.mobile.rendering.networking.BaseNetworkTask;
 import org.prebid.mobile.rendering.networking.ResponseHandler;
 import org.prebid.mobile.rendering.networking.parameters.AdRequestInput;
@@ -42,8 +45,7 @@ import org.prebid.mobile.rendering.sdk.ManagersResolver;
 import org.prebid.mobile.rendering.sdk.PrebidContextHolder;
 import org.prebid.mobile.rendering.sdk.deviceData.managers.ConnectionInfoManager;
 import org.prebid.mobile.rendering.sdk.deviceData.managers.DeviceInfoManager;
-import org.prebid.mobile.rendering.sdk.deviceData.managers.UserConsentManager;
-import org.prebid.mobile.rendering.utils.helpers.AdIdManager;
+import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.rendering.utils.helpers.ExternalViewerUtils;
 
@@ -59,6 +61,8 @@ public abstract class Requester {
     protected URLBuilder urlBuilder;
     protected ResponseHandler adResponseCallBack;
     protected BaseNetworkTask networkTask;
+    @Nullable
+    protected JSONObject builtRequest;
 
     Requester(
             AdUnitConfiguration config,
@@ -80,10 +84,14 @@ public abstract class Requester {
 
     public abstract void startAdRequest();
 
+    @NonNull
+    public JSONObject getBuiltRequest() {
+        return builtRequest == null ? new JSONObject() : builtRequest;
+    }
+
     public void destroy() {
         if (networkTask != null) {
             networkTask.cancel(true);
-            networkTask.destroy();
         }
         networkTask = null;
         adResponseCallBack = null;
@@ -122,26 +130,8 @@ public abstract class Requester {
             );
             return;
         }
-
-        UserConsentManager userConsentManager = ManagersResolver.getInstance().getUserConsentManager();
-        if (userConsentManager.canAccessDeviceData()) {
-            AdIdManager.initAdId(context, new AdIdFetchListener() {
-                @Override
-                public void adIdFetchCompletion() {
-                    LogUtil.info(TAG, "Advertising id was received");
-                    makeAdRequest();
-                }
-
-                @Override
-                public void adIdFetchFailure() {
-                    LogUtil.warning(TAG, "Can't get advertising id");
-                    makeAdRequest();
-                }
-            });
-        } else {
-            AdIdManager.setAdId(null);
-            makeAdRequest();
-        }
+        makeAdRequest();
+        AdvertisingIdManager.updateAdvertisingId();
     }
 
     protected abstract PathBuilderBase getPathBuilder();
@@ -149,7 +139,9 @@ public abstract class Requester {
     private void sendAdException(String logMsg, String exceptionMsg) {
         LogUtil.warning(TAG, logMsg);
         AdException adException = new AdException(AdException.INIT_ERROR, exceptionMsg);
-        adResponseCallBack.onErrorWithException(adException, 0);
+        if (adResponseCallBack != null) {
+            adResponseCallBack.onErrorWithException(adException, 0);
+        }
     }
 
     protected void makeAdRequest() {
@@ -185,10 +177,13 @@ public abstract class Requester {
     protected void sendAdRequest(URLComponents jsonUrlComponents) {
         BaseNetworkTask.GetUrlParams params = new BaseNetworkTask.GetUrlParams();
         params.url = jsonUrlComponents.getBaseUrl();
-        params.queryParams = jsonUrlComponents.getQueryArgString();
+        String queryArgString = jsonUrlComponents.getQueryArgString();
+        params.queryParams = queryArgString;
         params.requestType = "POST";
         params.userAgent = AppInfoManager.getUserAgent();
         params.name = requestName;
+
+        builtRequest = jsonUrlComponents.getRequestJsonObject();
 
         networkTask = new BaseNetworkTask(adResponseCallBack);
         networkTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);

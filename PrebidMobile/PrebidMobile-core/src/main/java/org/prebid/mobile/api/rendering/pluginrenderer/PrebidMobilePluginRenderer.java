@@ -22,13 +22,17 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONObject;
 import org.prebid.mobile.api.rendering.PrebidMobileInterstitialControllerInterface;
-import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.interfaces.InterstitialControllerListener;
+import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayViewListener;
 
+/**
+ * Main plugin renderer interface.
+ */
 public interface PrebidMobilePluginRenderer {
 
     String getName();
@@ -36,7 +40,7 @@ public interface PrebidMobilePluginRenderer {
     String getVersion();
 
     @Nullable
-    String getToken();
+    JSONObject getData();
 
     /**
      * Register a listener related to a specific ad unit config fingerprint in order to dispatch specific ad events

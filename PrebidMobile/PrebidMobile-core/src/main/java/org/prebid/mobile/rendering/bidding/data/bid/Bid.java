@@ -18,8 +18,13 @@ package org.prebid.mobile.rendering.bidding.data.bid;
 
 
 import android.util.Base64;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.prebid.mobile.api.data.BidInfo;
+import org.prebid.mobile.rendering.interstitial.rewarded.RewardedExt;
+import org.prebid.mobile.rendering.interstitial.rewarded.RewardedExtParser;
 import org.prebid.mobile.rendering.models.internal.MacrosModel;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.MobileSdkPassThrough;
 import org.prebid.mobile.rendering.utils.helpers.MacrosResolutionHelper;
@@ -126,7 +131,13 @@ public class Bid {
     // wait between the auction and the actual impression
     private int exp;
 
+    @Nullable
+    private Map<String, String> events;
+
     private MobileSdkPassThrough mobileSdkPassThrough;
+
+    @NonNull
+    private RewardedExt rewardedExt = RewardedExt.defaultExt();
 
     protected Bid() {
     }
@@ -250,6 +261,11 @@ public class Bid {
         return mobileSdkPassThrough;
     }
 
+    @Nullable
+    public Map<String, String> getEvents() {
+        return events;
+    }
+
     public static Bid fromJSONObject(JSONObject jsonObject) {
         Bid bid = new Bid();
         if (jsonObject == null) {
@@ -286,8 +302,11 @@ public class Bid {
 
         JSONObject ext = jsonObject.optJSONObject("ext");
         if (ext != null) {
-            bid.prebid = Prebid.fromJSONObject(ext.optJSONObject("prebid"));
+            Prebid prebidObject = Prebid.fromJSONObject(ext.optJSONObject("prebid"));
+            setEvents(bid, prebidObject);
+            bid.prebid = prebidObject;
             bid.mobileSdkPassThrough = MobileSdkPassThrough.create(ext);
+            bid.rewardedExt = RewardedExtParser.parse(ext);
         }
 
         substituteMacros(bid);
@@ -340,5 +359,26 @@ public class Bid {
 
         bid.adm = MacrosResolutionHelper.resolveAuctionMacros(bid.adm, macrosModelMap);
         bid.nurl = MacrosResolutionHelper.resolveAuctionMacros(bid.nurl, macrosModelMap);
+    }
+
+
+    private static void setEvents(Bid bid, Prebid prebidObject) {
+        HashMap<String, String> events = new HashMap<>();
+        String winUrl = prebidObject.getWinEventUrl();
+        if (winUrl != null) {
+            events.put(BidInfo.EVENT_WIN, winUrl);
+        }
+        String impUrl = prebidObject.getImpEventUrl();
+        if (impUrl != null) {
+            events.put(BidInfo.EVENT_IMP, impUrl);
+        }
+        if (!events.isEmpty()) {
+            bid.events = events;
+        }
+    }
+
+    @NonNull
+    public RewardedExt getRewardedExt() {
+        return rewardedExt;
     }
 }

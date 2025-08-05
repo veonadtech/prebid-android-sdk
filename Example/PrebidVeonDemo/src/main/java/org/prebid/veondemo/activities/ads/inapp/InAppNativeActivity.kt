@@ -22,13 +22,14 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.prebid.mobile.*
-import org.prebid.veondemo.utils.ImageUtils
 import org.prebid.mobile.rendering.utils.ntv.NativeAdProvider
+import org.prebid.veondemo.activities.BaseAdActivity
+import org.prebid.veondemo.utils.ImageUtils
 
-class InAppNativeActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppNativeActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-ita-banner-native-styles"
+        const val CONFIG_ID = "prebid-demo-banner-native-styles"
     }
 
     private var nativeAdUnit: NativeAdUnit? = null

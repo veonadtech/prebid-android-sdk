@@ -16,11 +16,26 @@
 
 package org.prebid.mobile.api.rendering;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +43,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.api.data.AdFormat;
-import org.prebid.mobile.api.data.BannerAdPosition;
 import org.prebid.mobile.api.data.VideoPlacementType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.api.rendering.listeners.BannerVideoListener;
@@ -43,6 +57,7 @@ import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayViewListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
+import org.prebid.mobile.rendering.models.AdPosition;
 import org.prebid.mobile.rendering.utils.broadcast.ScreenStateReceiver;
 import org.prebid.mobile.test.utils.WhiteBox;
 import org.robolectric.Robolectric;
@@ -53,9 +68,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 19)
@@ -94,7 +106,7 @@ public class BannerViewTest {
         bannerView.setBannerListener(mockBannerListener);
         bannerView.setBannerVideoListener(mockBannerVideoListener);
 
-        assertEquals(BannerAdPosition.UNDEFINED.getValue(), bannerView.getAdPosition().getValue());
+        assertEquals(AdPosition.UNDEFINED.getValue(), bannerView.getAdPosition().getValue());
     }
 
     @Test
@@ -434,81 +446,21 @@ public class BannerViewTest {
     }
 
     @Test
-    public void addUpdateRemoveClearContextData_EqualsGetContextDataDictionary() {
-        Map<String, Set<String>> expectedMap = new HashMap<>();
-        HashSet<String> value1 = new HashSet<>();
-        value1.add("value1");
-        HashSet<String> value2 = new HashSet<>();
-        value2.add("value2");
-        expectedMap.put("key1", value1);
-        expectedMap.put("key2", value2);
-
-        // add
-        bannerView.addContextData("key1", "value1");
-        bannerView.addContextData("key2", "value2");
-
-        assertEquals(expectedMap, bannerView.getContextDataDictionary());
-
-        // update
-        HashSet<String> updateSet = new HashSet<>();
-        updateSet.add("value3");
-        bannerView.updateContextData("key1", updateSet);
-        expectedMap.replace("key1", updateSet);
-
-        assertEquals(expectedMap, bannerView.getContextDataDictionary());
-
-        // remove
-        bannerView.removeContextData("key1");
-        expectedMap.remove("key1");
-        assertEquals(expectedMap, bannerView.getContextDataDictionary());
-
-        // clear
-        bannerView.clearContextData();
-        assertTrue(bannerView.getContextDataDictionary().isEmpty());
-    }
-
-    @Test
-    public void addRemoveContextKeywords_EqualsGetContextKeyWordsSet() {
-        HashSet<String> expectedSet = new HashSet<>();
-        expectedSet.add("key1");
-        expectedSet.add("key2");
-
-        // add
-        bannerView.addContextKeyword("key1");
-        bannerView.addContextKeyword("key2");
-
-        assertEquals(expectedSet, bannerView.getContextKeywordsSet());
-
-        // remove
-        bannerView.removeContextKeyword("key2");
-        expectedSet.remove("key2");
-        assertEquals(expectedSet, bannerView.getContextKeywordsSet());
-
-        // clear
-        bannerView.clearContextKeywords();
-        assertTrue(bannerView.getContextKeywordsSet().isEmpty());
-
-        // add all
-        bannerView.addContextKeywords(expectedSet);
-        assertEquals(expectedSet, bannerView.getContextKeywordsSet());
-    }
-
-    @Test
     public void setAdPosition_EqualsGetAdPosition() {
         bannerView.setAdPosition(null);
-        assertEquals(BannerAdPosition.UNDEFINED, bannerView.getAdPosition());
+        assertEquals(AdPosition.UNDEFINED, bannerView.getAdPosition());
 
-        bannerView.setAdPosition(BannerAdPosition.FOOTER);
-        assertEquals(BannerAdPosition.FOOTER, bannerView.getAdPosition());
+        bannerView.setAdPosition(AdPosition.FOOTER);
+        assertEquals(AdPosition.FOOTER, bannerView.getAdPosition());
 
-        bannerView.setAdPosition(BannerAdPosition.HEADER);
-        assertEquals(BannerAdPosition.HEADER, bannerView.getAdPosition());
+        bannerView.setAdPosition(AdPosition.HEADER);
+        assertEquals(AdPosition.HEADER, bannerView.getAdPosition());
 
-        bannerView.setAdPosition(BannerAdPosition.SIDEBAR);
-        assertEquals(BannerAdPosition.SIDEBAR, bannerView.getAdPosition());
+        bannerView.setAdPosition(AdPosition.SIDEBAR);
+        assertEquals(AdPosition.SIDEBAR, bannerView.getAdPosition());
 
-        bannerView.setAdPosition(BannerAdPosition.UNKNOWN);
-        assertEquals(BannerAdPosition.UNKNOWN, bannerView.getAdPosition());
+        bannerView.setAdPosition(AdPosition.UNKNOWN);
+        assertEquals(AdPosition.UNKNOWN, bannerView.getAdPosition());
     }
 
     @Test

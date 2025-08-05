@@ -16,6 +16,8 @@
 
 package org.prebid.mobile.api.rendering;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -28,12 +30,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import org.prebid.mobile.AdSize;
-import org.prebid.mobile.ContentObject;
-import org.prebid.mobile.DataObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
-import org.prebid.mobile.api.data.BannerAdPosition;
 import org.prebid.mobile.api.data.VideoPlacementType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.api.rendering.listeners.BannerVideoListener;
@@ -59,10 +58,12 @@ import org.prebid.mobile.rendering.utils.broadcast.ScreenStateReceiver;
 import org.prebid.mobile.rendering.utils.helpers.VisibilityChecker;
 import org.prebid.mobile.rendering.views.webview.mraid.Views;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Ad view for banner ad with rendering API.
+ */
 public class BannerView extends FrameLayout {
 
     private final static String TAG = BannerView.class.getSimpleName();
@@ -116,13 +117,6 @@ public class BannerView extends FrameLayout {
         public void onAdClicked() {
             if (bannerViewListener != null) {
                 bannerViewListener.onAdClicked(BannerView.this);
-            }
-        }
-
-        @Override
-        public void onAdUrlClicked(String url) {
-            if (bannerViewListener != null) {
-                bannerViewListener.onAdUrlClicked(url);
             }
         }
 
@@ -397,147 +391,12 @@ public class BannerView extends FrameLayout {
         this.eventHandler = eventHandler;
     }
 
-    /**
-     * @deprecated use addExtData
-     */
-    @Deprecated
-    public void addContextData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    /**
-     * @deprecated use updateExtData
-     */
-    @Deprecated
-    public void updateContextData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    /**
-     * @deprecated use removeExtData
-     */
-    @Deprecated
-    public void removeContextData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    /**
-     * @deprecated use clearExtData
-     */
-    @Deprecated
-    public void clearContextData() {
-        adUnitConfig.clearExtData();
-    }
-
-    /**
-     * @deprecated use getExtDataDictionary
-     */
-    @Deprecated
-    public Map<String, Set<String>> getContextDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    /**
-     * @deprecated use addExtKeyword
-     */
-    @Deprecated
-    public void addContextKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use addExtKeywords
-     */
-    @Deprecated
-    public void addContextKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    /**
-     * @deprecated use removeExtKeyword
-     */
-    @Deprecated
-    public void removeContextKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use getExtKeywordsSet
-     */
-    @Deprecated
-    public Set<String> getContextKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    /**
-     * @deprecated use clearExtKeywords
-     */
-    @Deprecated
-    public void clearContextKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-
-    public void addExtData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void updateExtData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void removeExtData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    public void clearExtData() {
-        adUnitConfig.clearExtData();
-    }
-
-    public Map<String, Set<String>> getExtDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    public void addExtKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    public void addExtKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    public void removeExtKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    public Set<String> getExtKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    public void clearExtKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-
-    public void setAdPosition(BannerAdPosition bannerAdPosition) {
-        final AdPosition adPosition = BannerAdPosition.mapToAdPosition(bannerAdPosition);
+    public void setAdPosition(AdPosition adPosition) {
         adUnitConfig.setAdPosition(adPosition);
     }
 
-    public BannerAdPosition getAdPosition() {
-        return BannerAdPosition.mapToDisplayAdPosition(adUnitConfig.getAdPositionValue());
+    public AdPosition getAdPosition() {
+        return adUnitConfig.getAdPosition();
     }
 
     public void setPbAdSlot(String adSlot) {
@@ -547,27 +406,6 @@ public class BannerView extends FrameLayout {
     @Nullable
     public String getPbAdSlot() {
         return adUnitConfig.getPbAdSlot();
-    }
-
-    @Deprecated
-    public void addContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
-    }
-
-    public void setAppContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
-    }
-
-    public void addUserData(DataObject dataObject) {
-        adUnitConfig.addUserData(dataObject);
-    }
-
-    public ArrayList<DataObject> getUserData() {
-        return adUnitConfig.getUserData();
-    }
-
-    public void clearUserData() {
-        adUnitConfig.clearUserData();
     }
 
     //endregion ==================== getters and setters
@@ -601,7 +439,10 @@ public class BannerView extends FrameLayout {
     }
 
     private void initPrebidRenderingSdk() {
-        PrebidMobile.initializeSdk(getContext(), null);
+        String hostUrl = PrebidMobile.getPrebidServerHost().getHostUrl();
+        if (!hostUrl.isEmpty()) {
+            PrebidMobile.initializeSdk(getContext(), hostUrl, null);
+        }
     }
 
     private void initBidLoader() {
@@ -636,9 +477,13 @@ public class BannerView extends FrameLayout {
 
         removeAllViews();
 
-        final Pair<Integer, Integer> sizePair = bidResponse.getWinningBidWidthHeightPairDips(getContext());
         displayView = new DisplayView(getContext(), displayViewListener, displayVideoListener, adUnitConfig, bidResponse);
-        addView(displayView, sizePair.first, sizePair.second);
+        if (bidResponse.getPreferredPluginRendererName() == PrebidMobilePluginRegister.PREBID_MOBILE_RENDERER_NAME) {
+            final Pair<Integer, Integer> sizePair = bidResponse.getWinningBidWidthHeightPairDips(getContext());
+            addView(displayView, sizePair.first, sizePair.second);
+        } else {
+            addView(displayView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        }
     }
 
     private void displayAdServerView(View view) {
@@ -683,6 +528,20 @@ public class BannerView extends FrameLayout {
 
     public BidResponse getBidResponse() {
         return bidResponse;
+    }
+
+    @Nullable
+    public String getImpOrtbConfig() {
+        return adUnitConfig.getImpOrtbConfig();
+    }
+
+    /**
+     * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig JSON config string.
+     */
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {
+        adUnitConfig.setImpOrtbConfig(ortbConfig);
     }
 
     //region ==================== HelperMethods for Unit Tests. Should be used only in tests

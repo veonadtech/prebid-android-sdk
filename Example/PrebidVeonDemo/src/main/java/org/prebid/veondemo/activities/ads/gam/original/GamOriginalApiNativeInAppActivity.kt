@@ -34,17 +34,25 @@ import com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd.OnCustomFormatAdLoadedListener
 import com.google.common.collect.Lists
-import org.prebid.mobile.*
+import org.prebid.mobile.NativeAdUnit
+import org.prebid.mobile.NativeDataAsset
+import org.prebid.mobile.NativeEventTracker
 import org.prebid.mobile.NativeEventTracker.EVENT_TRACKING_METHOD
+import org.prebid.mobile.NativeImageAsset
+import org.prebid.mobile.NativeTitleAsset
+import org.prebid.mobile.PrebidNativeAd
+import org.prebid.mobile.PrebidNativeAdEventListener
+import org.prebid.mobile.PrebidNativeAdListener
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.BaseAdActivity
 import org.prebid.veondemo.utils.ImageUtils
 
-class GamOriginalApiNativeInAppActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiNativeInAppActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/apollo_custom_template_native_ad_unit"
-        const val CONFIG_ID = "prebid-ita-banner-native-styles"
+        const val CONFIG_ID = "prebid-demo-banner-native-styles"
         const val CUSTOM_FORMAT_ID = "11934135"
         const val TAG = "GamOriginalNativeInApp"
     }
@@ -152,7 +160,7 @@ class GamOriginalApiNativeInAppActivity : org.prebid.veondemo.activities.BaseAdA
             .build()
     }
 
-    private fun addNativeAssets(adUnit: NativeAdUnit?)  {
+    private fun addNativeAssets(adUnit: NativeAdUnit?) {
         // ADD NATIVE ASSETS
 
         val title = NativeTitleAsset()
@@ -211,7 +219,7 @@ class GamOriginalApiNativeInAppActivity : org.prebid.veondemo.activities.BaseAdA
     override fun onDestroy() {
         super.onDestroy()
         adView?.destroy()
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
         unifiedNativeAd?.destroy()
     }
 

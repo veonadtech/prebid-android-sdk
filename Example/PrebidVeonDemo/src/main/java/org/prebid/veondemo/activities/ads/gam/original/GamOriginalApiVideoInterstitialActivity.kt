@@ -10,13 +10,14 @@ import org.prebid.mobile.InterstitialAdUnit
 import org.prebid.mobile.Signals
 import org.prebid.mobile.VideoParameters
 import org.prebid.mobile.api.data.AdUnitFormat
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
 
-class GamOriginalApiVideoInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiVideoInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-app-original-api-video-interstitial"
-        const val CONFIG_ID = "prebid-ita-video-interstitial-320-480-original-api"
+        const val CONFIG_ID = "prebid-demo-video-interstitial-320-480-original-api"
     }
 
     private var adUnit: InterstitialAdUnit? = null
@@ -51,6 +52,7 @@ class GamOriginalApiVideoInterstitialActivity : org.prebid.veondemo.activities.B
     private fun configureVideoParameters(): VideoParameters {
         return VideoParameters(listOf("video/x-flv", "video/mp4")).apply {
             placement = Signals.Placement.Interstitial
+            plcmt = Signals.Plcmt.Interstitial
 
             api = listOf(
                 Signals.Api.VPAID_1,
@@ -87,7 +89,7 @@ class GamOriginalApiVideoInterstitialActivity : org.prebid.veondemo.activities.B
     override fun onDestroy() {
         super.onDestroy()
 
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 
 }

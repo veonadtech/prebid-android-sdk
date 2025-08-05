@@ -21,17 +21,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 public class PluginRendererList extends BaseBid {
 
-    private List<PluginRenderer> renderers;
+    public static String RENDERERS_KEY = "renderers";
 
+    private List<PluginRenderer> renderers;
 
     public JSONObject getJsonObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        JSONObject sdkObject = new JSONObject();
-        toJSON(sdkObject, "renderers", this.renderers);
-        jsonObject.put("sdk", sdkObject);
+        toJSON(jsonObject, RENDERERS_KEY, this.renderers);
         return jsonObject;
     }
 
@@ -39,7 +39,7 @@ public class PluginRendererList extends BaseBid {
         this.renderers = renderers;
     }
 
-    public List<PluginRenderer> getList() {
+    public List<PluginRenderer> get() {
         return this.renderers;
     }
 
@@ -51,7 +51,10 @@ public class PluginRendererList extends BaseBid {
             JSONObject pluginObj = new JSONObject();
             pluginObj.put("name", plugin.getName());
             pluginObj.put("version", plugin.getVersion());
-            pluginObj.put("token", plugin.getToken());
+            JSONObject pluginDataObj = plugin.getData();
+            if (pluginDataObj != null) {
+                pluginObj.put("data", pluginDataObj);
+            }
             jsonArray.put(pluginObj);
         }
         jsonObject.put(key, jsonArray);

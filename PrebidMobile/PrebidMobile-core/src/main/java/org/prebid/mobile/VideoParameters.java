@@ -3,9 +3,12 @@ package org.prebid.mobile;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
+ * Video parameters for requesting ad.
  * Describes an <a href="https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf">OpenRTB</a> video object
  */
 public class VideoParameters {
@@ -83,10 +86,28 @@ public class VideoParameters {
     private Signals.Placement placement;
 
     /**
+     * Placement type for video content.
+     */
+    @Nullable
+    private Signals.Plcmt plcmt;
+
+    /**
      * Placement type for the impression.
      */
     @Nullable
     private Integer linearity;
+
+    @Nullable
+    private AdSize adSize;
+
+    /**
+     * Array of blocked creative attributes.
+     */
+    @Nullable
+    private List<Signals.CreativeAttribute> battr;
+
+    @Nullable
+    private Boolean skippable;
 
     //Getters and setters
     @Nullable
@@ -182,5 +203,55 @@ public class VideoParameters {
 
     public void setLinearity(@Nullable Integer linearity) {
         this.linearity = linearity;
+    }
+
+    @Nullable
+    public AdSize getAdSize() {
+        return adSize;
+    }
+
+    public void setAdSize(@Nullable AdSize adSize) {
+        this.adSize = adSize;
+    }
+
+    @Nullable
+    public Signals.Plcmt getPlcmt() {
+        return plcmt;
+    }
+
+    /**
+     * Sets {@link org.prebid.mobile.Signals.Plcmt}.
+     */
+    public void setPlcmt(@Nullable Signals.Plcmt plcmt) {
+        this.plcmt = plcmt;
+    }
+
+    @Nullable
+    public List<Signals.CreativeAttribute> getBattr() {
+        return battr;
+    }
+
+    /**
+     * Sets {@link org.prebid.mobile.Signals.CreativeAttribute}.
+     */
+    public void setBattr(@Nullable List<Signals.CreativeAttribute> battr) {
+        if (battr != null) {
+            HashSet<Signals.CreativeAttribute> set = new HashSet<>(battr);
+            this.battr = new ArrayList<>(set);
+        } else {
+            this.battr = null;
+        }
+    }
+
+    @Nullable
+    public Boolean getSkippable() {
+        return skippable;
+    }
+
+    /**
+     * Indicates if the player will allow the video to be skipped, where 0 = no, 1 = yes.
+     */
+    public void setSkippable(@Nullable Boolean skippable) {
+        this.skippable = skippable;
     }
 }

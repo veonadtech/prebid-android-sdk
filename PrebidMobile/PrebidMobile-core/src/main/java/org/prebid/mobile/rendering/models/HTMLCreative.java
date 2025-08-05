@@ -32,6 +32,7 @@ import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.interstitial.InterstitialManagerDisplayDelegate;
+import org.prebid.mobile.rendering.interstitial.rewarded.RewardedExt;
 import org.prebid.mobile.rendering.listeners.CreativeViewListener;
 import org.prebid.mobile.rendering.listeners.WebViewDelegate;
 import org.prebid.mobile.rendering.models.internal.MraidEvent;
@@ -42,10 +43,7 @@ import org.prebid.mobile.rendering.mraid.methods.MraidController;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.exposure.ViewExposure;
 import org.prebid.mobile.rendering.views.interstitial.InterstitialManager;
-import org.prebid.mobile.rendering.views.webview.PrebidWebViewBanner;
-import org.prebid.mobile.rendering.views.webview.PrebidWebViewBase;
-import org.prebid.mobile.rendering.views.webview.PrebidWebViewInterstitial;
-import org.prebid.mobile.rendering.views.webview.WebViewBase;
+import org.prebid.mobile.rendering.views.webview.*;
 
 import java.util.EnumSet;
 
@@ -139,6 +137,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
             html = injectingScriptContent(html);
             prebidWebView.loadHTML(html, width, height);
             setCreativeView(prebidWebView);
+            rewardedTracking(prebidWebView, getCreativeModel().getAdConfiguration());
         }
 
         isEndCard = model.hasEndCard();
@@ -172,11 +171,7 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
 
         WebViewBase webView = getCreativeView().getWebView();
 
-        AdUnitConfiguration adConfiguration = getCreativeModel().getAdConfiguration();
-        ContentObject contentObject = adConfiguration.getAppContent();
-        String contentUrl = null;
-        if (contentObject != null) contentUrl = contentObject.getUrl();
-        omAdSessionManager.initWebAdSessionManager(webView, contentUrl);
+        omAdSessionManager.initWebAdSessionManager(webView, null);
         startOmSession(omAdSessionManager, webView);
     }
 
@@ -340,6 +335,26 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
             mraidController = new MraidController(interstitialManager);
         }
         mraidController.handleMraidEvent(mraidEvent, this, oldWebViewBase, twoPartNewWebViewBase);
+    }
+
+
+    protected static void rewardedTracking(PrebidWebViewBase webView, AdUnitConfiguration config) {
+        if (!config.isRewarded()) {
+            return;
+        }
+
+        RewardedExt rewardedExt = config.getRewardManager().getRewardedExt();
+        String bannerEvent;
+        if (config.getHasEndCard()) {
+            bannerEvent = rewardedExt.getCompletionRules().getEndCardEvent();
+        } else {
+            bannerEvent = rewardedExt.getCompletionRules().getBannerEvent();
+        }
+        if (bannerEvent == null) {
+            return;
+        }
+
+        webView.setActionUrl(new ActionUrl(bannerEvent, () -> config.getRewardManager().notifyRewardListener()));
     }
 
     /**

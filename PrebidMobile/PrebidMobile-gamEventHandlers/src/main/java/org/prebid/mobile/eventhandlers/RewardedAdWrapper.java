@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is responsible for wrapping usage of RewardedAd from GAM SDK.
+ * Internal wrapper of rewarded ad from GAM SDK.
  * To achieve safe integration between various GAM SDK versions we have to wrap all PublisherAdView method execution in try / catch.
  * This class instance should be created via newInstance method, which will catch any potential exception on RewardedAd / RewardedAdWrapper instance creation
  */
@@ -188,7 +188,7 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
         }
     }
 
-    public Object getRewardItem() {
+    public RewardItem getRewardItem() {
         return rewardedAd != null ? rewardedAd.getRewardItem() : null;
     }
 

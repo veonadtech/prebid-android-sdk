@@ -33,16 +33,24 @@ import com.google.android.gms.ads.formats.OnAdManagerAdViewLoadedListener
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd
 import com.google.common.collect.Lists
-import org.prebid.mobile.*
+import org.prebid.mobile.NativeAdUnit
+import org.prebid.mobile.NativeDataAsset
+import org.prebid.mobile.NativeEventTracker
+import org.prebid.mobile.NativeImageAsset
+import org.prebid.mobile.NativeTitleAsset
+import org.prebid.mobile.PrebidNativeAd
+import org.prebid.mobile.PrebidNativeAdEventListener
+import org.prebid.mobile.PrebidNativeAdListener
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.BaseAdActivity
 import org.prebid.veondemo.utils.ImageUtils
 
-class GamRenderingApiNativeActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamRenderingApiNativeActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/apollo_custom_template_native_ad_unit"
-        const val CONFIG_ID = "prebid-ita-banner-native-styles"
+        const val CONFIG_ID = "prebid-demo-banner-native-styles"
         const val CUSTOM_FORMAT_ID = "11934135"
     }
 

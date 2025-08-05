@@ -24,31 +24,38 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
+import android.view.View;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import org.jetbrains.annotations.NotNull;
 import org.prebid.mobile.api.data.AdFormat;
+import org.prebid.mobile.api.data.BidInfo;
 import org.prebid.mobile.api.data.FetchDemandResult;
 import org.prebid.mobile.api.exceptions.AdException;
+import org.prebid.mobile.api.original.OnFetchDemandResult;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
 import org.prebid.mobile.rendering.sdk.PrebidContextHolder;
-import org.prebid.mobile.tasksmanager.TasksManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Base ad unit for the original API.
+ */
 public abstract class AdUnit {
+
+    private static final String TAG = "AdUnit";
 
     protected AdUnitConfiguration configuration = new AdUnitConfiguration();
 
@@ -56,29 +63,38 @@ public abstract class AdUnit {
     protected BidLoader bidLoader;
     @Nullable
     protected Object adObject;
+    @Nullable
+    protected BidResponse bidResponse;
 
-    AdUnit(@NonNull String configId, @NonNull EnumSet<AdFormat> adTypes) {
+    protected final VisibilityMonitor visibilityMonitor = new VisibilityMonitor();
+    protected WeakReference<View> adViewReference = new WeakReference<>(null);
+
+    protected boolean allowNullableAdObject = false;
+    protected boolean activateInterstitialPrebidImpressionTracker = false;
+
+    public AdUnit(@NotNull String configId) {
         configuration.setConfigId(configId);
-        configuration.setAdFormats(adTypes);
         configuration.setIsOriginalAdUnit(true);
     }
 
-    /**
-     * @deprecated Please use setAutoRefreshInterval() in seconds!
-     */
-    @Deprecated
-    public void setAutoRefreshPeriodMillis(
-            @IntRange(from = AUTO_REFRESH_DELAY_MIN, to = AUTO_REFRESH_DELAY_MAX) int periodMillis
-    ) {
-        configuration.setAutoRefreshDelay(periodMillis / 1000);
+    AdUnit(@NonNull String configId, @NonNull EnumSet<AdFormat> adTypes) {
+        this(configId);
+        configuration.setAdFormats(adTypes);
     }
 
+
+    /**
+     * Auto refresh interval for banner ad.
+     */
     public void setAutoRefreshInterval(
             @IntRange(from = AUTO_REFRESH_DELAY_MIN / 1000, to = AUTO_REFRESH_DELAY_MAX / 1000) int seconds
     ) {
         configuration.setAutoRefreshDelay(seconds);
     }
 
+    /**
+     * Resumes auto refresh interval after stopping.
+     */
     public void resumeAutoRefresh() {
         LogUtil.verbose("Resuming auto refresh...");
         if (bidLoader != null) {
@@ -86,6 +102,9 @@ public abstract class AdUnit {
         }
     }
 
+    /**
+     * Stops auto refresh interval.
+     */
     public void stopAutoRefresh() {
         LogUtil.verbose("Stopping auto refresh...");
         if (bidLoader != null) {
@@ -93,23 +112,24 @@ public abstract class AdUnit {
         }
     }
 
+    /**
+     * Destroy ad unit and stop downloading.
+     */
     public void destroy() {
         if (bidLoader != null) {
             bidLoader.destroy();
         }
+        visibilityMonitor.stopTracking();
     }
 
-    public void fetchDemand(@NonNull final OnCompleteListener2 listener) {
-        final Map<String, String> keywordsMap = new HashMap<>();
-
-        fetchDemand(keywordsMap, resultCode -> {
-            TasksManager.getInstance().executeOnMainThread(() ->
-                    listener.onComplete(resultCode, keywordsMap.size() != 0 ? Collections.unmodifiableMap(keywordsMap) : null)
-            );
-        });
-    }
-
-    public void fetchDemand(@NonNull Object adObj, @NonNull OnCompleteListener listener) {
+    /**
+     * Loads ad and applies keywords to the ad object.
+     *
+     * @param adObject AdMob's ({@code AdManagerAdRequest} or {@code AdManagerAdRequest.Builder})
+     *                 or AppLovin's ({@code MaxNativeAdLoader}) ad object
+     * @param listener callback when operation is completed (success or fail)
+     */
+    public void fetchDemand(Object adObject, @NonNull OnCompleteListener listener) {
         if (TextUtils.isEmpty(PrebidMobile.getPrebidServerAccountId())) {
             LogUtil.error("Empty account id.");
             listener.onComplete(ResultCode.INVALID_ACCOUNT_ID);
@@ -152,8 +172,8 @@ public abstract class AdUnit {
             return;
         }
 
-        if (Util.supportedAdObject(adObj)) {
-            adObject = adObj;
+        if (Util.supportedAdObject(adObject) || allowNullableAdObject) {
+            this.adObject = adObject;
             bidLoader = new BidLoader(
                     configuration,
                     createBidListener(listener)
@@ -170,190 +190,39 @@ public abstract class AdUnit {
 
             bidLoader.load();
         } else {
-            adObject = null;
+            this.adObject = null;
             listener.onComplete(ResultCode.INVALID_AD_OBJECT);
         }
 
     }
 
-    // MARK: - adunit context data aka inventory data (imp[].ext.data)
-
     /**
-     * This method obtains the context data keyword & value for adunit context targeting
-     * if the key already exists the value will be appended to the list. No duplicates will be added
-     */
-    @Deprecated
-    public void addContextData(String key, String value) {
-        configuration.addExtData(key, value);
-    }
-
-    /**
-     * This method obtains the context data keyword & values for adunit context targeting
-     * the values if the key already exist will be replaced with the new set of values
-     */
-    @Deprecated
-    public void updateContextData(String key, Set<String> value) {
-        configuration.addExtData(key, value);
-    }
-
-    /**
-     * This method allows to remove specific context data keyword & values set from adunit context targeting
-     */
-    @Deprecated
-    public void removeContextData(String key) {
-        configuration.removeExtData(key);
-    }
-
-    /**
-     * This method allows to remove all context data set from adunit context targeting
-     */
-    @Deprecated
-    public void clearContextData() {
-        configuration.clearExtData();
-    }
-
-    @Deprecated
-    Map<String, Set<String>> getContextDataDictionary() {
-        return configuration.getExtDataDictionary();
-    }
-
-    /**
-     * This method obtains the context data keyword & value for adunit context targeting
-     * if the key already exists the value will be appended to the list. No duplicates will be added
-     */
-    public void addExtData(String key, String value) {
-        configuration.addExtData(key, value);
-    }
-
-    /**
-     * This method obtains the context data keyword & values for adunit context targeting
-     * the values if the key already exist will be replaced with the new set of values
-     */
-    public void updateExtData(String key, Set<String> value) {
-        configuration.addExtData(key, value);
-    }
-
-    /**
-     * This method allows to remove specific context data keyword & values set from adunit context targeting
-     */
-    public void removeExtData(String key) {
-        configuration.removeExtData(key);
-    }
-
-    /**
-     * This method allows to remove all context data set from adunit context targeting
-     */
-    public void clearExtData() {
-        configuration.clearExtData();
-    }
-
-    Map<String, Set<String>> getExtDataDictionary() {
-        return configuration.getExtDataDictionary();
-    }
-
-    // MARK: - adunit context keywords (imp[].ext.keywords)
-
-    /**
-     * This method obtains the context keyword for adunit context targeting
-     * Inserts the given element in the set if it is not already present.
+     * Loads ad and saves it to cache.
      *
-     * @deprecated Use addExtKeyword
+     * @param listener callback when operation is completed (success or fail)
      */
-    @Deprecated
-    public void addContextKeyword(String keyword) {
-        configuration.addExtKeyword(keyword);
+    public void fetchDemand(OnFetchDemandResult listener) {
+        if (listener == null) {
+            LogUtil.error("Parameter OnFetchDemandResult in fetchDemand() must be not null.");
+            return;
+        }
+
+        allowNullableAdObject = true;
+
+        fetchDemand(null, resultCode -> {
+            BidInfo bidInfo = BidInfo.create(resultCode, bidResponse, configuration);
+            Util.saveCacheId(bidInfo.getNativeCacheId(), adObject);
+            listener.onComplete(bidInfo);
+        });
     }
 
     /**
-     * This method obtains the context keyword set for adunit context targeting
-     * Adds the elements of the given set to the set.
+     * Applies the native visibility tracker for tracking `burl` url.
      *
-     * @deprecated Use addExtKeywords
+     * @param adView the ad view object (f.e. {@code AdManagerAdView})
      */
-    @Deprecated
-    public void addContextKeywords(Set<String> keywords) {
-        configuration.addExtKeywords(keywords);
-    }
-
-    /**
-     * This method allows to remove specific context keyword from adunit context targeting
-     * @deprecated Use removeExtKeyword
-     */
-    @Deprecated
-    public void removeContextKeyword(String keyword) {
-        configuration.removeExtKeyword(keyword);
-    }
-
-    /**
-     * This method allows to remove all keywords from the set of adunit context targeting
-     *
-     * @deprecated Use clearExtKeywords
-     */
-    @Deprecated
-    public void clearContextKeywords() {
-        configuration.clearExtKeywords();
-    }
-
-    @Deprecated
-    Set<String> getContextKeywordsSet() {
-        return configuration.getExtKeywordsSet();
-    }
-
-    /**
-     * This method obtains the context keyword for adunit context targeting
-     * Inserts the given element in the set if it is not already present.
-     */
-    public void addExtKeyword(String keyword) {
-        configuration.addExtKeyword(keyword);
-    }
-
-    /**
-     * This method obtains the context keyword set for adunit context targeting
-     * Adds the elements of the given set to the set.
-     */
-    public void addExtKeywords(Set<String> keywords) {
-        configuration.addExtKeywords(keywords);
-    }
-
-    /**
-     * This method allows to remove specific context keyword from adunit context targeting
-     */
-    public void removeExtKeyword(String keyword) {
-        configuration.removeExtKeyword(keyword);
-    }
-
-    /**
-     * This method allows to remove all keywords from the set of adunit context targeting
-     */
-    public void clearExtKeywords() {
-        configuration.clearExtKeywords();
-    }
-
-    Set<String> getExtKeywordsSet() {
-        return configuration.getExtKeywordsSet();
-    }
-
-    /**
-     * This method obtains the content for adunit, content, in which impression will appear
-     */
-    public void setAppContent(ContentObject content) {
-        configuration.setAppContent(content);
-    }
-
-    public ContentObject getAppContent() {
-        return configuration.getAppContent();
-    }
-
-    public void addUserData(DataObject dataObject) {
-        configuration.addUserData(dataObject);
-    }
-
-    public ArrayList<DataObject> getUserData() {
-        return configuration.getUserData();
-    }
-
-    public void clearUserData() {
-        configuration.clearUserData();
+    public void activatePrebidImpressionTracker(View adView) {
+        adViewReference = new WeakReference<>(adView);
     }
 
     public String getPbAdSlot() {
@@ -364,18 +233,46 @@ public abstract class AdUnit {
         configuration.setPbAdSlot(pbAdSlot);
     }
 
+    @Nullable
+    public String getGpid() {
+        return configuration.getGpid();
+    }
+
+    public void setGpid(@Nullable String gpid) {
+        configuration.setGpid(gpid);
+    }
+
+    @Nullable
+    public String getImpOrtbConfig() {
+        return configuration.getImpOrtbConfig();
+    }
+
+    /**
+     * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig JSON config string.
+     */
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {
+        configuration.setImpOrtbConfig(ortbConfig);
+    }
 
     protected BidRequesterListener createBidListener(OnCompleteListener originalListener) {
         return new BidRequesterListener() {
             @Override
             public void onFetchCompleted(BidResponse response) {
+                bidResponse = response;
+
                 HashMap<String, String> keywords = response.getTargeting();
                 Util.apply(keywords, adObject);
                 originalListener.onComplete(ResultCode.SUCCESS);
+
+                registerVisibilityTrackerIfNeeded(bidResponse);
             }
 
             @Override
             public void onError(AdException exception) {
+                bidResponse = null;
+
                 Util.apply(null, adObject);
                 originalListener.onComplete(convertToResultCode(exception));
             }
@@ -413,6 +310,44 @@ public abstract class AdUnit {
     @VisibleForTesting
     public AdUnitConfiguration getConfiguration() {
         return configuration;
+    }
+
+    private void registerVisibilityTrackerIfNeeded(BidResponse response) {
+        if (response == null || response.getWinningBid() == null || response.getWinningBid().getBurl() == null) {
+            return;
+        }
+        if (response.isVideo()) {
+            LogUtil.debug(TAG, "VisibilityTracker ignored due to the video ad");
+            return;
+        }
+
+        String burl = response.getWinningBid().getBurl();
+
+        String cacheId = response.getTargeting().get("hb_cache_id");
+        if (cacheId == null) {
+            LogUtil.warning(TAG, "Can't register visibility tracker. There is no hb_cache_id keyword.");
+            return;
+        }
+
+        boolean isBannerTracker = !(this instanceof InterstitialAdUnit);
+        if (isBannerTracker) {
+            bannerVisibilityTracker(burl, cacheId);
+        } else if (activateInterstitialPrebidImpressionTracker) {
+            interstitialVisibilityTracker(burl, cacheId);
+        }
+    }
+
+    private void bannerVisibilityTracker(String burl, String cacheId) {
+        View adViewContainer = adViewReference != null ? adViewReference.get() : null;
+        if (adViewContainer == null) {
+            return;
+        }
+
+        visibilityMonitor.trackView(adViewContainer, burl, cacheId);
+    }
+
+    private void interstitialVisibilityTracker(String burl, String cacheId) {
+        visibilityMonitor.trackInterstitial(burl, cacheId);
     }
 
 }

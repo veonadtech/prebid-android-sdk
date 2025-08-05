@@ -10,12 +10,13 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
+import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.tasksmanager.TasksManager;
 
@@ -48,8 +49,14 @@ public class SdkInitializer {
         LogUtil.debug(TAG, "Initializing Prebid SDK");
         PrebidContextHolder.setContext(applicationContext);
 
-        if (PrebidMobile.logLevel != null) {
-            LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
+        if (PrebidMobile.getLogLevel() != null) {
+            LogUtil.setLogLevel(PrebidMobile.getLogLevel()
+                                            .getValue());
+        }
+
+        PrebidLogger customLogger = PrebidMobile.getCustomLogger();
+        if (customLogger != null) {
+            LogUtil.setLogger(customLogger);
         }
 
         tasksManager.executeOnBackgroundThread(() -> {
@@ -65,17 +72,17 @@ public class SdkInitializer {
         SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
 
         try {
-            // todo using internal api until pluginrenderer feature is released
-//            PrebidMobile.registerPluginRenderer(new PrebidRenderer());
-            PrebidMobilePluginRegister.getInstance().registerPlugin(new PrebidRenderer());
+            PrebidMobile.registerPluginRenderer(new PrebidRenderer());
 
             AppInfoManager.init(applicationContext);
 
             OmAdSessionManager.activateOmSdk(applicationContext);
 
-            ManagersResolver.getInstance().prepare(applicationContext);
+            ManagersResolver.getInstance()
+                            .prepare(applicationContext);
 
-            JSLibraryManager.getInstance(applicationContext).checkIfScriptsDownloadedAndStartDownloadingIfNot();
+            JSLibraryManager.getInstance(applicationContext)
+                            .checkIfScriptsDownloadedAndStartDownloadingIfNot();
         } catch (Throwable throwable) {
             initializationNotifier.initializationFailed("Exception during initialization: " + throwable.getMessage() + "\n" + Log.getStackTraceString(throwable));
             return;
@@ -93,9 +100,15 @@ public class SdkInitializer {
             ExecutorService executor
     ) {
         try {
-            Future<String> statusRequesterResult = executor.submit(new StatusRequester());
+            Future<String> statusRequesterResult = null;
+            if (!PrebidMobile.shouldDisableStatusCheck()) {
+                statusRequesterResult = executor.submit(new StatusRequester());
+            } else {
+                LogUtil.debug(TAG, "Prebid SDK initialization skipping status check");
+            }
             executor.execute(new UserConsentFetcherTask());
             executor.execute(new UserAgentFetcherTask());
+            executor.execute(AdvertisingIdManager::initAdvertisingId);
             executor.shutdown();
 
             boolean terminatedByTimeout = !executor.awaitTermination(10, TimeUnit.SECONDS);
@@ -104,7 +117,7 @@ public class SdkInitializer {
                 return;
             }
 
-            String statusRequesterError = statusRequesterResult.get();
+            String statusRequesterError = statusRequesterResult != null ? statusRequesterResult.get() : null;
             initializationNotifier.initializationCompleted(statusRequesterError);
         } catch (Exception exception) {
             initializationNotifier.initializationFailed("Exception during initialization: " + Log.getStackTraceString(exception));
@@ -127,7 +140,9 @@ public class SdkInitializer {
 
         @Override
         public void run() {
-            ManagersResolver.getInstance().getUserConsentManager().initConsentValues();
+            ManagersResolver.getInstance()
+                            .getUserConsentManager()
+                            .initConsentValues();
         }
 
     }

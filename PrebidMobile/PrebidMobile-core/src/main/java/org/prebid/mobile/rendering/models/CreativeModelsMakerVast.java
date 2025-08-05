@@ -52,6 +52,7 @@ public class CreativeModelsMakerVast extends CreativeModelsMaker {
     private AdResponseParserVast latestVastWrapperParser;
 
     private String adLoaderIdentifier;
+    private String viewableUrl;
 
     public CreativeModelsMakerVast(
             String adLoaderIdentifier,
@@ -89,6 +90,10 @@ public class CreativeModelsMakerVast extends CreativeModelsMaker {
         }
 
         makeModelsContinued();
+    }
+
+    public void setViewableUrl(String url) {
+        this.viewableUrl = url;
     }
 
     private void makeModelsContinued() {
@@ -129,6 +134,7 @@ public class CreativeModelsMakerVast extends CreativeModelsMaker {
             videoModel.setAuid(rootVastParser.getVast().getAds().get(0).getId());
             videoModel.setWidth(latestVastWrapperParser.getWidth());
             videoModel.setHeight(latestVastWrapperParser.getHeight());
+            videoModel.setViewableUrl(viewableUrl);
             //put tracking urls into element.
             for (VideoAdEvent.Event videoEvent : VideoAdEvent.Event.values()) {
                 videoModel.getVideoEventUrls().put(videoEvent, rootVastParser.getTrackingByType(videoEvent));
@@ -205,13 +211,23 @@ public class CreativeModelsMakerVast extends CreativeModelsMaker {
 
                 endCardModel.setWidth(Integer.parseInt(companionAd.getWidth()));
                 endCardModel.setHeight(Integer.parseInt(companionAd.getHeight()));
-                endCardModel.setAdConfiguration(new AdUnitConfiguration());
-                endCardModel.getAdConfiguration().setAdFormat(AdFormat.INTERSTITIAL);
+
+
+                AdUnitConfiguration endCardConfig = new AdUnitConfiguration();
+                endCardConfig.setRewardManager(adConfiguration.getRewardManager());
+                endCardConfig.setAdFormat(AdFormat.INTERSTITIAL);
+                endCardConfig.setRewarded(adConfiguration.isRewarded());
+                endCardConfig.getRewardManager().setRewardedExt(adConfiguration.getRewardManager().getRewardedExt());
+                endCardConfig.setHasEndCard(true);
+                endCardModel.setAdConfiguration(endCardConfig);
+
+
                 endCardModel.setRequireImpressionUrl(false);
                 result.creativeModels.add(endCardModel);
 
                 // Flag that video creative has a corresponding end card
                 videoModel.setHasEndCard(true);
+                adConfiguration.setHasEndCard(true);
             }
             adConfiguration.setInterstitialSize(videoModel.getWidth() + "x" + videoModel.getHeight());
             listener.onCreativeModelReady(result);

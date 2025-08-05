@@ -67,6 +67,8 @@ public class BidResponse {
     private String parseError;
     private String winningBidJson;
     private AdUnitConfiguration adUnitConfiguration;
+    @Nullable
+    private JSONObject responseJson;
 
     private long creationTime;
 
@@ -127,11 +129,16 @@ public class BidResponse {
         return winningBidJson;
     }
 
+    @NonNull
+    public JSONObject getResponseJson() {
+        return responseJson == null ? new JSONObject() : responseJson;
+    }
+
     private void parseJson(String json) {
         winningBidJson = json;
 
         try {
-            JSONObject responseJson = new JSONObject(json);
+            responseJson = new JSONObject(json);
             id = responseJson.optString("id");
             cur = responseJson.optString("cur");
             bidId = responseJson.optString("bidid");
@@ -285,6 +292,19 @@ public class BidResponse {
             return prebid.getImpEventUrl();
         }
         return null;
+    }
+
+    @Nullable
+    public Integer getExpirationTimeSeconds() {
+        Bid winningBid = getWinningBid();
+        if (winningBid == null) return null;
+
+        int expirationTime = winningBid.getExp();
+        if (expirationTime <= 0) {
+            return null;
+        }
+
+        return expirationTime;
     }
 
 }

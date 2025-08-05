@@ -9,12 +9,13 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import org.prebid.mobile.RewardedVideoAdUnit
 import org.prebid.mobile.Signals
 import org.prebid.mobile.VideoParameters
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiVideoRewardedActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiVideoRewardedActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-app-original-api-video-interstitial"
-        const val CONFIG_ID = "prebid-ita-video-rewarded-320-480-original-api"
+        const val CONFIG_ID = "prebid-demo-video-rewarded-320-480-original-api"
     }
 
     private var adUnit: RewardedVideoAdUnit? = null
@@ -73,7 +74,7 @@ class GamOriginalApiVideoRewardedActivity : org.prebid.veondemo.activities.BaseA
     override fun onDestroy() {
         super.onDestroy()
 
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 
 }

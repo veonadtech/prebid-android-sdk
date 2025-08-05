@@ -28,18 +28,24 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import org.prebid.mobile.*
+import org.prebid.mobile.AdSize
+import org.prebid.mobile.InStreamVideoAdUnit
+import org.prebid.mobile.Signals
 import org.prebid.mobile.Util
+import org.prebid.mobile.VideoParameters
 import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiInStreamActivity : BaseAdActivity() {
 
     companion object {
-        const val AD_UNIT_ID = "/5300653/test_adunit_vast_pavliuchyk"
-        const val CONFIG_ID = "1001-1"
-        const val STORED_RESPONSE = "sample_video_response"
+        const val AD_UNIT_ID = "/21808260008/prebid_demo_app_instream"
+        const val CONFIG_ID = "prebid-demo-video-interstitial-320-480-original-api"
+
         const val WIDTH = 640
         const val HEIGHT = 480
+
+        const val VIDEO_URL = "https://storage.googleapis.com/gvabox/media/samples/stock.mp4"
     }
 
     private var adUnit: InStreamVideoAdUnit? = null
@@ -51,15 +57,6 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // The ID of Mocked Bid Response on PBS. Only for test cases.
-        PrebidMobile.setStoredAuctionResponse(STORED_RESPONSE)
-
-        // This example uses Rubicon Server TODO: Rewrite to AWS Server
-        PrebidMobile.setPrebidServerAccountId("1001")
-        PrebidMobile.setPrebidServerHost(
-            Host.createCustomHost("https://prebid-server.rubiconproject.com/openrtb2/auction")
-        )
 
         createAd()
     }
@@ -77,15 +74,14 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
         adWrapperView.addView(playerView, params)
 
         // 4. Make a bid request to Prebid Server
-        adUnit?.fetchDemand { _: ResultCode?, keysMap: Map<String?, String?>? ->
-
+        adUnit?.fetchDemand {
             // 5. Prepare the creative URI
             val sizes = HashSet<AdSize>()
             sizes.add(AdSize(WIDTH, HEIGHT))
-            val prebidURL =  Util.generateInstreamUriForGam(
+            val prebidURL = Util.generateInstreamUriForGam(
                 AD_UNIT_ID,
                 sizes,
-                keysMap
+                it.targetingKeywords
             )
 
             adsUri = Uri.parse(prebidURL)
@@ -98,6 +94,7 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
     private fun configureVideoParameters(): VideoParameters {
         return VideoParameters(listOf("video/x-flv", "video/mp4")).apply {
             placement = Signals.Placement.InStream
+            plcmt = Signals.Plcmt.InStream
 
             api = listOf(
                 Signals.Api.VPAID_1,
@@ -116,7 +113,6 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
     }
 
     private fun initializePlayer() {
-
         adsLoader = ImaAdsLoader.Builder(this).build()
 
         val playerBuilder = SimpleExoPlayer.Builder(this)
@@ -124,7 +120,7 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
         playerView!!.player = player
         adsLoader!!.setPlayer(player)
 
-        val uri = Uri.parse("https://storage.googleapis.com/gvabox/media/samples/stock.mp4")
+        val uri = Uri.parse(VIDEO_URL)
 
         val mediaItem = MediaItem.fromUri(uri)
         val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this, getString(R.string.app_name))
@@ -144,19 +140,10 @@ class GamOriginalApiInStreamActivity : org.prebid.veondemo.activities.BaseAdActi
     override fun onDestroy() {
         super.onDestroy()
 
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
         adsLoader?.setPlayer(null)
         adsLoader?.release()
         player?.release()
-
-        // TODO: Return to AWS Server
-        PrebidMobile.setPrebidServerAccountId("0689a263-318d-448b-a3d4-b02e8a709d9d")
-        PrebidMobile.setPrebidServerHost(
-            Host.createCustomHost(
-                "https://prebid-server-test-j.prebid.org/openrtb2/auction"
-            )
-        )
-        PrebidMobile.setStoredAuctionResponse(null)
     }
 
 }

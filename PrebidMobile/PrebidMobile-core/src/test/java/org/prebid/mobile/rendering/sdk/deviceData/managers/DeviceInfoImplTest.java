@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -50,6 +52,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.prebid.mobile.test.utils.WhiteBox;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowEnvironment;
 
 import java.lang.ref.WeakReference;
@@ -57,6 +60,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 @RunWith(RobolectricTestRunner.class)
+@LooperMode(LEGACY)
 public class DeviceInfoImplTest {
 
     private DeviceInfoImpl deviceInfoImpl;
@@ -193,10 +197,6 @@ public class DeviceInfoImplTest {
         Field versionField = WhiteBox.field(Build.VERSION.class, "SDK_INT");
         versionField.setAccessible(true);
 
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(versionField, versionField.getModifiers() & ~Modifier.FINAL);
-
         versionField.set(null, 29);
 
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
@@ -253,5 +253,19 @@ public class DeviceInfoImplTest {
         ArgumentCaptor<String> filenameCaptor = ArgumentCaptor.forClass(String.class);
         verify(spyDeviceImpl).getOutputStream(filenameCaptor.capture());
         assertFalse(filenameCaptor.getValue().contains("."));
+    }
+
+    @Test
+    public void isTabletTest() {
+        Resources mockResources = mock(Resources.class);
+
+        when(mockContext.getResources()).thenReturn(mockResources);
+        when(mockResources.getBoolean(anyInt())).thenReturn(true);
+
+        assertTrue(deviceInfoImpl.isTablet());
+
+        when(mockResources.getBoolean(anyInt())).thenReturn(false);
+
+        assertFalse(deviceInfoImpl.isTablet());
     }
 }

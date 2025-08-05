@@ -18,15 +18,14 @@ package org.prebid.mobile.rendering.networking.parameters;
 
 import static org.prebid.mobile.PrebidMobile.SDK_VERSION;
 
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.Pair;
 
-import androidx.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.BannerParameters;
@@ -38,26 +37,22 @@ import org.prebid.mobile.Signals;
 import org.prebid.mobile.TargetingParams;
 import org.prebid.mobile.VideoParameters;
 import org.prebid.mobile.api.data.AdFormat;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.Prebid;
 import org.prebid.mobile.rendering.models.PlacementType;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.Imp;
-import org.prebid.mobile.rendering.models.openrtb.bidRequests.PluginRenderer;
-import org.prebid.mobile.rendering.models.openrtb.bidRequests.PluginRendererList;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.User;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.devices.Geo;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.imps.Banner;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.imps.Video;
-import org.prebid.mobile.rendering.models.openrtb.bidRequests.mapper.PluginRendererListMapper;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.source.Source;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -134,26 +129,30 @@ public class BasicParameterBuilder extends ParameterBuilder {
             setCommonImpValues(imp, uuid);
             if (adConfiguration.getNativeConfiguration() != null) {
                 setNativeImpValues(imp);
-            } else {
-                if (adConfiguration.isAdType(AdFormat.BANNER) || adConfiguration.isAdType(AdFormat.INTERSTITIAL)) {
-                    setBannerImpValues(imp);
-                }
-                if (adConfiguration.isAdType(AdFormat.VAST)) {
-                    setVideoImpValues(imp);
-                }
+            }
+            if (adConfiguration.isAdType(AdFormat.BANNER) || adConfiguration.isAdType(AdFormat.INTERSTITIAL)) {
+                setBannerImpValues(imp);
+            }
+            if (adConfiguration.isAdType(AdFormat.VAST)) {
+                setVideoImpValues(imp);
             }
         }
     }
 
     private void configureBidRequest(BidRequest bidRequest, String uuid) {
         bidRequest.setId(uuid);
+        bidRequest.setImpOrtbConfig(adConfiguration.getImpOrtbConfig());
         boolean isVideo = adConfiguration.isAdType(AdFormat.VAST);
-        bidRequest.getExt().put("prebid", Prebid.getJsonObjectForBidRequest(PrebidMobile.getPrebidServerAccountId(), isVideo, adConfiguration));
-        //if coppaEnabled - set 1, else No coppa is sent
-        if (PrebidMobile.isCoppaEnabled) {
-            bidRequest.getRegs().coppa = 1;
+        String storedRequestId = PrebidMobile.getPrebidServerAccountId();
+        String settingsId = PrebidMobile.getAuctionSettingsId();
+        if (settingsId != null) {
+            if (TextUtils.isEmpty(settingsId)) {
+                LogUtil.warning("Auction settings Id is invalid. Prebid Server Account Id will be used.");
+            } else {
+                storedRequestId = settingsId;
+            }
         }
-        setPluginRendererList(bidRequest);
+        bidRequest.getExt().put("prebid", Prebid.getJsonObjectForBidRequest(storedRequestId, isVideo, adConfiguration));
     }
 
     private void configureSource(Source source, String uuid) {
@@ -180,38 +179,21 @@ public class BasicParameterBuilder extends ParameterBuilder {
         final BidRequest bidRequest = adRequestInput.getBidRequest();
         final User user = bidRequest.getUser();
 
-        user.id = TargetingParams.getUserId();
         user.keywords = TargetingParams.getUserKeywords();
-        user.customData = TargetingParams.getUserCustomData();
-        user.buyerUid = TargetingParams.getBuyerId();
         user.ext = TargetingParams.getUserExt();
 
-        ArrayList<DataObject> userData = adConfiguration.getUserData();
-        if (!userData.isEmpty()) {
-            user.dataObjects = userData;
+        List<ExternalUserId> extendedIds = TargetingParams.getExternalUserIds();
+        if (TargetingParams.getSendSharedId()) {
+            extendedIds.add(TargetingParams.getSharedId());
         }
-
-        int yearOfBirth = TargetingParams.getYearOfBirth();
-        if (yearOfBirth != 0) {
-            user.yob = TargetingParams.getYearOfBirth();
-        }
-
-        TargetingParams.GENDER gender = TargetingParams.getGender();
-        if (gender != TargetingParams.GENDER.UNKNOWN) {
-            user.gender = gender.getKey();
-        }
-
-        final Map<String, Set<String>> userDataDictionary = TargetingParams.getUserDataDictionary();
-        if (!userDataDictionary.isEmpty()) {
-            user.getExt().put("data", Utils.toJson(userDataDictionary));
-        }
-
-        List<ExternalUserId> extendedIds = TargetingParams.fetchStoredExternalUserIds();
         if (extendedIds != null && extendedIds.size() > 0) {
             JSONArray idsJson = new JSONArray();
             for (ExternalUserId id : extendedIds) {
                 if (id != null) {
-                    idsJson.put(id.getJson());
+                    JSONObject idJson = id.getJson();
+                    if (idJson != null) {
+                        idsJson.put(idJson);
+                    }
                 }
             }
             user.getExt().put("eids", idsJson);
@@ -227,6 +209,11 @@ public class BasicParameterBuilder extends ParameterBuilder {
 
     private void setVideoImpValues(Imp imp) {
         Video video = new Video();
+
+        if (adConfiguration.isAdPositionValid()) {
+            video.pos = adConfiguration.getAdPositionValue();
+        }
+
         if (adConfiguration.isOriginalAdUnit()) {
             VideoParameters videoParameters = adConfiguration.getVideoParameters();
             if (videoParameters != null) {
@@ -240,6 +227,9 @@ public class BasicParameterBuilder extends ParameterBuilder {
                     video.placement = videoParameters.getPlacement().getValue();
                 } else if (adConfiguration.isPlacementTypeValid()){
                     video.placement = adConfiguration.getPlacementTypeValue();
+                }
+                if (videoParameters.getPlcmt() != null) {
+                    video.plcmt = videoParameters.getPlcmt().getValue();
                 }
 
                 if (videoParameters.getStartDelay() != null) {
@@ -287,6 +277,21 @@ public class BasicParameterBuilder extends ParameterBuilder {
                     }
                     video.protocols = protocolsArray;
                 }
+
+                List<Signals.CreativeAttribute> battrObjects = videoParameters.getBattr();
+                if (battrObjects != null && battrObjects.size() > 0) {
+                    int size = battrObjects.size();
+                    int[] battrsArray = new int[size];
+                    for (int i = 0; i < size; i++) {
+                        battrsArray[i] = battrObjects.get(i).getValue();
+                    }
+                    video.battr = battrsArray;
+                }
+
+                Boolean skippable = videoParameters.getSkippable();
+                if (skippable != null) {
+                    video.skippable = skippable ? 1 : 0;
+                }
             }
             if (video.placement == null && adConfiguration.isPlacementTypeValid()) {
                 video.placement = adConfiguration.getPlacementTypeValue();
@@ -300,10 +305,9 @@ public class BasicParameterBuilder extends ParameterBuilder {
             //Interstitial video specific values
             video.playbackend = VIDEO_INTERSTITIAL_PLAYBACK_END;//On Leaving Viewport or when Terminated by User
 
-            if (adConfiguration.isAdPositionValid()) {
-                video.pos = adConfiguration.getAdPositionValue();
+            if (adConfiguration.isAdType(AdFormat.INTERSTITIAL)) {
+                video.plcmt = Signals.Plcmt.Interstitial.getValue();
             }
-
             if (!adConfiguration.isPlacementTypeValid()) {
                 video.placement = PlacementType.INTERSTITIAL.getValue();
             } else {
@@ -311,21 +315,28 @@ public class BasicParameterBuilder extends ParameterBuilder {
             }
         }
 
-        HashSet<AdSize> adSizes = adConfiguration.getSizes();
-        if (!adSizes.isEmpty()) {
-            for (AdSize size : adConfiguration.getSizes()) {
-                video.w = size.getWidth();
-                video.h = size.getHeight();
-                break;
-            }
-        } else if (resources != null) {
-            Configuration deviceConfiguration = resources.getConfiguration();
-            video.w = deviceConfiguration.screenWidthDp;
-            video.h = deviceConfiguration.screenHeightDp;
-        }
+        setVideoDimensions(video);
         video.delivery = new int[]{VIDEO_DELIVERY_DOWNLOAD};
 
         imp.video = video;
+    }
+
+    private void setVideoDimensions(@NonNull Video video) {
+        VideoParameters videoParams = adConfiguration.getVideoParameters();
+        @Nullable AdSize adSize = null;
+        if (videoParams != null && videoParams.getAdSize() != null) {
+            adSize = videoParams.getAdSize();
+        } else if (!adConfiguration.getSizes().isEmpty()) {
+            for (AdSize size : adConfiguration.getSizes()) {
+                adSize = size;
+                break;
+            }
+        }
+
+        if (adSize != null) {
+            video.w = adSize.getWidth();
+            video.h = adSize.getHeight();
+        }
     }
 
     private void setBannerImpValues(Imp imp) {
@@ -344,13 +355,15 @@ public class BasicParameterBuilder extends ParameterBuilder {
             banner.api = getApiFrameworks();
         }
 
-        if (adConfiguration.isAdType(AdFormat.BANNER)) {
+        BannerParameters bannerParameters = adConfiguration.getBannerParameters();
+        if (bannerParameters != null && bannerParameters.getAdSizes() != null && !bannerParameters.getAdSizes().isEmpty()) {
+            for (AdSize size : bannerParameters.getAdSizes()) {
+                banner.addFormat(size.getWidth(), size.getHeight());
+            }
+        } else if (adConfiguration.isAdType(AdFormat.BANNER)) {
             for (AdSize size : adConfiguration.getSizes()) {
                 banner.addFormat(size.getWidth(), size.getHeight());
             }
-        } else if (adConfiguration.isAdType(AdFormat.INTERSTITIAL) && resources != null) {
-            Configuration deviceConfiguration = resources.getConfiguration();
-            banner.addFormat(deviceConfiguration.screenWidthDp, deviceConfiguration.screenHeightDp);
         }
 
         if (adConfiguration.isAdPositionValid()) {
@@ -368,32 +381,34 @@ public class BasicParameterBuilder extends ParameterBuilder {
 
     private void setCommonImpValues(Imp imp, String uuid) {
         imp.id = uuid;
-        boolean isInterstitial = adConfiguration.isAdType(AdFormat.VAST) || adConfiguration.isAdType(AdFormat.INTERSTITIAL);
+        boolean isInterstitial = adConfiguration.isAdType(AdFormat.INTERSTITIAL);
         //Send 1 for interstitial/interstitial video and 0 for banners
         imp.instl = isInterstitial ? 1 : 0;
         // 0 == embedded, 1 == native
-        imp.clickBrowser = !PrebidMobile.useExternalBrowser && browserActivityAvailable ? 0 : 1;
+        imp.clickBrowser = browserActivityAvailable ? 0 : 1;
         //set secure=1 for https or secure=0 for http
         if (!adConfiguration.isAdType(AdFormat.VAST)) {
             imp.secure = 1;
         }
+        if (adConfiguration.isRewarded()) {
+            imp.rewarded = 1;
+        }
         imp.getExt().put("prebid", Prebid.getJsonObjectForImp(adConfiguration));
 
-        final Map<String, Set<String>> extDataDictionary = adConfiguration.getExtDataDictionary();
+        String gpid = adConfiguration.getGpid();
+        if (gpid != null) {
+            imp.getExt().put("gpid", gpid);
+        }
+
+        final Map<String, Set<String>> extDataDictionary = new HashMap<>();
         JSONObject data = Utils.toJson(extDataDictionary);
-        Utils.addValue(data, "adslot", adConfiguration.getPbAdSlot());
+        String adSlot = adConfiguration.getPbAdSlot();
+        if (adSlot != null) {
+            Utils.addValue(data, "pbadslot", adSlot);
+        }
         if (data.length() > 0) {
             imp.getExt().put("data", data);
         }
-
-        final Set<String> extKeywords = adConfiguration.getExtKeywordsSet();
-        if (extKeywords.size() > 0) {
-            String string = TextUtils.join(",", extKeywords);
-            imp.getExt().put("keywords", string);
-        }
-
-        // TODO: 15.12.2020 uncomment when Prebid server will be able to process Ext content not related to bidders
-        //imp.getExt().put(KEY_DEEPLINK_PLUS, 1);
     }
 
     private void setDisplayManager(Imp imp) {
@@ -404,10 +419,7 @@ public class BasicParameterBuilder extends ParameterBuilder {
     private int[] getApiFrameworks() {
         List<Integer> supportedApiFrameworks = new ArrayList<>();
 
-        // If MRAID is on, then add api(3,5)
-        if (PrebidMobile.sendMraidSupportParams) {
-            supportedApiFrameworks.addAll(SUPPORTED_MRAID_VERSIONS);
-        }
+        supportedApiFrameworks.addAll(SUPPORTED_MRAID_VERSIONS);
 
         // Add OM support
         supportedApiFrameworks.add(API_OPEN_MEASUREMENT);
@@ -428,30 +440,5 @@ public class BasicParameterBuilder extends ParameterBuilder {
         else {
             return null;
         }
-    }
-
-    @VisibleForTesting
-    public void setPluginRendererList(BidRequest bidRequest) {
-        if (!adConfiguration.isOriginalAdUnit() && !isDefaultPluginRenderer()) {
-            bidRequest.setPluginRendererList(getPluginRendererList());
-            try {
-                bidRequest.getExt().put(bidRequest.getPluginRenderers().getJsonObject());
-            } catch (JSONException e) {
-                LogUtil.error("setPluginRendererList", e.getMessage());
-            }
-        }
-    }
-
-    private boolean isDefaultPluginRenderer() {
-        List<PluginRenderer> renderers = getPluginRendererList().getList();
-        return renderers.size() == 1 && renderers.get(0).getName().equals(PrebidMobilePluginRegister.PREBID_MOBILE_RENDERER_NAME);
-    }
-
-    private PluginRendererList getPluginRendererList() {
-        List<PrebidMobilePluginRenderer> plugins = PrebidMobilePluginRegister.getInstance().getRTBListOfRenderersFor(adConfiguration);
-        PluginRendererListMapper mapper = new PluginRendererListMapper();
-        PluginRendererList rendererList = new PluginRendererList();
-        rendererList.setList(mapper.map(plugins));
-        return rendererList;
     }
 }

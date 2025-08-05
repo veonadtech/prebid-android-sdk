@@ -16,6 +16,9 @@
 
 package org.prebid.mobile;
 
+/**
+ * Result code for fetch demand.
+ */
 public enum ResultCode {
     /**
      * The attaching keywords was successful, which means
@@ -65,5 +68,9 @@ public enum ResultCode {
     /**
      * Missing assets requirement for native ad unit
      */
-    INVALID_NATIVE_REQUEST
+    INVALID_NATIVE_REQUEST,
+    /**
+     * Check @{@link org.prebid.mobile.api.original.PrebidRequest} object that you put into fetchDemand().
+     */
+    INVALID_PREBID_REQUEST_OBJECT
 }

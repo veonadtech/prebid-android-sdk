@@ -48,9 +48,15 @@ public class Video extends BaseBid {
 
     public Integer placement = null;
 
+    public Integer plcmt = null;
+
     public Integer playbackend;
 
     public Integer startDelay;
+
+    public int[] battr;
+
+    public Integer skippable = null;
 
     public JSONObject getJsonObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
@@ -93,6 +99,7 @@ public class Video extends BaseBid {
         toJSON(jsonObject, "maxbitrate", maxbitrate);
 
         toJSON(jsonObject, "placement", placement);
+        toJSON(jsonObject, "plcmt", plcmt);
 
         if (playbackmethod != null) {
 
@@ -127,6 +134,18 @@ public class Video extends BaseBid {
         }
 
         toJSON(jsonObject, "pos", pos);
+
+        if (battr != null) {
+            JSONArray jsonArray = new JSONArray();
+            for (int number : battr) {
+                jsonArray.put(number);
+            }
+            toJSON(jsonObject, "battr", jsonArray);
+        }
+
+        if (skippable != null) {
+            toJSON(jsonObject, "skip", skippable);
+        }
 
         return jsonObject;
     }

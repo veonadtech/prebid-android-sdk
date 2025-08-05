@@ -18,12 +18,22 @@ package org.prebid.mobile.rendering.models.openrtb;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.prebid.mobile.OpenRtbMerger;
 import org.prebid.mobile.PrebidMobile;
-import org.prebid.mobile.rendering.models.openrtb.bidRequests.*;
+import org.prebid.mobile.TargetingParams;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.App;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.BaseBid;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.Device;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.Ext;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.Imp;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.Regs;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.User;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.source.Source;
 
 import java.util.ArrayList;
@@ -37,19 +47,23 @@ public class BidRequest extends BaseBid {
     private Regs regs = null;
     private User user = null;
     private Source source = null;
-    private PluginRendererList pluginRendererList = null;
-
+    @Nullable
+    private String impOrtbConfig;
     private Ext ext = null;
 
     public JSONObject getJsonObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-
         if (imps != null && imps.size() > 0) {
 
             JSONArray jsonArray = new JSONArray();
 
-            for (Imp i : imps) {
-                jsonArray.put(i.getJsonObject());
+            for (int i = 0; i < imps.size(); i++) {
+                Imp imp = imps.get(i);
+                JSONObject impJson = imp.getJsonObject();
+                if (i == 0) {
+                    impJson = OpenRtbMerger.globalMerge(impJson, impOrtbConfig);
+                }
+                jsonArray.put(impJson);
             }
 
             toJSON(jsonObject, "imp", jsonArray);
@@ -63,11 +77,9 @@ public class BidRequest extends BaseBid {
         toJSON(jsonObject, "source", source != null ? source.getJsonObject() : null);
         toJSON(jsonObject, "ext", ext != null ? ext.getJsonObject() : null);
         toJSON(jsonObject, "test", PrebidMobile.getPbsDebug() ? 1 : null);
-
+        jsonObject = OpenRtbMerger.globalMerge(jsonObject, TargetingParams.getGlobalOrtbConfig());
         return jsonObject;
     }
-
-    // Accessors to prevent NPE while maintaining null if object is not set
 
     // App
     public App getApp() {
@@ -158,11 +170,13 @@ public class BidRequest extends BaseBid {
         return ext;
     }
 
-    public void setPluginRendererList(PluginRendererList pluginRendererList) {
-        this.pluginRendererList = pluginRendererList;
+    @Nullable
+    public String getImpOrtbConfig() {
+        return impOrtbConfig;
     }
 
-    public PluginRendererList getPluginRenderers() {
-        return pluginRendererList;
+    public void setImpOrtbConfig(@Nullable String impOrtbConfig) {
+        this.impOrtbConfig = impOrtbConfig;
     }
+
 }

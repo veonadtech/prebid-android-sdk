@@ -6,7 +6,44 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="org.prebid.veondemo.activities.MainActivity">
+        tools:context="org.prebid.mobile.prebidkotlindemo.activities.MainActivity">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/tvIntegrationKind"
+                android:layout_width="136dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="@string/integration_kind" />
+
+            <Spinner
+                android:id="@+id/spinnerIntegrationKind"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:minWidth="128dp" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -16,31 +53,23 @@
 
             <TextView
                 android:id="@+id/tvAdFormat"
-                android:layout_width="100dp"
+                android:layout_width="136dp"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:minHeight="48dp"
+                android:gravity="center"
                 android:padding="8dp"
-                android:text="@string/ad_format"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:text="@string/ad_format" />
 
             <Spinner
                 android:id="@+id/spinnerAdType"
-                android:layout_width="200dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="center"
-                android:minWidth="128dp"
-                android:minHeight="48dp" />
-
-            <Button
-                android:id="@+id/show_banner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/show_banner"
-                tools:ignore="TouchTargetSizeCheck,VisualLintButtonSize,VisualLintBounds" />
-
+                android:minHeight="48dp"
+                android:minWidth="128dp" />
         </LinearLayout>
 
         <View
@@ -50,62 +79,11 @@
             android:layout_marginBottom="0dp"
             android:background="@color/gray" />
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAdTypes"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <FrameLayout
-                android:id="@+id/adLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/banner_300x250"
-                android:layout_width="300dp"
-                android:layout_height="250dp"
-                android:layout_gravity="center"
-                android:scrollbarAlwaysDrawHorizontalTrack="false">
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/banner_320x50"
-                android:layout_width="320dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:scrollbarAlwaysDrawHorizontalTrack="false">
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/banner_320x100"
-                android:layout_width="320dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:scrollbarAlwaysDrawHorizontalTrack="false">
-
-            </FrameLayout>
-
-        </FrameLayout>
-
-        <WebView
-            android:id="@+id/iframe"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-
-        </WebView>
-
-        <FrameLayout
-            android:id="@+id/adInterstitial"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layoutMode="clipBounds"
-            tools:visibility="invisible">
-
-        </FrameLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
