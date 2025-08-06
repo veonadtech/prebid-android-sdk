@@ -104,7 +104,6 @@ class GamOriginalApiMultiformatBannerVideoNativeInAppActivity : BaseAdActivity()
         adLoader.loadAd(gamRequest)
     }
 
-
     private fun createBannerParameters(): BannerParameters {
         val params = BannerParameters()
         params.adSizes = mutableSetOf(org.prebid.mobile.AdSize(300, 250))
@@ -245,12 +244,10 @@ class GamOriginalApiMultiformatBannerVideoNativeInAppActivity : BaseAdActivity()
         adWrapperView.addView(nativeContainer)
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         prebidAdUnit?.destroy()
     }
-
 
     private class AdListenerWithToast(
         context: Context,
