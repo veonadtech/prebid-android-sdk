@@ -125,8 +125,8 @@ public abstract class BaseInterstitialAdUnit {
                 break;
             default:
                 notifyErrorListener(new AdException(
-                        AdException.INTERNAL_ERROR,
-                        "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
+                    AdException.INTERNAL_ERROR,
+                    "show(): Encountered an invalid interstitialAdUnitState - " + interstitialAdUnitState
                 ));
         }
     }
