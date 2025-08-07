@@ -227,8 +227,7 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     protected void loadPrebidAd() {
-        PrebidMobilePluginRenderer plugin = PrebidMobilePluginRegister.getInstance()
-                                                                      .getPluginForPreferredRenderer(bidResponse);
+        PrebidMobilePluginRenderer plugin = PrebidMobilePluginRegister.getInstance().getPluginForPreferredRenderer(bidResponse);
         if (plugin != null) {
             interstitialController = plugin.createInterstitialController(getContext(), controllerListener, config, bidResponse);
         }
@@ -256,8 +255,7 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     private void initPrebidRenderingSdk() {
-        String hostUrl = PrebidMobile.getPrebidServerHost()
-                                     .getHostUrl();
+        String hostUrl = PrebidMobile.getPrebidServerHost().getHostUrl();
         if (!hostUrl.isEmpty()) {
             PrebidMobile.initializeSdk(getContext(), hostUrl, null);
         }
