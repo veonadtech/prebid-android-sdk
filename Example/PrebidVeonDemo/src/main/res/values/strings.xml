@@ -46,4 +46,6 @@
     <string name="in_app_video_rewarded">In-App Video Rewarded</string>
     <string name="in_app_native">In-App Native</string>
 
+    <string name="test_banner_activity">Test Banner Activity</string>
+
 </resources>

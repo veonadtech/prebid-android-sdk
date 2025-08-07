@@ -40,7 +40,7 @@ class Demo : Application() {
     private fun initTestPrebidSDK() {
         Log.d(TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("org.prebid.veondemo")
+        PrebidMobile.setPrebidServerAccountId("test")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
