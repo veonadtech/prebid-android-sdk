@@ -37,6 +37,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Response native ad object for all assets.
+ */
 public class PrebidNativeAd {
 
     private static final String TAG = "PrebidNativeAd";
@@ -59,6 +62,8 @@ public class PrebidNativeAd {
     private ArrayList<ClickTracker> clickTrackers;
     private String winEvent;
     private String impEvent;
+    @Nullable
+    private String privacyUrl;
 
 
     public static PrebidNativeAd create(String cacheId) {
@@ -155,6 +160,11 @@ public class PrebidNativeAd {
                         }
                     }
                 }
+
+                if (adm.has("privacy")) {
+                    String url = adm.getString("privacy");
+                    ad.setPrivacyUrl(url);
+                }
                 parseEvents(details, ad);
                 return ad;
             } catch (JSONException e) {
@@ -201,6 +211,10 @@ public class PrebidNativeAd {
     @NonNull
     public ArrayList<NativeData> getDataList() {
         return dataList;
+    }
+
+    public String getClickUrl() {
+        return clickUrl;
     }
 
     private void setClickUrl(String clickUrl) {
@@ -283,48 +297,13 @@ public class PrebidNativeAd {
         return "";
     }
 
-    /**
-     * @deprecated use {@link PrebidNativeAd#registerView(View, List, PrebidNativeAdEventListener)}
-     */
-    @Deprecated
-    public boolean registerView(View view, final PrebidNativeAdEventListener listener) {
-        if (!expired && view != null) {
-            this.listener = listener;
-            visibilityDetector = VisibilityDetector.create(view);
-            if (visibilityDetector == null) {
-                return false;
-            }
-
-            if (imp_trackers != null) {
-                impressionTrackers = new ArrayList<>(imp_trackers.size());
-                for (String url : imp_trackers) {
-                    ImpressionTracker impressionTracker = ImpressionTracker.create(url, visibilityDetector, view.getContext(), new ImpressionTrackerListener() {
-                        @Override
-                        public void onImpressionTrackerFired() {
-                            if (listener != null) {
-                                listener.onAdImpression();
-                            }
-                            notifyImpressionEvent();
-                        }
-                    });
-                    impressionTrackers.add(impressionTracker);
-                }
-            }
-
-            registeredView = new WeakReference<>(view);
-
-            view.setOnClickListener(v -> handleClick(v, listener));
-            return true;
-        }
-        return false;
+    @Nullable
+    public String getPrivacyUrl() {
+        return privacyUrl;
     }
 
-    /**
-     * @deprecated use {@link PrebidNativeAd#registerView(View, List, PrebidNativeAdEventListener)}
-     */
-    @Deprecated
-    public boolean registerViewList(View container, List<View> viewList, final PrebidNativeAdEventListener listener) {
-        return registerView(container, viewList, listener);
+    private void setPrivacyUrl(@Nullable String url) {
+        privacyUrl = url;
     }
 
     /**
@@ -348,21 +327,7 @@ public class PrebidNativeAd {
                 return false;
             }
 
-            if (imp_trackers != null) {
-                impressionTrackers = new ArrayList<>(imp_trackers.size());
-                for (String url : imp_trackers) {
-                    ImpressionTracker impressionTracker = ImpressionTracker.create(url, visibilityDetector, container.getContext(), new ImpressionTrackerListener() {
-                        @Override
-                        public void onImpressionTrackerFired() {
-                            if (listener != null) {
-                                listener.onAdImpression();
-                            }
-                            notifyImpressionEvent();
-                        }
-                    });
-                    impressionTrackers.add(impressionTracker);
-                }
-            }
+            createImpressionTrackers(container);
 
             registeredView = new WeakReference<>(container);
 
@@ -378,6 +343,29 @@ public class PrebidNativeAd {
             return true;
         }
         return false;
+    }
+
+    private void createImpressionTrackers(View view) {
+        ArrayList<String> combinedImpTrackers = new ArrayList<>();
+        if (imp_trackers != null) {
+            combinedImpTrackers.addAll(imp_trackers);
+        }
+        if (impEvent != null) {
+            combinedImpTrackers.add(impEvent);
+        }
+
+        impressionTrackers = new ArrayList<>();
+        for (String url : combinedImpTrackers) {
+            ImpressionTracker impressionTracker = ImpressionTracker.create(url, visibilityDetector, view.getContext(), new ImpressionTrackerListener() {
+                @Override
+                public void onImpressionTrackerFired() {
+                    if (listener != null) {
+                        listener.onAdImpression();
+                    }
+                }
+            });
+            impressionTrackers.add(impressionTracker);
+        }
     }
 
     protected boolean registerPrebidNativeAdEventListener(PrebidNativeAdEventListener listener) {

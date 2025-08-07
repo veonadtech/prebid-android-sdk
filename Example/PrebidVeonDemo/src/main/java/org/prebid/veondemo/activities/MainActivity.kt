@@ -16,62 +16,46 @@
 
 package org.prebid.veondemo.activities
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import org.prebid.mobile.AdSize
-import org.prebid.mobile.api.data.AdUnitFormat
-import org.prebid.mobile.api.data.VideoPlacementType
-import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.rendering.BannerView
-import org.prebid.mobile.api.rendering.InterstitialAdUnit
-import org.prebid.mobile.api.rendering.RewardedAdUnit
-import org.prebid.mobile.api.rendering.listeners.BannerViewListener
-import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
-import org.prebid.mobile.eventhandlers.AuctionBannerEventHandler
-import org.prebid.mobile.eventhandlers.AuctionListener
-import org.prebid.mobile.eventhandlers.GamBannerEventHandler
-import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
-import org.prebid.mobile.eventhandlers.GamRewardedEventHandler
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.ads.MobileAds
+import org.prebid.mobile.PrebidMobile
+import org.prebid.veondemo.cases.AdFormat
+import org.prebid.veondemo.cases.IntegrationKind
+import org.prebid.veondemo.cases.TestCaseAdapter
 import org.prebid.veondemo.R
+import org.prebid.veondemo.cases.TestCase
+import org.prebid.veondemo.cases.TestCaseRepository
 import org.prebid.veondemo.databinding.ActivityMainBinding
-import java.util.EnumSet
-
-enum class BannerFormat(val description: String) {
-    AUCTION_SIMPLE_BANNER("Auction Simple Banner"),
-    AUCTION_SIMPLE_BANNER_300_250("300x250"),
-    SIMPLE_TEST_BANNER("Simple Test Banner"),
-    SIMPLE_BANNER("Simple Banner"),
-    INTERSTITIAL_BANNER("Interstitial Banner"),
-    VIDEO_REWARDED("Rewarded Video"),
-    VIDEO_IN_BANNER("Video Banner"),
-    VIDEO_INTERSTITIAL("Video Interstitial"),
-
-    GAM_SIMPLE_BANNER("GAM Simple Banner"),
-    GAM_INTERSTITIAL_BANNER("GAM Interstitial Banner"),
-    GAM_REWARD_VIDEO("GAM Rewarded Video"),
-}
+import org.prebid.veondemo.utils.Settings
 
 class MainActivity : AppCompatActivity() {
 
-    private var adBannerFormat: BannerFormat? = null
+    private var integrationKind: IntegrationKind? = null
+    private var adFormat: AdFormat? = null
+    private var searchRequest = ""
+
     private lateinit var binding: ActivityMainBinding
-    private val adWrapperView: ViewGroup get() = binding.adLayout
+    private lateinit var testCaseAdapter: TestCaseAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        initAdFormatSelector()
-        setupAdFormatSelectionActions()
+
+        initSpinners()
+        initSearch()
+        initList()
+
+        PrebidMobile.checkGoogleMobileAdsCompatibility(MobileAds.getVersion().toString())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -80,258 +64,98 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun setupAdFormatSelectionActions() {
-        binding.showBanner.setOnClickListener {
-            removeAllBannerSlots()
-            adBannerFormat?.let { format ->
-                handleAdFormat(format)
-            }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        super.onOptionsItemSelected(item)
+        if (item.itemId == R.id.settings) {
+            startActivity(SettingsActivity.getIntent(this))
+            return true
         }
+        return false
     }
 
-    private fun handleAdFormat(bannerFormat: BannerFormat) {
-        when (bannerFormat) {
-            BannerFormat.SIMPLE_TEST_BANNER -> setupSimpleBanner(
-                configId = "test_320x50",
-                size = AdSize(320, 50)
-            )
 
-            BannerFormat.SIMPLE_BANNER -> setupSimpleBanner(
-                configId = "prebid-ita-banner-320-50",
-                size = AdSize(320, 50)
-            )
-
-            BannerFormat.VIDEO_IN_BANNER -> setupInBannerVideoBanner(
-                configId = "toffee_bumper_ads_1920x1080v",
-                adSize = AdSize(1920, 1080),
-                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
-            )
-
-            BannerFormat.VIDEO_INTERSTITIAL -> setupInterstitialVideo(
-                configId = "toffee_bumper_ads_1920x1080v",
-                adSize = AdSize(1920, 1080),
-                adUnitId = "/23081467975/toffee_bangladesh/toffee_bumper_ads_1920x1080v"
-            )
-
-            BannerFormat.VIDEO_REWARDED -> setupRewardedVideo(
-                configId = "test_video_content_320x100"
-            )
-
-            BannerFormat.INTERSTITIAL_BANNER -> setupInterstitialBanner(
-                configId = "test_interstitial",
-                adSize = AdSize(50, 50)
-            )
-
-            BannerFormat.AUCTION_SIMPLE_BANNER -> setupAuctionBanner(
-                adUnitId = "/6355419/Travel/Europe/France/Paris",
-                size = AdSize(320, 50),
-                slot = binding.banner320x50,
-                cpm = 10F
-            )
-
-            BannerFormat.AUCTION_SIMPLE_BANNER_300_250 -> setupAuctionBanner(
-                adUnitId = "/6355419/Travel/Europe/France/Paris",
-                size = AdSize(300, 250),
-                slot = binding.banner300x250,
-                cpm = 50F
-            )
-
-            BannerFormat.GAM_SIMPLE_BANNER -> setupGamSimpleBanner(
-                configId = "prebid-ita-banner-320-50",
-                adSize = AdSize(320, 50),
-                adUnitId = "/6355419/Travel/Europe/France/Paris"
-            )
-
-            BannerFormat.GAM_INTERSTITIAL_BANNER -> setupGamInterstitialBanner(
-                gamAdUnitId = "ca-app-pub-3940256099942544/1033173712",
-                configId = "test_interstitial",
-                adSize = AdSize(100, 100)
-            )
-
-            BannerFormat.GAM_REWARD_VIDEO ->
-                setupGamRewardVideo(
-                    gamAdUnitId = "/21952429235,23020124565/be_org.prebid.veondemo_app/be_org.prebid.veondemo_appopen",
-                    configId = "prebid-ita-video-rewarded-320-480"
-                )
-        }
-    }
-
-    private fun removeAllBannerSlots() {
-        adWrapperView.removeAllViewsInLayout()
-        binding.banner320x50.removeAllViewsInLayout()
-        binding.banner300x250.removeAllViewsInLayout()
-    }
-
-    private fun setupSimpleBanner(configId: String, size: AdSize) {
-        val adUnit = BannerView(this, configId, size).apply {
-            setBannerListener(defaultBannerListener())
-            loadAd()
-            setAutoRefreshDelay(30)
-        }
-        adWrapperView.addView(adUnit)
-    }
-
-    private fun setupRewardedVideo(configId: String) {
-        val adUnit = RewardedAdUnit(this, configId)
-        adUnit.setRewardedAdUnitListener(object : RewardedAdUnitListener {
-            override fun onAdLoaded(unit: RewardedAdUnit?) = adUnit.show()
-            override fun onAdDisplayed(unit: RewardedAdUnit?) {}
-            override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) {}
-            override fun onAdClicked(unit: RewardedAdUnit?) {}
-            override fun onAdClosed(unit: RewardedAdUnit?) {}
-            override fun onUserEarnedReward(unit: RewardedAdUnit?) {}
-        })
-        adUnit.loadAd()
-    }
-
-    private fun setupInBannerVideoBanner(configId: String, adSize: AdSize, adUnitId: String) {
-        val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
-        val adView = BannerView(this, configId, eventHandler)
-        adView.setAutoRefreshDelay(30)
-
-        // For Video
-        adView.videoPlacementType = VideoPlacementType.IN_BANNER
-
-        adWrapperView.addView(adView)
-        adView.loadAd()
-    }
-
-    private fun setupInterstitialVideo(configId: String, adSize: AdSize, adUnitId: String) {
-        val eventHandler = GamInterstitialEventHandler(this, adUnitId)
-        val adUnit = InterstitialAdUnit(this, configId, EnumSet.of(AdUnitFormat.VIDEO), eventHandler)
-        adUnit.setInterstitialAdUnitListener(object :
-            InterstitialAdUnitListener {
-            override fun onAdLoaded(adUnit: InterstitialAdUnit?) {
-                adUnit?.show()
-            }
-
-            override fun onAdDisplayed(adUnit: InterstitialAdUnit?) {}
-            override fun onAdFailed(adUnit: InterstitialAdUnit?, exception: AdException?) {}
-            override fun onAdClicked(adUnit: InterstitialAdUnit?) {}
-            override fun onAdClosed(adUnit: InterstitialAdUnit?) {}
-        })
-        adUnit.loadAd()
-    }
-
-    private fun setupInterstitialBanner(configId: String, adSize: AdSize) {
-        val adUnit = InterstitialAdUnit(this, configId, EnumSet.of(AdUnitFormat.BANNER))
-        adUnit.setMinSizePercentage(adSize)
-        adUnit.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-            override fun onAdLoaded(unit: InterstitialAdUnit?) {
-                showToast("onAdLoaded")
-                adUnit.show()
-            }
-
-            override fun onAdDisplayed(unit: InterstitialAdUnit?) = showToast("onAdDisplayed")
-            override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) = showToast("onAdFailed")
-            override fun onAdClicked(unit: InterstitialAdUnit?) = showToast("onAdClicked")
-            override fun onAdClosed(unit: InterstitialAdUnit?) = showToast("onAdClosed")
-        })
-        adUnit.loadAd()
-    }
-
-    private fun setupAuctionBanner(adUnitId: String, size: AdSize, slot: ViewGroup, cpm: Float) {
-        val eventHandler = AuctionBannerEventHandler(
-            this, adUnitId, cpm, size
-        ).apply {
-            setAuctionEventListener(object : AuctionListener {
-                override fun onPRBWin(price: Float) = showToast("onPRBWin")
-                override fun onGAMWin(view: View?) = showToast("onGAMWin")
-            })
-        }
-
-        val adUnit = BannerView(this, "prebid-ita-banner-${size.width}x${size.height}", eventHandler).apply {
-            setAutoRefreshDelay(30)
-            setBannerListener(defaultBannerListener())
-            loadAd()
-        }
-
-        slot.addView(adUnit)
-    }
-
-    private fun setupGamSimpleBanner(configId: String, adSize: AdSize, adUnitId: String) {
-        val eventHandler = GamBannerEventHandler(this, adUnitId, adSize)
-        val bannerView = BannerView(this, configId, eventHandler)
-        bannerView.setAutoRefreshDelay(30)
-        adWrapperView.addView(bannerView)
-        bannerView.loadAd()
-
-        bannerView.setBannerListener(object : BannerViewListener {
-            override fun onAdLoaded(bannerView: BannerView?) = showToast("onAdLoaded")
-            override fun onAdDisplayed(bannerView: BannerView?) = showToast("onAdDisplayed")
-            override fun onAdFailed(bannerView: BannerView?, exception: AdException?) = showToast("onAdFailed")
-            override fun onAdClicked(bannerView: BannerView?) = showToast("onAdClicked")
-            override fun onAdUrlClicked(url: String?) = showToast("onAdUrlClicked")
-            override fun onAdClosed(bannerView: BannerView?) = showToast("onAdClosed")
-        })
-    }
-
-    private fun setupGamInterstitialBanner(gamAdUnitId: String, configId: String, adSize: AdSize) {
-        val eventHandler = GamInterstitialEventHandler(this, gamAdUnitId)
-        InterstitialAdUnit(this, configId, eventHandler).apply {
-            setMinSizePercentage(adSize)
-            setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-                override fun onAdLoaded(unit: InterstitialAdUnit?) {
-                    showToast("onAdLoaded")
-                    show()
-                }
-
-                override fun onAdDisplayed(unit: InterstitialAdUnit?) = showToast("onAdDisplayed")
-                override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) = showToast("onAdFailed")
-                override fun onAdClicked(unit: InterstitialAdUnit?) = showToast("onAdClicked")
-                override fun onAdClosed(unit: InterstitialAdUnit?) = showToast("onAdClosed")
-            })
-            loadAd()
-        }
-    }
-
-    private fun setupGamRewardVideo(gamAdUnitId: String, configId: String) {
-        val eventHandler = GamRewardedEventHandler(this, gamAdUnitId)
-        RewardedAdUnit(this, configId, eventHandler).apply {
-            setRewardedAdUnitListener(object : RewardedAdUnitListener {
-                override fun onAdLoaded(unit: RewardedAdUnit?) {
-                    if ((bidResponse.winningBid?.price ?: 0.0) > 0.5) show()
-                }
-
-                override fun onAdDisplayed(unit: RewardedAdUnit?) = showToast("onAdDisplayed")
-                override fun onAdFailed(unit: RewardedAdUnit?, e: AdException?) = showToast("onAdFailed")
-                override fun onAdClicked(unit: RewardedAdUnit?) = showToast("onAdClicked")
-                override fun onAdClosed(unit: RewardedAdUnit?) = showToast("onAdClosed")
-                override fun onUserEarnedReward(unit: RewardedAdUnit?) = showToast("onUserEarnedReward")
-            })
-            loadAd()
-        }
-    }
-
-    private fun defaultBannerListener() = object : BannerViewListener {
-        override fun onAdUrlClicked(url: String?) = showToast(url ?: "Url Clicked")
-        override fun onAdLoaded(bannerView: BannerView?) = showToast("onAdLoaded")
-        override fun onAdDisplayed(bannerView: BannerView?) = showToast("onAdDisplayed")
-        override fun onAdFailed(bannerView: BannerView?, exception: AdException?) = showToast("onAdFailed")
-        override fun onAdClicked(bannerView: BannerView?) = showToast("onAdClicked")
-        override fun onAdClosed(bannerView: BannerView?) = showToast("onAdClosed")
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
-
-    private fun initAdFormatSelector() {
-        binding.spinnerAdType.apply {
+    private fun initSpinners() {
+        binding.spinnerIntegrationKind.apply {
             adapter = ArrayAdapter(
                 this@MainActivity,
                 android.R.layout.simple_spinner_dropdown_item,
-                BannerFormat.values().map { it.description }
+                IntegrationKind.values().map { it.adServer }.toMutableList().apply {
+                    add(0, "All")
+                }
             )
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, l: Long) {
-                    adBannerFormat = BannerFormat.values()[position]
-                    Log.d("SELECTED", position.toString())
+                    integrationKind = if (position == 0) null else IntegrationKind.values()[position - 1]
+                    Settings.get().lastIntegrationKindId = position
+                    updateList()
                 }
 
                 override fun onNothingSelected(adapterView: AdapterView<*>) {}
             }
+            setSelection(Settings.get().lastIntegrationKindId)
         }
+        binding.spinnerAdType.apply {
+            adapter = ArrayAdapter(
+                this@MainActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                AdFormat.values().map { it.description }.toMutableList().apply {
+                    add(0, "All")
+                }
+            )
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, l: Long) {
+                    adFormat = if (position == 0) null else AdFormat.values()[position - 1]
+                    Settings.get().lastAdFormatId = position
+                    updateList()
+                }
+
+                override fun onNothingSelected(adapterView: AdapterView<*>) {}
+            }
+            setSelection(Settings.get().lastAdFormatId)
+        }
+    }
+
+    private fun initSearch() {
+        binding.etSearch.addTextChangedListener {
+            searchRequest = it.toString()
+            updateList()
+        }
+    }
+
+    private fun initList() {
+        binding.rvAdTypes.apply {
+            testCaseAdapter = TestCaseAdapter { showAd(it) }
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = testCaseAdapter
+        }
+    }
+
+    private fun updateList() {
+        val list = TestCaseRepository.getList().filter {
+            if (integrationKind != null && it.integrationKind != integrationKind) {
+                return@filter false
+            }
+
+            if (adFormat != null && it.adFormat != adFormat) {
+                return@filter false
+            }
+
+            if (searchRequest.isNotBlank() && !getString(it.titleStringRes).contains(
+                    searchRequest,
+                    ignoreCase = true
+                )
+            ) {
+                return@filter false
+            }
+
+            return@filter true
+        }
+        testCaseAdapter.setList(list)
+    }
+
+    private fun showAd(testCase: TestCase) {
+        TestCaseRepository.lastTestCase = testCase
+        startActivity(Intent(this, testCase.activity))
     }
 
 }

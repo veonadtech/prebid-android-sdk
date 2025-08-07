@@ -25,6 +25,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.api.data.InitializationStatus;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
@@ -36,21 +37,16 @@ import org.prebid.mobile.rendering.sdk.InitializationNotifier;
 import org.prebid.mobile.rendering.sdk.PrebidContextHolder;
 import org.prebid.mobile.rendering.sdk.SdkInitializer;
 
-import java.util.ArrayList;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * Main class for managing Prebid SDK. It allows to initialize, set log level
+ * and manage internal behaviour.
+ */
 public class PrebidMobile {
-
-    public static boolean isCoppaEnabled = false;
-    public static boolean useExternalBrowser = false;
-
-    /**
-     * If true, the SDK sends "af=3,5", indicating support for MRAID
-     */
-    public static boolean sendMraidSupportParams = true;
 
     /**
      * Minimum refresh interval allowed. 30 seconds
@@ -92,14 +88,11 @@ public class PrebidMobile {
     /**
      * Tested Google SDK version.
      */
-    public static final String TESTED_GOOGLE_SDK_VERSION = "22.3.0";
+    public static final String TESTED_GOOGLE_SDK_VERSION = "24.4.0";
 
-    /**
-     * Please use {@link PrebidMobile#setLogLevel(LogLevel)}, this field will become private in next releases.
-     */
-    @Deprecated
-    public static LogLevel logLevel = LogLevel.NONE;
-
+    private static LogLevel logLevel = LogLevel.NONE;
+    @Nullable
+    private static PrebidLogger customLogger = null;
 
     private static boolean pbsDebug = false;
     private static boolean shareGeoLocation = false;
@@ -119,12 +112,13 @@ public class PrebidMobile {
     private static String accountId = "";
     private static String storedAuctionResponse = "";
     @Nullable
+    private static String auctionSettingsId;
+    @Nullable
     private static String customStatusEndpoint;
 
     private static Host host = Host.CUSTOM;
 
     private static final Map<String, String> storedBidResponses = new LinkedHashMap<>();
-    private static List<ExternalUserId> externalUserIds = new ArrayList<>();
     private static HashMap<String, String> customHeaders = new HashMap<>();
     private static boolean includeWinners = false;
     private static boolean includeBidderKeys = false;
@@ -135,23 +129,41 @@ public class PrebidMobile {
     private static PBSConfig pbsConfig;
     private static int creativeFactoryTimeout = DEFAULT_BANNER_TIMEOUT;
     private static int creativeFactoryTimeoutPreRenderContent = DEFAULT_PRERENDER_TIMEOUT;
+    @NonNull
+    private static WeakReference<PrebidEventDelegate> eventDelegateReference = new WeakReference<>(null);
+    private static boolean disableStatusCheck = false;
     private static String AAID = "";
 
     private PrebidMobile() {
     }
 
+
+    /**
+     * {@link #useCacheForReportingWithRenderingApi}
+     */
     public static boolean isUseCacheForReportingWithRenderingApi() {
         return useCacheForReportingWithRenderingApi;
     }
 
+    /**
+     * Sets boolean for caching ad for rendering API.
+     *
+     * @param useCacheForReportingWithRenderingApi
+     */
     public static void setUseCacheForReportingWithRenderingApi(boolean useCacheForReportingWithRenderingApi) {
         PrebidMobile.useCacheForReportingWithRenderingApi = useCacheForReportingWithRenderingApi;
     }
 
+    /**
+     * {@link #setTimeoutMillis(int)}.
+     */
     public static int getTimeoutMillis() {
         return timeoutMillis;
     }
 
+    /**
+     * Sets connection timeout for bid request.
+     */
     public static void setTimeoutMillis(int timeoutMillis) {
         PrebidMobile.timeoutMillis = timeoutMillis;
     }
@@ -164,40 +176,31 @@ public class PrebidMobile {
         return accountId;
     }
 
-    public static void setPrebidServerHost(Host host) {
-        if (host == null) {
-            LogUtil.error(TAG, "setPrebidServerHost: Can't set null.");
-            return;
-        }
-        PrebidMobile.host = host;
-    }
-
     public static Host getPrebidServerHost() {
         return host;
     }
 
+    public static void setAuctionSettingsId(String settingsId) {
+        PrebidMobile.auctionSettingsId = settingsId;
+    }
+
+    @Nullable
+    public static String getAuctionSettingsId() {
+        return auctionSettingsId;
+    }
+
+    /**
+     * Allows the SDK to share geolocation if permission is granted by the user.
+     */
     public static void setShareGeoLocation(boolean share) {
         PrebidMobile.shareGeoLocation = share;
     }
 
+    /**
+     * {@link #setShareGeoLocation(boolean)}
+     */
     public static boolean isShareGeoLocation() {
         return shareGeoLocation;
-    }
-
-    /**
-     * List containing objects that hold External User Id parameters for the current application user.
-     */
-    public static void setExternalUserIds(List<ExternalUserId> externalUserIds) {
-        PrebidMobile.externalUserIds = externalUserIds;
-    }
-
-    /**
-     * Returns the List that hold External UserId parameters for the current application user
-     *
-     * @@return externalUserIds as Array.
-     */
-    public static List<ExternalUserId> getExternalUserIds() {
-        return PrebidMobile.externalUserIds;
     }
 
     /**
@@ -219,10 +222,8 @@ public class PrebidMobile {
         return PrebidMobile.customHeaders;
     }
 
-
     /**
      * Initializes the main SDK classes and makes request to Prebid server to check its status.
-     * You have to set host url ({@link PrebidMobile#setPrebidServerHost(Host)}) before calling this method.
      * If you use custom /status endpoint set it with ({@link PrebidMobile#setCustomStatusEndpoint(String)}) before starting initialization.
      * <p>
      * Calls SdkInitializationListener callback with enum initialization status parameter:
@@ -236,26 +237,34 @@ public class PrebidMobile {
      * To get the description of the problem you can call {@link InitializationStatus#getDescription()}
      *
      * @param context  any context (must be not null)
+     * @param serverURL the Prebid Server URL
      * @param listener initialization listener (can be null).
-     *                 <p>
+     * <p>
      */
     @MainThread
     public static void initializeSdk(
             @Nullable Context context,
+            String serverURL,
             @Nullable SdkInitializationListener listener
     ) {
+        if (serverURL == null) {
+            LogUtil.error(TAG, "initializeSdk: serverURL is null.");
+            return;
+        }
+        PrebidMobile.host = Host.createCustomHost(serverURL);
         SdkInitializer.init(context, listener);
     }
 
-    @Deprecated
-    public static Context getApplicationContext() {
-        return PrebidContextHolder.getContext();
-    }
-
+    /**
+     * Sets stored auction response for testing purposes.
+     */
     public static void setStoredAuctionResponse(@Nullable String storedAuctionResponse) {
         PrebidMobile.storedAuctionResponse = storedAuctionResponse;
     }
 
+    /**
+     * {@link #setStoredAuctionResponse(String)}
+     */
     @Nullable
     public static String getStoredAuctionResponse() {
         return storedAuctionResponse;
@@ -307,12 +316,33 @@ public class PrebidMobile {
         return PrebidContextHolder.getContext() != null && InitializationNotifier.wereTasksCompletedSuccessfully();
     }
 
+    /**
+     * {@link #setLogLevel(LogLevel)}
+     */
     public static LogLevel getLogLevel() {
         return PrebidMobile.logLevel;
     }
 
+    /**
+     * Sets log level for the SDK.
+     */
     public static void setLogLevel(LogLevel logLevel) {
         PrebidMobile.logLevel = logLevel;
+    }
+
+    /**
+     * {@link #setCustomLogger(PrebidLogger)}
+     */
+    @Nullable
+    public static PrebidLogger getCustomLogger() {
+        return PrebidMobile.customLogger;
+    }
+
+    /**
+     * Sets custom logger for the SDK.
+     */
+    public static void setCustomLogger(@NonNull PrebidLogger logger) {
+        PrebidMobile.customLogger = logger;
     }
 
     /**
@@ -346,7 +376,7 @@ public class PrebidMobile {
 
     /**
      * Sets full valid URL for the /status endpoint of the PBS.
-     * Request to /status is sent when you call {@link PrebidMobile#initializeSdk(Context, SdkInitializationListener)}.
+     * Request to /status is sent when you call {@link PrebidMobile#initializeSdk(Context, String, SdkInitializationListener)} )}.
      *
      * @see <a href="https://docs.prebid.org/prebid-server/endpoints/pbs-endpoint-status.html">GET /status</a>
      */
@@ -367,23 +397,38 @@ public class PrebidMobile {
         }
     }
 
+    /**
+     * {@link #setCustomStatusEndpoint(String)}
+     */
     @Nullable
     public static String getCustomStatusEndpoint() {
         return customStatusEndpoint;
     }
 
+    /**
+     * Sets 'includewinners' parameter for ad request to receive additional info about winners in response.
+     */
     public static void setIncludeWinnersFlag(boolean includeWinners) {
         PrebidMobile.includeWinners = includeWinners;
     }
 
+    /**
+     * {@link #setIncludeWinnersFlag(boolean)}
+     */
     public static boolean getIncludeWinnersFlag() {
         return PrebidMobile.includeWinners;
     }
 
+    /**
+     * Sets 'includebidderkeys' parameter for ad request to receive additional info about bidders.
+     */
     public static boolean setIncludeBidderKeysFlag(boolean includeBidderKeys) {
         return PrebidMobile.includeBidderKeys = includeBidderKeys;
     }
 
+    /**
+     * {@link #setIncludeBidderKeysFlag(boolean)}
+     */
     public static boolean getIncludeBidderKeysFlag() {
         return PrebidMobile.includeBidderKeys;
     }
@@ -397,9 +442,7 @@ public class PrebidMobile {
     }
 
     /**
-     * Priority Policy: PBSConfig > SDKConfig > Default
-     *
-     * @return creativeFactoryTimeout in ms
+     * {@link #setCreativeFactoryTimeout(int)}
      */
     public static int getCreativeFactoryTimeout() {
         if (pbsConfig != null) {
@@ -410,6 +453,11 @@ public class PrebidMobile {
         return creativeFactoryTimeout;
     }
 
+    /**
+     * Sets creative factory timeout. It's time to parse and render banner ads.
+     *
+     * @param creativeFactoryTimeout in ms (default 6000ms)
+     */
     public static void setCreativeFactoryTimeout(int creativeFactoryTimeout) {
         PrebidMobile.creativeFactoryTimeout = creativeFactoryTimeout;
     }
@@ -428,6 +476,12 @@ public class PrebidMobile {
         return creativeFactoryTimeoutPreRenderContent;
     }
 
+
+    /**
+     * Sets creative factory timeout for prerender content. It's time to parse and render interstitial ads.
+     *
+     * @param creativeFactoryTimeoutPreRenderContent in ms (default 30000ms)
+     */
     public static void setCreativeFactoryTimeoutPreRenderContent(int creativeFactoryTimeoutPreRenderContent) {
         PrebidMobile.creativeFactoryTimeoutPreRenderContent = creativeFactoryTimeoutPreRenderContent;
     }
@@ -440,22 +494,66 @@ public class PrebidMobile {
         return PrebidMobile.AAID;
     }
 
-    //region PluginRenderer methods are disabled until feature release
-    private static void registerPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
+    /**
+     * Registers plugin renderer for displaying ad in custom wrapper.
+     * Prebid SDK will choose this renderer only if the winning bid contains this renderer.
+     */
+    public static void registerPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
         PrebidMobilePluginRegister.getInstance().registerPlugin(prebidMobilePluginRenderer);
     }
 
-    private static void unregisterPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
+    /**
+     * Remove plugin renderer. {@link #registerPluginRenderer(PrebidMobilePluginRenderer)}
+     */
+    public static void unregisterPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
         PrebidMobilePluginRegister.getInstance().unregisterPlugin(prebidMobilePluginRenderer);
     }
 
-    private static Boolean containsPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
+    /**
+     * Return whether SDK already registered this renderer.
+     */
+    public static Boolean containsPluginRenderer(PrebidMobilePluginRenderer prebidMobilePluginRenderer) {
         return PrebidMobilePluginRegister.getInstance().containsPlugin(prebidMobilePluginRenderer);
     }
-    //endregion
 
     /**
-     * LogLevel for logging control.
+     * {@link #setEventDelegate(PrebidEventDelegate)}
+     */
+    @Nullable
+    public static PrebidEventDelegate getEventDelegate() {
+        return eventDelegateReference.get();
+    }
+
+    /**
+     * Sets the {@link PrebidEventDelegate} instance to handle the auction request and response from the SDK.
+     * This allows the SDK to collect some statistical data.
+     * The provided delegate will be stored as a weak reference so you need to store reference to it.
+     *
+     * @param eventDelegate the instance of {@link PrebidEventDelegate} to handle events from the SDK.
+     *                      Can be null to clear the existing delegate.
+     */
+    public static void setEventDelegate(@Nullable PrebidEventDelegate eventDelegate) {
+        eventDelegateReference = new WeakReference<>(eventDelegate);
+    }
+
+    /**
+     * @param disableStatusCheck boolean flag for skipping status check
+     * If true, the SDK will not check the PBS status during initialization. This will save initialization time
+     * if the PBS endpoint is always live and handled client side
+     */
+    public static void setDisableStatusCheck(boolean disableStatusCheck) {
+        PrebidMobile.disableStatusCheck = disableStatusCheck;
+    }
+
+    /**
+     * {@link #setDisableStatusCheck(boolean)}
+     */
+    public static boolean shouldDisableStatusCheck() {
+        return disableStatusCheck;
+    }
+
+    /**
+     * LogLevel for logging control.c
      * NONE - no sdk logs.
      * ERROR - sdk logs with error level only.
      * WARN - sdk logs with warn level only.

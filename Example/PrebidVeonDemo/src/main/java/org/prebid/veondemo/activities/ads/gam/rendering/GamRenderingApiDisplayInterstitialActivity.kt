@@ -16,16 +16,19 @@
 package org.prebid.veondemo.activities.ads.gam.rendering
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamRenderingApiDisplayInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid_oxb_html_interstitial"
-        const val CONFIG_ID = "prebid-ita-display-interstitial-320-480"
+        const val CONFIG_ID = "prebid-demo-display-interstitial-320-480"
     }
 
     private var adUnit: InterstitialAdUnit? = null
@@ -43,12 +46,25 @@ class GamRenderingApiDisplayInterstitialActivity : org.prebid.veondemo.activitie
         adUnit?.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
             override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
                 adUnit?.show()
+                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "loaded", Toast.LENGTH_SHORT).show()
             }
 
-            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {}
-            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, exception: AdException?) {}
-            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {}
-            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {}
+            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {
+                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "displayed", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, exception: AdException?) {
+                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "failed: $exception", Toast.LENGTH_SHORT).show()
+                Log.d("AAAA", "onAdFailed: $exception")
+            }
+
+            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {
+                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "clicked", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {
+                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "closed", Toast.LENGTH_SHORT).show()
+            }
         })
         adUnit?.loadAd()
     }

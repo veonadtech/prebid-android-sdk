@@ -16,7 +16,6 @@
 
 package org.prebid.mobile.rendering.sdk;
 
-import static android.os.Looper.getMainLooper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 import static java.lang.Thread.sleep;
+import static android.os.Looper.getMainLooper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,17 +35,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prebid.mobile.Host;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.reflection.sdk.PrebidMobileReflection;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.LooperMode;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -53,6 +53,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 @RunWith(RobolectricTestRunner.class)
+@LooperMode(LEGACY)
 public class PrebidMobileTest {
 
     private MockWebServer server;
@@ -77,10 +78,6 @@ public class PrebidMobileTest {
         Field versionField = (Build.VERSION.class.getField("SDK_INT"));
         versionField.setAccessible(true);
 
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(versionField, versionField.getModifiers() & ~Modifier.FINAL);
-
         versionField.set(null, Build.VERSION_CODES.LOLLIPOP);
     }
 
@@ -104,13 +101,9 @@ public class PrebidMobileTest {
         HttpUrl url = server.url("/status");
         server.setProtocolNegotiationEnabled(false);
 
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost(
-            url.toString().replace("/status", "/openrtb2/auction")
-        ));
-
         Context context = Robolectric.buildActivity(Activity.class).create().get();
         SdkInitializationListener mockSdkInitListener = mock(SdkInitializationListener.class);
-        PrebidMobile.initializeSdk(context, mockSdkInitListener);
+        PrebidMobile.initializeSdk(context, url.toString().replace("/status", "/openrtb2/auction"), mockSdkInitListener);
 
         sleep(3_000);
         shadowOf(getMainLooper()).idle();
@@ -118,25 +111,6 @@ public class PrebidMobileTest {
         shadowOf(getMainLooper()).idle();
 
         verify(mockSdkInitListener, times(1)).onInitializationComplete(any());
-    }
-
-    @Test
-    public void setBidServerHost_nullValue_ReturnDefaultBidServerHost() {
-        String expected = PrebidMobile.getPrebidServerHost().getHostUrl();
-
-        PrebidMobile.setPrebidServerHost(null);
-        assertEquals(expected, PrebidMobile.getPrebidServerHost().getHostUrl());
-    }
-
-    @Test
-    public void setBidServerHost_validValue_ReturnModifiedHost() {
-        final String hostUrl = "http://customserver.com";
-        final Host host = Host.CUSTOM;
-        host.setHostUrl(hostUrl);
-
-        PrebidMobile.setPrebidServerHost(host);
-
-        assertEquals(host, PrebidMobile.getPrebidServerHost());
     }
 
     @Test

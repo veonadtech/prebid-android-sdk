@@ -20,6 +20,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.Nullable;
+
 import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
@@ -76,14 +79,6 @@ public abstract class BaseAdView extends FrameLayout {
         return AdUnitConfiguration.SKIP_OFFSET_NOT_ASSIGNED;
     }
 
-    public void setAppContent(ContentObject contentObject) {
-        if (adViewManager == null) {
-            LogUtil.error(TAG, "setContentUrl: Failed. AdViewManager is null. Can't set content object. ");
-            return;
-        }
-        adViewManager.getAdConfiguration().setAppContent(contentObject);
-    }
-
     /**
      * @return a creative view associated with the displayed ad
      */
@@ -95,7 +90,10 @@ public abstract class BaseAdView extends FrameLayout {
         int visibility = getVisibility();
 
         setScreenVisibility(visibility);
-        PrebidMobile.initializeSdk(getContext(), null);
+        String hostUrl = PrebidMobile.getPrebidServerHost().getHostUrl();
+        if (!hostUrl.isEmpty()) {
+            PrebidMobile.initializeSdk(getContext(), hostUrl, null);
+        }
     }
 
     protected void registerEventBroadcast() {
@@ -132,4 +130,15 @@ public abstract class BaseAdView extends FrameLayout {
             eventForwardingReceiver = null;
         }
     }
+
+
+    @Nullable
+    public String getImpOrtbConfig() {
+        return adViewManager.getAdConfiguration().getImpOrtbConfig();
+    }
+
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {
+        adViewManager.getAdConfiguration().setImpOrtbConfig(ortbConfig);
+    }
+
 }

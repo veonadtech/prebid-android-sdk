@@ -17,17 +17,17 @@ package org.prebid.veondemo.activities.ads.inapp
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.VideoPlacementType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class InAppVideoBannerActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppVideoBannerActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-ita-video-outstream"
+        const val CONFIG_ID = "prebid-demo-video-outstream"
         const val WIDTH = 300
         const val HEIGHT = 250
     }
@@ -50,7 +50,6 @@ class InAppVideoBannerActivity : org.prebid.veondemo.activities.BaseAdActivity()
 
         bannerView?.videoPlacementType = VideoPlacementType.IN_BANNER
         bannerView?.setBannerListener(object : BannerViewListener {
-            override fun onAdUrlClicked(url: String?) {}
             override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
                 Log.e("InAppVideoBanner", "Ad failed: ${exception?.message}")
             }

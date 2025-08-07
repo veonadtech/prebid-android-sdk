@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.prebid</groupId>
     <artifactId>prebid-mobile-sdk-max-adapters</artifactId>
-    <version>2.1.4</version>
+    <version>3.0.2</version>
 
     <packaging>jar</packaging>
     <name>Prebid Mobile Android SDK</name>
@@ -52,13 +52,13 @@
         <dependency>
             <groupId>org.prebid</groupId>
             <artifactId>prebid-mobile-sdk</artifactId>
-            <version>2.1.4</version>
+            <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.applovin</groupId>
             <artifactId>applovin-sdk</artifactId>
-            <version>11.3.2</version>
+            <version>13.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import org.prebid.mobile.ContentObject;
-import org.prebid.mobile.DataObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
@@ -48,21 +47,28 @@ import org.prebid.mobile.rendering.bidding.loader.BidLoader;
 import org.prebid.mobile.rendering.models.AdPosition;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Internal base interstitial ad unit for rendering API.
+ */
 public abstract class BaseInterstitialAdUnit {
 
     private static final String TAG = BaseInterstitialAdUnit.class.getSimpleName();
     private final WeakReference<Context> weakContext;
     protected AdUnitConfiguration adUnitConfig;
+
+    protected boolean userHasNotEarnedRewardYet = true;
+
+    protected AdUnitConfiguration config = new AdUnitConfiguration();
+
     private BidLoader bidLoader;
     private BidResponse bidResponse;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
     private final BidRequesterListener bidRequesterListener = createBidRequesterListener();
-    private final InterstitialControllerListener controllerListener = createInterstitialControllerListener();
+    protected final InterstitialControllerListener controllerListener = createInterstitialControllerListener();
 
     protected BaseInterstitialAdUnit(Context context) {
         weakContext = new WeakReference<>(context);
@@ -82,6 +88,8 @@ public abstract class BaseInterstitialAdUnit {
      * Executes ad loading if no request is running.
      */
     public void loadAd() {
+        userHasNotEarnedRewardYet = true;
+
         if (bidLoader == null) {
             LogUtil.error(TAG, "loadAd: Failed. BidLoader is not initialized.");
             return;
@@ -126,174 +134,34 @@ public abstract class BaseInterstitialAdUnit {
         }
     }
 
-    /**
-     * @deprecated use addExtData
-     */
-    @Deprecated
-    public void addContextData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
+    @Nullable
+    public String getImpOrtbConfig() {
+        return config.getImpOrtbConfig();
     }
 
     /**
-     * @deprecated use updateExtData
+     * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig JSON config string.
      */
-    @Deprecated
-    public void updateContextData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {
+        config.setImpOrtbConfig(ortbConfig);
     }
-
-    /**
-     * @deprecated use removeExtData
-     */
-    @Deprecated
-    public void removeContextData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    /**
-     * @deprecated use clearExtData
-     */
-    @Deprecated
-    public void clearContextData() {
-        adUnitConfig.clearExtData();
-    }
-
-    /**
-     * @deprecated use getExtDataDictionary
-     */
-    @Deprecated
-    public Map<String, Set<String>> getContextDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    /**
-     * @deprecated use addExtKeyword
-     */
-    @Deprecated
-    public void addContextKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use addExtKeywords
-     */
-    @Deprecated
-    public void addContextKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    /**
-     * @deprecated use removeExtKeyword
-     */
-    @Deprecated
-    public void removeContextKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use getExtKeywordsSet
-     */
-    @Deprecated
-    public Set<String> getContextKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    /**
-     * @deprecated use clearExtKeywords
-     */
-    @Deprecated
-    public void clearContextKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-
-    public void addExtData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void updateExtData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void removeExtData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    public void clearExtData() {
-        adUnitConfig.clearExtData();
-    }
-
-    public Map<String, Set<String>> getExtDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    public void addExtKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    public void addExtKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    public void removeExtKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    public Set<String> getExtKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    public void clearExtKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-    public ContentObject getAppContent() {
-        return adUnitConfig.getAppContent();
-    }
-
-    public void setAppContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
-    }
-
-    public void addUserData(DataObject dataObject) {
-        adUnitConfig.addUserData(dataObject);
-    }
-
-    public ArrayList<DataObject> getUserData() {
-        return adUnitConfig.getUserData();
-    }
-
-    public void clearUserData() {
-        adUnitConfig.clearUserData();
-    }
-
 
     @Nullable
     public String getPbAdSlot() {
-        return adUnitConfig.getPbAdSlot();
+        return config.getPbAdSlot();
     }
 
     public void setPbAdSlot(String adSlot) {
-        adUnitConfig.setPbAdSlot(adSlot);
+        config.setPbAdSlot(adSlot);
     }
 
     /**
      * Sets delay in seconds to show skip or close button.
      */
     public void setSkipDelay(int secondsDelay) {
-        adUnitConfig.setSkipDelay(secondsDelay);
+        config.setSkipDelay(secondsDelay);
     }
 
     /**
@@ -301,7 +169,7 @@ public abstract class BaseInterstitialAdUnit {
      * If value less than 0.05, size will be default.
      */
     public void setSkipButtonArea(@FloatRange(from = 0, to = 1.0) double buttonArea) {
-        adUnitConfig.setSkipButtonArea(buttonArea);
+        config.setSkipButtonArea(buttonArea);
     }
 
     /**
@@ -309,19 +177,19 @@ public abstract class BaseInterstitialAdUnit {
      * Default value TOP_RIGHT.
      */
     public void setSkipButtonPosition(Position skipButtonPosition) {
-        adUnitConfig.setSkipButtonPosition(skipButtonPosition);
+        config.setSkipButtonPosition(skipButtonPosition);
     }
 
     public void setIsMuted(boolean isMuted) {
-        adUnitConfig.setIsMuted(isMuted);
+        config.setIsMuted(isMuted);
     }
 
     public void setIsSoundButtonVisible(boolean isSoundButtonVisible) {
-        adUnitConfig.setIsSoundButtonVisible(isSoundButtonVisible);
+        config.setIsSoundButtonVisible(isSoundButtonVisible);
     }
 
     public void setMaxVideoDuration(int seconds) {
-        adUnitConfig.setMaxVideoDuration(seconds);
+        config.setMaxVideoDuration(seconds);
     }
 
     /**
@@ -329,7 +197,7 @@ public abstract class BaseInterstitialAdUnit {
      * If value less than 0.05, size will be default.
      */
     public void setCloseButtonArea(@FloatRange(from = 0, to = 1.0) double closeButtonArea) {
-        adUnitConfig.setCloseButtonArea(closeButtonArea);
+        config.setCloseButtonArea(closeButtonArea);
     }
 
     /**
@@ -337,7 +205,7 @@ public abstract class BaseInterstitialAdUnit {
      * Default value TOP_RIGHT.
      */
     public void setCloseButtonPosition(@Nullable Position closeButtonPosition) {
-        adUnitConfig.setCloseButtonPosition(closeButtonPosition);
+        config.setCloseButtonPosition(closeButtonPosition);
     }
 
     /**
@@ -353,8 +221,8 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     protected void init(AdUnitConfiguration adUnitConfiguration) {
-        adUnitConfig = adUnitConfiguration;
-        adUnitConfig.setAdPosition(AdPosition.FULLSCREEN);
+        config = adUnitConfiguration;
+        config.setAdPosition(AdPosition.FULLSCREEN);
 
         initPrebidRenderingSdk();
         initBidLoader();
@@ -363,7 +231,7 @@ public abstract class BaseInterstitialAdUnit {
     protected void loadPrebidAd() {
         PrebidMobilePluginRenderer plugin = PrebidMobilePluginRegister.getInstance().getPluginForPreferredRenderer(bidResponse);
         if (plugin != null) {
-            interstitialController = plugin.createInterstitialController(getContext(), controllerListener, adUnitConfig, bidResponse);
+            interstitialController = plugin.createInterstitialController(getContext(), controllerListener, config, bidResponse);
         }
         if (interstitialController == null) {
             notifyErrorListener(new AdException(
@@ -371,7 +239,7 @@ public abstract class BaseInterstitialAdUnit {
                     "InterstitialController is not defined. Unable to process bid."
             ));
         } else {
-            interstitialController.loadAd(adUnitConfig, bidResponse);
+            interstitialController.loadAd(config, bidResponse);
         }
     }
 
@@ -389,11 +257,14 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     private void initPrebidRenderingSdk() {
-        PrebidMobile.initializeSdk(getContext(), null);
+        String hostUrl = PrebidMobile.getPrebidServerHost().getHostUrl();
+        if (!hostUrl.isEmpty()) {
+            PrebidMobile.initializeSdk(getContext(), hostUrl, null);
+        }
     }
 
     private void initBidLoader() {
-        bidLoader = new BidLoader(adUnitConfig, bidRequesterListener);
+        bidLoader = new BidLoader(config, bidRequesterListener);
     }
 
     private Bid getWinnerBid() {
@@ -415,10 +286,6 @@ public abstract class BaseInterstitialAdUnit {
     @VisibleForTesting
     final InterstitialAdUnitState getAdUnitState() {
         return interstitialAdUnitState;
-    }
-
-    public void addContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
     }
 
     private BidRequesterListener createBidRequesterListener() {
@@ -472,9 +339,21 @@ public abstract class BaseInterstitialAdUnit {
             public void onInterstitialClosed() {
                 SdkLogUtil.info("interstitial closed", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_CLOSE);
-                notifyAdEventListener(AdListenerEvent.USER_RECEIVED_PREBID_REWARD);
+                notifyUserReward();
+            }
+
+            @Override
+            public void onUserEarnedReward() {
+                notifyUserReward();
             }
         };
+    }
+
+    protected void notifyUserReward() {
+        if (userHasNotEarnedRewardYet) {
+            notifyAdEventListener(AdListenerEvent.USER_RECEIVED_PREBID_REWARD);
+            userHasNotEarnedRewardYet = false;
+        }
     }
 
 

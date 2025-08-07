@@ -23,8 +23,14 @@ import org.prebid.mobile.api.data.AdFormat;
 import java.util.EnumSet;
 
 
+/**
+ * Original API in-stream video ad unit.
+ */
 public class InStreamVideoAdUnit extends VideoBaseAdUnit {
 
+    /**
+     * Default constructor.
+     */
     public InStreamVideoAdUnit(@NonNull String configId, int width, int height) {
         super(configId, EnumSet.of(AdFormat.VAST));
         configuration.addSize(new AdSize(width, height));

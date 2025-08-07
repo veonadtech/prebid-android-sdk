@@ -5,7 +5,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+/**
+ * Native event tracker for requesting ad.
+ */
 public class NativeEventTracker {
+
+    /**
+     * Event type.
+     */
     public enum EVENT_TYPE {
         IMPRESSION(1),
         VIEWABLE_MRC50(2),
@@ -39,6 +46,9 @@ public class NativeEventTracker {
         }
     }
 
+    /**
+     * Event tracking method.
+     */
     public enum EVENT_TRACKING_METHOD {
         IMAGE(1),
         JS(2),
@@ -74,10 +84,10 @@ public class NativeEventTracker {
     ArrayList<EVENT_TRACKING_METHOD> methods;
     Object extObject;
 
-    public NativeEventTracker(EVENT_TYPE event, ArrayList<EVENT_TRACKING_METHOD> methods) throws Exception {
+    public NativeEventTracker(EVENT_TYPE event, ArrayList<EVENT_TRACKING_METHOD> methods) {
         this.event = event;
         if (methods == null || methods.isEmpty()) {
-            throw new Exception("Methods are required");
+            throw new NullPointerException("Methods are required");
         }
         this.methods = methods;
     }

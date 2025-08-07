@@ -18,8 +18,9 @@ package org.prebid.veondemo.activities.ads.inapp
 import android.os.Bundle
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.rendering.BannerView
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class InAppDisplayBannerMraidExpandActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppDisplayBannerMraidExpandActivity : BaseAdActivity() {
 
     companion object {
         const val CONFIG_ID = "prebid-demo-mraid-expand-1-part"

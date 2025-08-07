@@ -16,17 +16,10 @@
 
 package org.prebid.mobile;
 
+/**
+ * Host for requesting ad.
+ */
 public enum Host {
-
-    /**
-     * URL <a href=https://ib.adnxs.com/openrtb2/prebid>https://ib.adnxs.com/openrtb2/prebid</a>
-     */
-    APPNEXUS("https://ib.adnxs.com/openrtb2/prebid"),
-
-    /**
-     * URL <a href=https://prebid-server.rubiconproject.com/openrtb2/auction>https://prebid-server.rubiconproject.com/openrtb2/auction</a>
-     */
-    RUBICON("https://prebid-server.rubiconproject.com/openrtb2/auction"),
 
     CUSTOM("");
 

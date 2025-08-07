@@ -32,7 +32,8 @@ import org.prebid.mobile.rendering.bidding.data.bid.Prebid;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.App;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.Ext;
-import org.prebid.mobile.rendering.utils.helpers.AdIdManager;
+import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
+import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManagerTest;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.robolectric.RobolectricTestRunner;
 
@@ -48,18 +49,16 @@ public class AppInfoParameterBuilderTest {
     public void setUp() throws Exception {
         AppInfoManager.setAppName(APP_NAME);
         AppInfoManager.setPackageName(APP_BUNDLE);
-        AdIdManager.setAdId(ADVERTISING_ID);
-        AdIdManager.setLimitAdTrackingEnabled(!ADVERTISING_ID_ENABLED);
+
+        AdvertisingIdManager.AdvertisingId id = new AdvertisingIdManager.AdvertisingId(ADVERTISING_ID, !ADVERTISING_ID_ENABLED);
+        AdvertisingIdManagerTest.AdvertisingIdManagerReflections.setAdvertisingId(id);
     }
 
     @Test
     public void testAppendBuilderParameters() throws Exception {
-        TargetingParams.clearContextData();
+        TargetingParams.clearExtData();
 
         AdUnitConfiguration adConfiguration = new AdUnitConfiguration();
-        ContentObject contentObject = new ContentObject();
-        contentObject.setUrl("test.com");
-        adConfiguration.setAppContent(contentObject);
         AppInfoParameterBuilder builder = new AppInfoParameterBuilder(adConfiguration);
         AdRequestInput adRequestInput = new AdRequestInput();
 
@@ -70,6 +69,7 @@ public class AppInfoParameterBuilderTest {
         TargetingParams.setPublisherName(expectedPublisherName);
         TargetingParams.setStoreUrl(expectedStoreurl);
         TargetingParams.setDomain(expectedDomain);
+        TargetingParams.setBundleName(APP_BUNDLE);
 
         builder.appendBuilderParameters(adRequestInput);
 
@@ -82,9 +82,6 @@ public class AppInfoParameterBuilderTest {
         expectedApp.getPublisher().name = expectedPublisherName;
         expectedApp.domain = expectedDomain;
         expectedApp.getExt().put("prebid", Prebid.getJsonObjectForApp(BasicParameterBuilder.DISPLAY_MANAGER_VALUE, PrebidMobile.SDK_VERSION));
-        ContentObject expectedContentObject = new ContentObject();
-        expectedContentObject.setUrl("test.com");
-        expectedApp.contentObject = expectedContentObject;
 
         assertEquals(
                 expectedBidRequest.getJsonObject().toString(),
@@ -94,7 +91,7 @@ public class AppInfoParameterBuilderTest {
 
     @Test
     public void whenAppendParametersAndTargetingContextDataNotEmpty_ContextDataAddedToAppExt() throws JSONException {
-        TargetingParams.addContextData("context", "contextData");
+        TargetingParams.addExtData("context", "contextData");
 
         AppInfoParameterBuilder builder = new AppInfoParameterBuilder(new AdUnitConfiguration());
         AdRequestInput adRequestInput = new AdRequestInput();
@@ -105,24 +102,6 @@ public class AppInfoParameterBuilderTest {
         JSONObject appDataJson = (JSONObject) appExt.getMap().get("data");
         assertTrue(appDataJson.has("context"));
         assertEquals("contextData", appDataJson.getJSONArray("context").get(0));
-    }
-
-    @Test
-    public void whenAppendParametersAndTargetingContextKeywordNotEmpty_ContextKeywordAddedToAppExt() throws JSONException {
-        TargetingParams.addContextKeyword("contextKeyword1");
-        TargetingParams.addContextKeyword("contextKeyword2");
-
-        AppInfoParameterBuilder builder = new AppInfoParameterBuilder(new AdUnitConfiguration());
-        AdRequestInput adRequestInput = new AdRequestInput();
-        builder.appendBuilderParameters(adRequestInput);
-
-        App app = adRequestInput.getBidRequest().getApp();
-
-        assertEquals("contextKeyword1,contextKeyword2", app.keywords);
-
-        JSONObject appJson = app.getJsonObject();
-        assertTrue(appJson.has("keywords"));
-        assertEquals("contextKeyword1,contextKeyword2", appJson.getString("keywords"));
     }
 
 }

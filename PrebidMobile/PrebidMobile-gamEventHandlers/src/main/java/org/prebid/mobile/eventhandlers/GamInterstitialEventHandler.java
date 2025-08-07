@@ -35,6 +35,9 @@ import org.prebid.mobile.rendering.bidding.listeners.InterstitialEventListener;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * Interstitial event handler for communication between Prebid rendering API and the GAM SDK.
+ */
 public class GamInterstitialEventHandler implements InterstitialEventHandler, GamAdEventListener {
 
     private static final String TAG = GamInterstitialEventHandler.class.getSimpleName();

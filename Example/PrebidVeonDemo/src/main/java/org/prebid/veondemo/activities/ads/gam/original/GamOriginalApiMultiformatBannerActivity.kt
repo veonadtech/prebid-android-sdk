@@ -27,15 +27,16 @@ import org.prebid.mobile.VideoParameters
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.data.AdUnitFormat
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
+import java.util.Random
 
-
-class GamOriginalApiMultiformatBannerActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiMultiformatBannerActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-original-banner-multiformat"
-        const val CONFIG_ID_BANNER = "prebid-ita-banner-300-250"
-        const val CONFIG_ID_VIDEO = "prebid-ita-video-outstream-original-api"
+        const val CONFIG_ID_BANNER = "prebid-demo-banner-300-250"
+        const val CONFIG_ID_VIDEO = "prebid-demo-video-outstream-original-api"
         const val WIDTH = 300
         const val HEIGHT = 250
     }
@@ -86,7 +87,7 @@ class GamOriginalApiMultiformatBannerActivity : org.prebid.veondemo.activities.B
 
     override fun onDestroy() {
         super.onDestroy()
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 
     private fun createGAMListener(adView: AdManagerAdView): AdListener {

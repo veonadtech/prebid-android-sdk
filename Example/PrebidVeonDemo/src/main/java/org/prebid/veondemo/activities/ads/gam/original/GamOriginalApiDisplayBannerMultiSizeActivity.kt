@@ -25,8 +25,9 @@ import org.prebid.mobile.BannerParameters
 import org.prebid.mobile.Signals
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiDisplayBannerMultiSizeActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiDisplayBannerMultiSizeActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_multisize"
@@ -82,7 +83,7 @@ class GamOriginalApiDisplayBannerMultiSizeActivity : org.prebid.veondemo.activit
 
     override fun onDestroy() {
         super.onDestroy()
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 
 }

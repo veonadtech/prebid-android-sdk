@@ -23,8 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.prebid.mobile.AdSize;
-import org.prebid.mobile.ContentObject;
-import org.prebid.mobile.DataObject;
 import org.prebid.mobile.Host;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
@@ -39,10 +37,12 @@ import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Internal base mediation ad unit.
+ */
 public abstract class MediationBaseAdUnit {
 
     private static final String TAG = MediationBaseAdUnit.class.getSimpleName();
@@ -74,7 +74,6 @@ public abstract class MediationBaseAdUnit {
         contextWeakReference = new WeakReference<>(context);
         this.mediationDelegate = mediationDelegate;
         adUnitConfig.setAutoRefreshDelay(PrebidMobile.AUTO_REFRESH_DELAY_MIN / 1000);
-        initSdk(context);
         initAdConfig(configId, adSize);
         initBidLoader();
     }
@@ -107,140 +106,6 @@ public abstract class MediationBaseAdUnit {
         bidLoader.load();
     }
 
-    /**
-     * @deprecated use addExtData
-     */
-    @Deprecated
-    public void addContextData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    /**
-     * @deprecated use updateExtData
-     */
-    @Deprecated
-    public void updateContextData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    /**
-     * @deprecated use removeExtData
-     */
-    @Deprecated
-    public void removeContextData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    /**
-     * @deprecated use clearExtData
-     */
-    @Deprecated
-    public void clearContextData() {
-        adUnitConfig.clearExtData();
-    }
-
-    /**
-     * @deprecated use getExtDataDictionary
-     */
-    @Deprecated
-    public Map<String, Set<String>> getContextDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    /**
-     * @deprecated use addExtKeyword
-     */
-    @Deprecated
-    public void addContextKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use addExtKeywords
-     */
-    @Deprecated
-    public void addContextKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    /**
-     * @deprecated use removeExtKeyword
-     */
-    @Deprecated
-    public void removeContextKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    /**
-     * @deprecated use getExtKeywordsSet
-     */
-    @Deprecated
-    public Set<String> getContextKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    /**
-     * @deprecated use clearExtKeywords
-     */
-    @Deprecated
-    public void clearContextKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-
-    public void addExtData(
-        String key,
-        String value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void updateExtData(
-        String key,
-        Set<String> value
-    ) {
-        adUnitConfig.addExtData(key, value);
-    }
-
-    public void removeExtData(String key) {
-        adUnitConfig.removeExtData(key);
-    }
-
-    public void clearExtData() {
-        adUnitConfig.clearExtData();
-    }
-
-    public Map<String, Set<String>> getExtDataDictionary() {
-        return adUnitConfig.getExtDataDictionary();
-    }
-
-    public void addExtKeyword(String keyword) {
-        adUnitConfig.addExtKeyword(keyword);
-    }
-
-    public void addExtKeywords(Set<String> keywords) {
-        adUnitConfig.addExtKeywords(keywords);
-    }
-
-    public void removeExtKeyword(String keyword) {
-        adUnitConfig.removeExtKeyword(keyword);
-    }
-
-    public Set<String> getExtKeywordsSet() {
-        return adUnitConfig.getExtKeywordsSet();
-    }
-
-    public void clearExtKeywords() {
-        adUnitConfig.clearExtKeywords();
-    }
-
-
     public void setPbAdSlot(String adSlot) {
         adUnitConfig.setPbAdSlot(adSlot);
     }
@@ -250,25 +115,6 @@ public abstract class MediationBaseAdUnit {
         return adUnitConfig.getPbAdSlot();
     }
 
-    public void setAppContent(ContentObject content) {
-        adUnitConfig.setAppContent(content);
-    }
-
-    public ContentObject getAppContent() {
-        return adUnitConfig.getAppContent();
-    }
-
-    public void addUserData(DataObject dataObject) {
-        adUnitConfig.addUserData(dataObject);
-    }
-
-    public void clearUserData() {
-        adUnitConfig.clearUserData();
-    }
-
-    public ArrayList<DataObject> getUserData() {
-        return adUnitConfig.getUserData();
-    }
 
     public void destroy() {
         onFetchCompleteListener = null;
@@ -306,16 +152,26 @@ public abstract class MediationBaseAdUnit {
         bidLoader = new BidLoader(adUnitConfig, bidRequesterListener);
     }
 
-    private void initSdk(Context context) {
-        PrebidMobile.initializeSdk(context, null);
-    }
-
     private void cancelRefresh() {
         bidLoader.cancelRefresh();
         LogUtil.error(TAG, "Failed to pass callback");
         if (onFetchCompleteListener == null) {
             LogUtil.error(TAG, "OnFetchCompleteListener is null");
         }
+    }
+
+    @Nullable
+    public String getImpOrtbConfig() {
+        return adUnitConfig.getImpOrtbConfig();
+    }
+
+    /**
+     * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig JSON config string.
+     */
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {
+        adUnitConfig.setImpOrtbConfig(ortbConfig);
     }
 
 }

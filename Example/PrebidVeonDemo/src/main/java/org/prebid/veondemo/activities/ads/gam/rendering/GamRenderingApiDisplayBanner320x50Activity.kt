@@ -19,12 +19,13 @@ import android.os.Bundle
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.eventhandlers.GamBannerEventHandler
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamRenderingApiDisplayBanner320x50Activity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamRenderingApiDisplayBanner320x50Activity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid_oxb_320x50_banner"
-        const val CONFIG_ID = "prebid-ita-banner-320-50"
+        const val CONFIG_ID = "prebid-demo-banner-320-50"
         const val WIDTH = 320
         const val HEIGHT = 50
     }
@@ -41,15 +42,29 @@ class GamRenderingApiDisplayBanner320x50Activity : org.prebid.veondemo.activitie
     private fun createAd() {
         val eventHandler = GamBannerEventHandler(this, AD_UNIT_ID, AdSize(WIDTH, HEIGHT))
         adView = BannerView(this, CONFIG_ID, eventHandler)
+        setOpenRtbConfig()
         adWrapperView.addView(adView)
         adView?.setAutoRefreshDelay(refreshTimeSeconds)
         adView?.loadAd()
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         adView?.destroy()
+    }
+
+    /**
+     * Optional. Sets additional parameters.
+     */
+    private fun setOpenRtbConfig() {
+        adView?.impOrtbConfig = """
+            {
+              "bidfloor": 0.01,
+              "banner": {
+                "battr": [1,2,3,4]
+              }
+            }
+        """.trimIndent()
     }
 
 }

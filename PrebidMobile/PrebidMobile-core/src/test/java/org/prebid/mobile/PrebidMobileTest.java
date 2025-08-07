@@ -26,12 +26,10 @@ import static org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginR
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.PBSConfig;
 import org.prebid.mobile.reflection.Reflection;
 import org.prebid.mobile.reflection.sdk.PrebidMobileReflection;
-import org.prebid.mobile.rendering.bidding.data.bid.Prebid;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.prebid.mobile.testutils.FakePrebidMobilePluginRenderer;
 import org.robolectric.RobolectricTestRunner;
@@ -46,6 +44,7 @@ public class PrebidMobileTest extends BaseSetup {
     @Before
     public void clean() {
         Reflection.setStaticVariableTo(PrebidMobile.class, "customStatusEndpoint", null);
+        Reflection.setStaticVariableTo(PrebidMobile.class, "auctionSettingsId", null);
     }
 
 
@@ -55,12 +54,11 @@ public class PrebidMobileTest extends BaseSetup {
         assertEquals("123456", PrebidMobile.getPrebidServerAccountId());
         PrebidMobile.setTimeoutMillis(2500);
         assertEquals(2500, PrebidMobile.getTimeoutMillis());
-        PrebidMobile.initializeSdk(activity.getApplicationContext(), null);
-        assertNotNull(PrebidMobile.getApplicationContext());
+        assertNotNull(activity.getApplicationContext());
+        PrebidMobile.initializeSdk(activity.getApplicationContext(), "https://test.com", null);
         PrebidMobile.setShareGeoLocation(true);
         assertTrue(PrebidMobile.isShareGeoLocation());
-        PrebidMobile.setPrebidServerHost(Host.RUBICON);
-        assertEquals(Host.RUBICON, PrebidMobile.getPrebidServerHost());
+        assertEquals(Host.createCustomHost("https://test.com"), PrebidMobile.getPrebidServerHost());
         PrebidMobile.setStoredAuctionResponse("111122223333");
         assertEquals("111122223333", PrebidMobile.getStoredAuctionResponse());
         PrebidMobile.addStoredBidResponse("appnexus", "221144");
@@ -74,6 +72,8 @@ public class PrebidMobileTest extends BaseSetup {
         assertEquals(7000, PrebidMobile.getCreativeFactoryTimeout());
         PrebidMobile.setCreativeFactoryTimeoutPreRenderContent(25000);
         assertEquals(25000, PrebidMobile.getCreativeFactoryTimeoutPreRenderContent());
+        PrebidMobile.setAuctionSettingsId("987654");
+        assertEquals("987654", PrebidMobile.getAuctionSettingsId());
     }
 
     @Test
@@ -152,12 +152,10 @@ public class PrebidMobileTest extends BaseSetup {
         );
 
         // When
-//        PrebidMobile.registerPluginRenderer(fakePrebidMobilePluginRenderer);
-        PrebidMobilePluginRegister.getInstance().registerPlugin(fakePrebidMobilePluginRenderer);
+        PrebidMobile.registerPluginRenderer(fakePrebidMobilePluginRenderer);
 
         // Then
-//        assertTrue(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
-        assertTrue(PrebidMobilePluginRegister.getInstance().containsPlugin(fakePrebidMobilePluginRenderer));
+        assertTrue(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
     }
 
     @Test
@@ -172,20 +170,16 @@ public class PrebidMobileTest extends BaseSetup {
         );
 
         // When
-//        PrebidMobile.registerPluginRenderer(fakePrebidMobilePluginRenderer);
-        PrebidMobilePluginRegister.getInstance().registerPlugin(fakePrebidMobilePluginRenderer);
+        PrebidMobile.registerPluginRenderer(fakePrebidMobilePluginRenderer);
 
         // Then
-//        assertTrue(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
-        assertTrue(PrebidMobilePluginRegister.getInstance().containsPlugin(fakePrebidMobilePluginRenderer));
+        assertTrue(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
 
         // When
-//        PrebidMobile.unregisterPluginRenderer(fakePrebidMobilePluginRenderer);
-        PrebidMobilePluginRegister.getInstance().unregisterPlugin(fakePrebidMobilePluginRenderer);
+        PrebidMobile.unregisterPluginRenderer(fakePrebidMobilePluginRenderer);
 
         // Then
-//        assertFalse(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
-        assertFalse(PrebidMobilePluginRegister.getInstance().containsPlugin(fakePrebidMobilePluginRenderer));
+        assertFalse(PrebidMobile.containsPluginRenderer(fakePrebidMobilePluginRenderer));
     }
 
     @Test

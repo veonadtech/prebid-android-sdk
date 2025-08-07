@@ -97,6 +97,8 @@ public class PrebidWebViewBase extends FrameLayout implements PreloadManager.Pre
         // We need to give OMID time to finish method execution inside the webview
         handler.removeCallbacksAndMessages(null);
         handler.postDelayed(new WebViewCleanupRunnable(currentWebView), WEBVIEW_DESTROY_DELAY_MS);
+        webView = null;
+        mraidWebView = null;
     }
 
     public void initMraidExpanded() {
@@ -293,6 +295,10 @@ public class PrebidWebViewBase extends FrameLayout implements PreloadManager.Pre
     protected void runOnUiThread(Runnable runnable) {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(runnable);
+    }
+
+    public void setActionUrl(ActionUrl actionUrl) {
+        webView.setActionUrl(actionUrl);
     }
 
     private static final class WebViewCleanupRunnable implements Runnable {

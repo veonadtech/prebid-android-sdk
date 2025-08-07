@@ -3,13 +3,21 @@ apply from: '../publisher.gradle'
 
 dependencies {
     implementation project(":PrebidMobile")
-    implementation 'com.google.android.gms:play-services-ads:22.0.0'
+    implementation libs.google.play.services.ads
 }
 
 android {
+    namespace "org.prebid.mobile.eventhandlers"
     defaultConfig {
         namespace 'org.prebid.mobile.eventhandlers'
         minSdkVersion 19
+        minSdkVersion 23
+    }
+    testOptions {
+        unitTests.all {
+            jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+            systemProperty 'robolectric.invokedynamic.enable', 'false'
+        }
     }
 }
 

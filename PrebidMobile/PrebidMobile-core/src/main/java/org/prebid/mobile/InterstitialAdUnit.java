@@ -26,14 +26,23 @@ import org.prebid.mobile.rendering.models.PlacementType;
 
 import java.util.EnumSet;
 
+/**
+ * Original API interstitial ad unit.
+ */
 public class InterstitialAdUnit extends BannerBaseAdUnit {
 
+    /**
+     * Default constructor.
+     */
     public InterstitialAdUnit(@NonNull String configId) {
         super(configId, EnumSet.of(AdFormat.INTERSTITIAL));
         configuration.setAdPosition(AdPosition.FULLSCREEN);
     }
 
-    public InterstitialAdUnit(@NonNull String configId, int minWidthPerc, int minHeightPerc) {
+    /**
+     * Constructor with min percentage width and height.
+     */
+    public InterstitialAdUnit(@NonNull String configId, @IntRange(from = 0, to = 100) int minWidthPerc, @IntRange(from = 0, to = 100) int minHeightPerc) {
         this(configId);
         configuration.setMinSizePercentage(new AdSize(minWidthPerc, minHeightPerc));
     }
@@ -41,11 +50,12 @@ public class InterstitialAdUnit extends BannerBaseAdUnit {
     /**
      * Constructor for multi-format request.
      *
-     * @param adUnitFormats for example `EnumSet.of(AdUnitFormat.DISPLAY, AdUnitFormat.VIDEO);`
+     * @param adUnitFormats for example `EnumSet.of(AdUnitFormat.BANNER, AdUnitFormat.VIDEO);`
      */
     public InterstitialAdUnit(@NonNull String configId, EnumSet<AdUnitFormat> adUnitFormats) {
         super(configId, AdFormat.fromSet(adUnitFormats, true));
 
+        configuration.addAdFormat(AdFormat.INTERSTITIAL);
         if (adUnitFormats.contains(AdUnitFormat.VIDEO)) {
             configuration.setAdPosition(AdPosition.FULLSCREEN);
             configuration.setPlacementType(PlacementType.INTERSTITIAL);
@@ -57,6 +67,13 @@ public class InterstitialAdUnit extends BannerBaseAdUnit {
             @IntRange(from = 0, to = 100) int height
     ) {
         configuration.setMinSizePercentage(new AdSize(width, height));
+    }
+
+    /**
+     * Applies the interstitial native visibility tracker for tracking `burl` url.
+     */
+    public void activateInterstitialPrebidImpressionTracker() {
+        this.activateInterstitialPrebidImpressionTracker = true;
     }
 
 }

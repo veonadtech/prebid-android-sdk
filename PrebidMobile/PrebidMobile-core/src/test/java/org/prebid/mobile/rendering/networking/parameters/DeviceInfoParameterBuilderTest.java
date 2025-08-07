@@ -28,7 +28,7 @@ import org.prebid.mobile.reflection.sdk.ManagersResolverReflection;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.Device;
 import org.prebid.mobile.rendering.sdk.ManagersResolver;
-import org.prebid.mobile.rendering.utils.helpers.AdIdManager;
+import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -69,12 +69,13 @@ public class DeviceInfoParameterBuilderTest {
         expectedBidRequestDevice.language = Locale.getDefault().getLanguage();
         expectedBidRequestDevice.osv = "4.4";
         expectedBidRequestDevice.os = "Android";
+        expectedBidRequestDevice.devicetype = Device.DeviceType.TABLET.value;
         expectedBidRequestDevice.model = "robolectric";
         expectedBidRequestDevice.make = "unknown";
         expectedBidRequestDevice.pxratio = 1f;
         expectedBidRequestDevice.ua = AppInfoManager.getUserAgent();
-        expectedBidRequestDevice.ifa = AdIdManager.getAdId();
-        expectedBidRequestDevice.lmt = AdIdManager.isLimitAdTrackingEnabled() ? 1 : 0;
+        expectedBidRequestDevice.ifa = AdvertisingIdManager.getAdvertisingId(ManagersResolver.getInstance().getUserConsentManager());
+        expectedBidRequestDevice.lmt = AdvertisingIdManager.isLimitedAdTrackingEnabled() ? 1 : 0;
 
         assertJsonEquals(expectedBidRequest.getJsonObject(),
                      adRequestInput.getBidRequest().getJsonObject());

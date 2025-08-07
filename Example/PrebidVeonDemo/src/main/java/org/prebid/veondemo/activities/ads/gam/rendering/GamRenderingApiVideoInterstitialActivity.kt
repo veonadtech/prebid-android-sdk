@@ -21,13 +21,14 @@ import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
 
-class GamRenderingApiVideoInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamRenderingApiVideoInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-app-original-api-video-interstitial"
-        const val CONFIG_ID = "prebid-ita-video-interstitial-320-480"
+        const val CONFIG_ID = "prebid-demo-video-interstitial-320-480"
     }
 
     private var adUnit: InterstitialAdUnit? = null

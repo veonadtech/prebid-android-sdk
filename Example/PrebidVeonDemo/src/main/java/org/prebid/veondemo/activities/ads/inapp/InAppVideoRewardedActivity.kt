@@ -16,14 +16,17 @@
 package org.prebid.veondemo.activities.ads.inapp
 
 import android.os.Bundle
+import android.util.Log
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.RewardedAdUnit
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener
+import org.prebid.mobile.rendering.interstitial.rewarded.Reward
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class InAppVideoRewardedActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppVideoRewardedActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-ita-video-rewarded-320-480"
+        const val CONFIG_ID = "prebid-demo-video-rewarded-endcard-time-close-button"
     }
 
     private var adUnit: RewardedAdUnit? = null
@@ -46,7 +49,9 @@ class InAppVideoRewardedActivity : org.prebid.veondemo.activities.BaseAdActivity
             override fun onAdFailed(rewardedAdUnit: RewardedAdUnit?, exception: AdException?) {}
             override fun onAdClicked(rewardedAdUnit: RewardedAdUnit?) {}
             override fun onAdClosed(rewardedAdUnit: RewardedAdUnit?) {}
-            override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?) {}
+            override fun onUserEarnedReward(rewardedAdUnit: RewardedAdUnit?, reward: Reward?) {
+                Log.d("InAppVideoRewarded", "User earned reward: $reward")
+            }
         })
         adUnit?.loadAd()
     }

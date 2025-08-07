@@ -15,6 +15,7 @@ import org.prebid.mobile.api.data.AdUnitFormat;
 import org.prebid.mobile.api.data.Position;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.interstitial.InterstitialSizes;
+import org.prebid.mobile.rendering.interstitial.rewarded.RewardManager;
 import org.prebid.mobile.rendering.models.AdPosition;
 import org.prebid.mobile.rendering.models.PlacementType;
 import org.prebid.mobile.rendering.utils.helpers.Utils;
@@ -39,6 +40,7 @@ public class AdUnitConfiguration {
     private boolean isMuted = false;
     private boolean isSoundButtonVisible = false;
     private boolean isOriginalAdUnit = false;
+    private boolean hasEndCard = false;
 
     private int videoSkipOffset = SKIP_OFFSET_NOT_ASSIGNED;
     private int autoRefreshDelayInMillis = 0;
@@ -55,23 +57,26 @@ public class AdUnitConfiguration {
     private String interstitialSize;
     private String impressionUrl;
     private String fingerprint = Utils.generateUUIDTimeBased();
+    @Nullable
+    private String gpid;
+    @Nullable
+    private String impOrtbConfig;
 
     private Position closeButtonPosition = Position.TOP_RIGHT;
     private Position skipButtonPosition = Position.TOP_RIGHT;
     private AdSize minSizePercentage;
     private PlacementType placementType;
-    private AdPosition adPosition;
+    @NonNull
+    private AdPosition adPosition = AdPosition.UNDEFINED;
+    @Nullable
     private ContentObject appContent;
     private BannerParameters bannerParameters;
     private VideoParameters videoParameters;
     private NativeAdUnitConfiguration nativeConfiguration;
+    private RewardManager rewardManager = new RewardManager();
 
     private final EnumSet<AdFormat> adFormats = EnumSet.noneOf(AdFormat.class);
     private final HashSet<AdSize> adSizes = new HashSet<>();
-    private final ArrayList<DataObject> userDataObjects = new ArrayList<>();
-    private final Map<String, Set<String>> extDataDictionary = new HashMap<>();
-    private final Set<String> extKeywordsSet = new HashSet<>();
-
 
     public void modifyUsingBidResponse(@Nullable BidResponse bidResponse) {
         if (bidResponse != null) {
@@ -87,104 +92,12 @@ public class AdUnitConfiguration {
         return configId;
     }
 
-    public void setAppContent(ContentObject content) {
-        appContent = content;
-    }
-
-    public ContentObject getAppContent() {
-        return appContent;
-    }
-
     public void setPbAdSlot(String pbAdSlot) {
         this.pbAdSlot = pbAdSlot;
     }
 
     public String getPbAdSlot() {
         return pbAdSlot;
-    }
-
-    public void addUserData(DataObject dataObject) {
-        if (dataObject != null) {
-            userDataObjects.add(dataObject);
-        }
-    }
-
-    @NonNull
-    public ArrayList<DataObject> getUserData() {
-        return userDataObjects;
-    }
-
-    public void clearUserData() {
-        userDataObjects.clear();
-    }
-
-    public void addExtData(
-        String key,
-        String value
-    ) {
-        if (key == null || value == null) {
-            return;
-        }
-
-        if (extDataDictionary.containsKey(key)) {
-            Set<String> existingSet = extDataDictionary.get(key);
-            if (existingSet != null) {
-                existingSet.add(value);
-            }
-        } else {
-            HashSet<String> hashSet = new HashSet<>();
-            hashSet.add(value);
-            extDataDictionary.put(key, hashSet);
-        }
-    }
-
-    public void addExtData(
-        String key,
-        Set<String> value
-    ) {
-        if (key != null && value != null) {
-            extDataDictionary.put(key, value);
-        }
-    }
-
-    public void removeExtData(String key) {
-        extDataDictionary.remove(key);
-    }
-
-    @NonNull
-    public Map<String, Set<String>> getExtDataDictionary() {
-        return extDataDictionary;
-    }
-
-    public void clearExtData() {
-        extDataDictionary.clear();
-    }
-
-    public void addExtKeyword(String keyword) {
-        if (keyword != null) {
-            extKeywordsSet.add(keyword);
-        }
-    }
-
-    public void addExtKeywords(Set<String> keywords) {
-        if (keywords != null) {
-            extKeywordsSet.addAll(keywords);
-        }
-    }
-
-    public void removeExtKeyword(String key) {
-        if (key != null) {
-            extKeywordsSet.remove(key);
-        }
-    }
-
-    @NonNull
-    public Set<String> getExtKeywordsSet() {
-        return extKeywordsSet;
-    }
-
-    public void clearExtKeywords() {
-        extKeywordsSet.clear();
     }
 
     public void setMinSizePercentage(@Nullable AdSize minSizePercentage) {
@@ -196,22 +109,38 @@ public class AdUnitConfiguration {
         return minSizePercentage;
     }
 
+    /**
+     * Should be replaced by the sizes in {@link BannerParameters} or {@link VideoParameters}.
+     */
+    @Deprecated
     public void addSize(@Nullable AdSize size) {
         if (size != null) {
             adSizes.add(size);
         }
     }
 
+    /**
+     * Should be replaced by the sizes in {@link BannerParameters} or {@link VideoParameters}.
+     */
+    @Deprecated
     public void addSizes(AdSize... sizes) {
         adSizes.addAll(Arrays.asList(sizes));
     }
 
+    /**
+     * Should be replaced by the sizes in {@link BannerParameters} or {@link VideoParameters}.
+     */
+    @Deprecated
     public void addSizes(@Nullable Set<AdSize> sizes) {
         if (sizes != null) {
             adSizes.addAll(sizes);
         }
     }
 
+    /**
+     * Should be replaced by the sizes in {@link BannerParameters} or {@link VideoParameters}.
+     */
+    @Deprecated
     @NonNull
     public HashSet<AdSize> getSizes() {
         return adSizes;
@@ -439,12 +368,19 @@ public class AdUnitConfiguration {
         return getPlacementTypeValue() != PlacementType.UNDEFINED.getValue();
     }
 
-    public void setAdPosition(@Nullable AdPosition adPosition) {
+    public void setAdPosition(AdPosition adPosition) {
+        if (adPosition == null) return;
+
         this.adPosition = adPosition;
     }
 
+    @NonNull
+    public AdPosition getAdPosition() {
+        return adPosition;
+    }
+
     public int getAdPositionValue() {
-        return adPosition != null ? adPosition.getValue() : AdPosition.UNDEFINED.getValue();
+        return adPosition.getValue();
     }
 
     public boolean isAdPositionValid() {
@@ -469,6 +405,10 @@ public class AdUnitConfiguration {
         return nativeConfiguration;
     }
 
+    public void setNativeConfiguration(NativeAdUnitConfiguration nativeConfiguration) {
+        this.nativeConfiguration = nativeConfiguration;
+    }
+
     public boolean isOriginalAdUnit() {
         return isOriginalAdUnit;
     }
@@ -483,6 +423,40 @@ public class AdUnitConfiguration {
 
     public String getFingerprint() {
         return fingerprint;
+    }
+
+    @Nullable
+    public String getGpid() {
+        return gpid;
+    }
+
+    public void setGpid(@Nullable String gpid) {
+        this.gpid = gpid;
+    }
+
+    @Nullable
+    public String getImpOrtbConfig() {
+        return impOrtbConfig;
+    }
+
+    public void setImpOrtbConfig(@Nullable String impOrtbConfig) {
+        this.impOrtbConfig = impOrtbConfig;
+    }
+
+    public boolean getHasEndCard() {
+        return hasEndCard;
+    }
+
+    public void setHasEndCard(boolean hasEndCard) {
+        this.hasEndCard = hasEndCard;
+    }
+
+    public RewardManager getRewardManager() {
+        return rewardManager;
+    }
+
+    public void setRewardManager(RewardManager rewardManager) {
+        this.rewardManager = rewardManager;
     }
 
     @Override

@@ -1,28 +1,38 @@
 package org.prebid.mobile;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import org.json.JSONObject;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.NativeAdUnitConfiguration;
+import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
+import org.prebid.mobile.rendering.networking.tracking.ServerConnection;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 
 /**
+ * Original API native ad unit.
  * For details of the configuration of native imps, please check this documentation:
  * https://www.iab.com/wp-content/uploads/2018/03/OpenRTB-Native-Ads-Specification-Final-1.2.pdf
  */
 public class NativeAdUnit extends AdUnit {
 
+    /**
+     * Internal key for caching native ad.
+     */
     public static final String BUNDLE_KEY_CACHE_ID = "NativeAdUnitCacheId";
 
     private final NativeAdUnitConfiguration nativeConfiguration;
 
+    /**
+     * Default constructor.
+     */
     public NativeAdUnit(@NonNull String configId) {
         super(configId, EnumSet.of(AdFormat.NATIVE));
         nativeConfiguration = configuration.getNativeConfiguration();
@@ -33,23 +43,31 @@ public class NativeAdUnit extends AdUnit {
         return new BidRequesterListener() {
             @Override
             public void onFetchCompleted(BidResponse response) {
+                bidResponse = response;
+
                 HashMap<String, String> keywords = response.getTargeting();
                 Util.apply(keywords, adObject);
 
                 String cacheId = CacheManager.save(response.getWinningBidJson());
                 Util.saveCacheId(cacheId, adObject);
 
+                notifyWinEvent(response);
                 originalListener.onComplete(ResultCode.SUCCESS);
             }
 
             @Override
             public void onError(AdException exception) {
+                bidResponse = null;
+
                 Util.apply(null, adObject);
                 originalListener.onComplete(convertToResultCode(exception));
             }
         };
     }
 
+    /**
+     * Context type for native request.
+     */
     public enum CONTEXT_TYPE {
         CONTENT_CENTRIC(1),
         SOCIAL_CENTRIC(2),
@@ -86,6 +104,9 @@ public class NativeAdUnit extends AdUnit {
         nativeConfiguration.setContextType(type);
     }
 
+    /**
+     * Context subtype for native request.
+     */
     public enum CONTEXTSUBTYPE {
         GENERAL(10),
         ARTICAL(11),
@@ -131,6 +152,9 @@ public class NativeAdUnit extends AdUnit {
         nativeConfiguration.setContextSubtype(type);
     }
 
+    /**
+     * Placement type for native request.
+     */
     public enum PLACEMENTTYPE {
         CONTENT_FEED(1),
         CONTENT_ATOMIC_UNIT(2),
@@ -206,6 +230,20 @@ public class NativeAdUnit extends AdUnit {
     @VisibleForTesting
     public NativeAdUnitConfiguration getNativeConfiguration() {
         return nativeConfiguration;
+    }
+
+    @Nullable
+    public String getImpOrtbConfig() {return configuration.getImpOrtbConfig();}
+
+    public void setImpOrtbConfig(@Nullable String ortbConfig) {configuration.setImpOrtbConfig(ortbConfig);}
+
+    private void notifyWinEvent(BidResponse response) {
+        if (response == null) return;
+
+        Bid winningBid = response.getWinningBid();
+        if (winningBid == null) return;
+
+        ServerConnection.fireAndForget(winningBid.getNurl());
     }
 
 }

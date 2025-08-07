@@ -21,17 +21,17 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
-import org.prebid.mobile.AdUnit
 import org.prebid.mobile.InterstitialAdUnit
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiDisplayInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-app-original-api-display-interstitial"
-        const val CONFIG_ID = "prebid-ita-display-interstitial-320-480"
+        const val CONFIG_ID = "prebid-demo-display-interstitial-320-480"
     }
 
-    private var adUnit: AdUnit? = null
+    private var adUnit: InterstitialAdUnit? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +44,9 @@ class GamOriginalApiDisplayInterstitialActivity : org.prebid.veondemo.activities
         // 1. Create InterstitialAdUnit
         adUnit = InterstitialAdUnit(CONFIG_ID, 80, 60)
 
+        // Activate additional impression tracker (for burl)
+        adUnit?.activateInterstitialPrebidImpressionTracker()
+
         // 2. Make a bid request to Prebid Server
         val request = AdManagerAdRequest.Builder().build()
         adUnit?.fetchDemand(request) {
@@ -53,7 +56,8 @@ class GamOriginalApiDisplayInterstitialActivity : org.prebid.veondemo.activities
                 this,
                 AD_UNIT_ID,
                 request,
-                createListener())
+                createListener()
+            )
         }
     }
 
@@ -77,6 +81,6 @@ class GamOriginalApiDisplayInterstitialActivity : org.prebid.veondemo.activities
     override fun onDestroy() {
         super.onDestroy()
 
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 }

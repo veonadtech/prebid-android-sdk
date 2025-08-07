@@ -2,8 +2,6 @@ package org.prebid.mobile.api.mediation;
 
 import androidx.annotation.NonNull;
 
-import org.prebid.mobile.ContentObject;
-import org.prebid.mobile.DataObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.NativeAdUnit;
 import org.prebid.mobile.NativeAsset;
@@ -12,9 +10,11 @@ import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.api.data.FetchDemandResult;
 import org.prebid.mobile.api.mediation.listeners.OnFetchCompleteListener;
 
-import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * Mediation native ad unit for Rendering API with AdMob or AppLovin MAX.
+ */
 public class MediationNativeAdUnit {
 
     private static final String TAG = "MediationNativeAdUnit";
@@ -22,19 +22,31 @@ public class MediationNativeAdUnit {
     private final Object adObject;
     private final NativeAdUnit nativeAdUnit;
 
+    /**
+     * Default constructor.
+     *
+     * @param configId config id.
+     * @param adObject AdMob's ({@code AdManagerAdRequest} or {@code AdManagerAdRequest.Builder})
+     *                 or AppLovin's ({@code MaxNativeAdLoader}) ad object
+     */
     public MediationNativeAdUnit(
-        @NonNull String configId,
-        @NonNull Object adObject
+            @NonNull String configId,
+            @NonNull Object adObject
     ) {
         this.adObject = adObject;
         this.nativeAdUnit = new NativeAdUnit(configId);
     }
 
+    /**
+     * Loads ad and applies mediation delegate.
+     *
+     * @param listener callback when operation is completed (success or fail)
+     */
     public void fetchDemand(
-        @NonNull OnFetchCompleteListener listener
+            @NonNull OnFetchCompleteListener listener
     ) {
         nativeAdUnit.fetchDemand(adObject, resultCode ->
-            listener.onComplete(convertResultCode(resultCode))
+                listener.onComplete(convertResultCode(resultCode))
         );
     }
 
@@ -84,64 +96,6 @@ public class MediationNativeAdUnit {
 
     public void setDUrlSupport(boolean support) {
         nativeAdUnit.setDUrlSupport(support);
-    }
-
-    public void setAppContent(ContentObject content) {
-        nativeAdUnit.setAppContent(content);
-    }
-
-    public ContentObject getAppContent() {
-        return nativeAdUnit.getAppContent();
-    }
-
-    public void addUserData(DataObject dataObject) {
-        nativeAdUnit.addUserData(dataObject);
-    }
-
-    public void clearUserData() {
-        nativeAdUnit.clearUserData();
-    }
-
-    public ArrayList<DataObject> getUserData() {
-        return nativeAdUnit.getUserData();
-    }
-
-    public void addExtData(
-        String key,
-        String value
-    ) {
-        nativeAdUnit.addExtData(key, value);
-    }
-
-    public void updateExtData(
-        String key,
-        Set<String> value
-    ) {
-        nativeAdUnit.updateExtData(key, value);
-    }
-
-    public void removeExtData(String key) {
-        nativeAdUnit.removeExtData(key);
-    }
-
-    public void clearExtData() {
-        nativeAdUnit.clearExtData();
-    }
-
-    public void addExtKeyword(String keyword) {
-        nativeAdUnit.addExtKeyword(keyword);
-    }
-
-    public void addExtKeywords(Set<String> keywords) {
-        nativeAdUnit.addExtKeywords(keywords);
-    }
-
-    public void removeExtKeyword(String keyword) {
-        nativeAdUnit.removeExtKeyword(keyword);
-    }
-
-    public void clearExtKeywords() {
-        nativeAdUnit.clearExtKeywords();
     }
 
     private FetchDemandResult convertResultCode(ResultCode originalResult) {

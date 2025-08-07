@@ -4,13 +4,18 @@ import android.os.Bundle
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
-import org.prebid.mobile.*
+import org.prebid.mobile.NativeAdUnit
+import org.prebid.mobile.NativeDataAsset
+import org.prebid.mobile.NativeEventTracker
+import org.prebid.mobile.NativeImageAsset
+import org.prebid.mobile.NativeTitleAsset
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamOriginalApiNativeStylesActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiNativeStylesActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-original-native-styles"
-        const val CONFIG_ID = "prebid-ita-banner-native-styles"
+        const val CONFIG_ID = "prebid-demo-banner-native-styles"
     }
 
     private var nativeAdUnit: NativeAdUnit? = null
@@ -47,7 +52,7 @@ class GamOriginalApiNativeStylesActivity : org.prebid.veondemo.activities.BaseAd
         }
     }
 
-    private fun addNativeAssets(adUnit: NativeAdUnit?)  {
+    private fun addNativeAssets(adUnit: NativeAdUnit?) {
         // ADD ASSETS
 
         val title = NativeTitleAsset()
@@ -82,22 +87,17 @@ class GamOriginalApiNativeStylesActivity : org.prebid.veondemo.activities.BaseAd
         adUnit?.addAsset(cta)
 
         // ADD EVENT TRACKERS
-
         val methods = ArrayList<NativeEventTracker.EVENT_TRACKING_METHOD>()
         methods.add(NativeEventTracker.EVENT_TRACKING_METHOD.IMAGE)
 
-        try {
-            val tracker = NativeEventTracker(NativeEventTracker.EVENT_TYPE.IMPRESSION, methods)
-            adUnit?.addEventTracker(tracker)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val tracker = NativeEventTracker(NativeEventTracker.EVENT_TYPE.IMPRESSION, methods)
+        adUnit?.addEventTracker(tracker)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        nativeAdUnit?.stopAutoRefresh()
+        nativeAdUnit?.destroy()
     }
 
 }

@@ -21,10 +21,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-
 import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
@@ -34,6 +32,7 @@ import org.prebid.mobile.rendering.listeners.CreativeViewListener;
 import org.prebid.mobile.rendering.listeners.VideoCreativeViewListener;
 import org.prebid.mobile.rendering.loading.FileDownloadListener;
 import org.prebid.mobile.rendering.models.CreativeVisibilityTracker;
+import org.prebid.mobile.rendering.models.TrackingEvent;
 import org.prebid.mobile.rendering.models.internal.InternalPlayerState;
 import org.prebid.mobile.rendering.models.internal.VisibilityTrackerOption;
 import org.prebid.mobile.rendering.models.ntv.NativeEventTracker;
@@ -226,11 +225,7 @@ public class VideoCreative extends VideoCreativeProtocol
             return;
         }
 
-        AdUnitConfiguration adConfiguration = model.getAdConfiguration();
-        ContentObject contentObject = adConfiguration.getAppContent();
-        String contentUrl = null;
-        if (contentObject != null) contentUrl = contentObject.getUrl();
-        omAdSessionManager.initVideoAdSession(model.getAdVerifications(), contentUrl);
+        omAdSessionManager.initVideoAdSession(model.getAdVerifications(), null);
         startOmSession();
     }
 
@@ -334,7 +329,7 @@ public class VideoCreative extends VideoCreativeProtocol
         final Context context = contextReference.get();
         if (context != null) {
             final AdUnitConfiguration adConfiguration = model.getAdConfiguration();
-            videoCreativeView = new VideoCreativeView(context, this);
+            videoCreativeView = new VideoCreativeView(context, this, adConfiguration);
             videoCreativeView.setBroadcastId(adConfiguration.getBroadcastId());
 
             // Get the preloaded video from device file storage
@@ -397,7 +392,9 @@ public class VideoCreative extends VideoCreativeProtocol
                 && Utils.isNotBlank(model.getVastClickthroughUrl())
                 && !model.getAdConfiguration().isRewarded()
         ) {
-            videoCreativeView.showCallToAction();
+            videoCreativeView.showCallToAction(true);
+        } else if (model.getAdConfiguration().isRewarded()) {
+            videoCreativeView.showCallToAction(false);
         }
     }
 
@@ -407,6 +404,7 @@ public class VideoCreative extends VideoCreativeProtocol
         switch (trackingEvent) {
             case AD_START:
                 trackVideoAdStart();
+                model.trackEventNamed(TrackingEvent.Events.IMPRESSION);
                 break;
             case AD_CLICK:
                 creativeViewListener.creativeWasClicked(this, videoCreativeView.getCallToActionUrl());

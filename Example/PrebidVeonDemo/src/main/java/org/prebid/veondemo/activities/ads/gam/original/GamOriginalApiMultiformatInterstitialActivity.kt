@@ -24,14 +24,16 @@ import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
 import org.prebid.mobile.InterstitialAdUnit
 import org.prebid.mobile.VideoParameters
 import org.prebid.mobile.api.data.AdUnitFormat
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
+import java.util.Random
 
-class GamOriginalApiMultiformatInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class GamOriginalApiMultiformatInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-intestitial-multiformat"
-        const val CONFIG_ID_BANNER = "prebid-ita-display-interstitial-320-480"
-        const val CONFIG_ID_VIDEO = "prebid-ita-video-interstitial-320-480-original-api";
+        const val CONFIG_ID_BANNER = "prebid-demo-display-interstitial-320-480"
+        const val CONFIG_ID_VIDEO = "prebid-demo-video-interstitial-320-480-original-api";
     }
 
     private var adUnit: InterstitialAdUnit? = null
@@ -90,6 +92,6 @@ class GamOriginalApiMultiformatInterstitialActivity : org.prebid.veondemo.activi
     override fun onDestroy() {
         super.onDestroy()
 
-        adUnit?.stopAutoRefresh()
+        adUnit?.destroy()
     }
 }

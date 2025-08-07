@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is responsible for wrapping usage of PublisherAdView from GAM SDK.
+ * Internal wrapper of PublisherAdView from GAM SDK.
  * To achieve safe integration between various GAM SDK versions we have to wrap all PublisherAdView method execution in try / catch.
  * This class instance should be created via newInstance method, which will catch any potential exception on PublisherAdView / PublisherAdViewWrapper instance creation
  */

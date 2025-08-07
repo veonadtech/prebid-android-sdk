@@ -20,12 +20,13 @@ import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import java.util.*
+import org.prebid.veondemo.activities.BaseAdActivity
+import java.util.EnumSet
 
-class InAppVideoInterstitialActivity : org.prebid.veondemo.activities.BaseAdActivity() {
+class InAppVideoInterstitialActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-ita-video-interstitial-320-480"
+        const val CONFIG_ID = "prebid-demo-video-interstitial-320-480"
     }
 
     private var adUnit: InterstitialAdUnit? = null

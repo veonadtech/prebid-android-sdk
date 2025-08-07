@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.InitializationStatus;
-import org.prebid.mobile.api.exceptions.InitError;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 
 
@@ -38,25 +37,27 @@ public class InitializationNotifier {
                 LogUtil.debug(TAG, "Prebid SDK " + PrebidMobile.SDK_VERSION + " initialized");
 
                 if (listener != null) {
-                    listener.onInitializationComplete(InitializationStatus.SUCCEEDED);
-
-                    listener.onSdkInit();
+                    //allows placing of bids to occur in InitializationListener
+                    postOnMainThread(() -> {
+                        listener.onInitializationComplete(InitializationStatus.SUCCEEDED);
+                        listener = null;
+                    });
                 }
             } else {
                 LogUtil.error(TAG, statusRequesterError);
 
                 if (listener != null) {
-                    InitializationStatus serverStatusWarning = InitializationStatus.SERVER_STATUS_WARNING;
-                    serverStatusWarning.setDescription(statusRequesterError);
-                    listener.onInitializationComplete(serverStatusWarning);
-
-                    listener.onSdkFailedToInit(new InitError(statusRequesterError));
+                    postOnMainThread(() -> {
+                        InitializationStatus serverStatusWarning = InitializationStatus.SERVER_STATUS_WARNING;
+                        serverStatusWarning.setDescription(statusRequesterError);
+                        listener.onInitializationComplete(serverStatusWarning);
+                        listener = null;
+                    });
                 }
             }
 
             tasksCompletedSuccessfully = true;
             initializationInProgress = false;
-            listener = null;
         });
     }
 
@@ -68,8 +69,6 @@ public class InitializationNotifier {
                 InitializationStatus status = InitializationStatus.FAILED;
                 status.setDescription(error);
                 listener.onInitializationComplete(status);
-
-                listener.onSdkFailedToInit(new InitError(error));
             }
 
             PrebidContextHolder.clearContext();

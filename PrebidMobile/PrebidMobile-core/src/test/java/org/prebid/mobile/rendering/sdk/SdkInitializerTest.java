@@ -1,8 +1,8 @@
 package org.prebid.mobile.rendering.sdk;
 
-import static android.os.Looper.getMainLooper;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -15,7 +15,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister.PREBID_MOBILE_RENDERER_NAME;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 import static java.lang.Thread.sleep;
+import static android.os.Looper.getMainLooper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.prebid.mobile.Host;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.InitializationStatus;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
@@ -35,6 +36,7 @@ import org.prebid.mobile.reflection.sdk.PrebidMobileReflection;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.LooperMode;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,6 +51,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 @RunWith(RobolectricTestRunner.class)
+@LooperMode(LEGACY)
 public class SdkInitializerTest {
 
     private static final int TERMINATION_TIMEOUT = 10;
@@ -79,10 +82,11 @@ public class SdkInitializerTest {
         isSuccessful = null;
         error = null;
         serverWarning = null;
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost(""));
+        PrebidMobileReflection.setHost("");
         Reflection.setStaticVariableTo(PrebidMobile.class, "customStatusEndpoint", null);
         PrebidContextHolder.clearContext();
         Reflection.setStaticVariableTo(InitializationNotifier.class, "initializationInProgress", false);
+        Reflection.setStaticVariableTo(PrebidMobile.class, "disableStatusCheck", false);
     }
 
 
@@ -151,7 +155,7 @@ public class SdkInitializerTest {
 
         assertTrue(isSuccessful);
         assertTrue(PrebidMobile.isSdkInitialized());
-        assertEquals("Server status is not ok!", error);
+        assertEquals("Server status is not ok! Status code: 404", error);
         assertTrue(serverWarning);
     }
 
@@ -192,7 +196,7 @@ public class SdkInitializerTest {
 
         assertTrue(isSuccessful);
         assertTrue(PrebidMobile.isSdkInitialized());
-        assertEquals("Server status is not ok!", error);
+        assertEquals("Server status is not ok! Status code: 404", error);
         assertTrue(serverWarning);
     }
 
@@ -208,7 +212,7 @@ public class SdkInitializerTest {
         MatcherAssert.assertThat(requesterClassName, is(startsWith("class org.prebid.mobile.rendering.sdk.StatusRequester")));
 
         ArgumentCaptor<Runnable> tasksCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executorMock, times(2)).execute(tasksCaptor.capture());
+        verify(executorMock, times(3)).execute(tasksCaptor.capture());
 
         List<Runnable> allTasks = tasksCaptor.getAllValues();
         String firstTaskName = allTasks.get(0).getClass().toString();
@@ -262,6 +266,32 @@ public class SdkInitializerTest {
         verify(listenerMock, times(1)).initializationCompleted("Error");
     }
 
+    @Test
+    public void runBackgroundTasks_checkStartedTasks_disableStatusCheck() throws InterruptedException, ExecutionException {
+        PrebidMobileReflection.setDisableStatusCheckToTrue();
+
+        ExecutorService executorMock = mock(ExecutorService.class);
+        SdkInitializer.runBackgroundTasks(mock(InitializationNotifier.class), executorMock);
+
+        ArgumentCaptor<Callable> requesterCaptor = ArgumentCaptor.forClass(Callable.class);
+        verify(executorMock, times(0)).submit(requesterCaptor.capture());
+        List<Callable> capturedCallables = requesterCaptor.getAllValues();
+        MatcherAssert.assertThat(capturedCallables, is(empty()));
+
+        ArgumentCaptor<Runnable> tasksCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executorMock, times(3)).execute(tasksCaptor.capture());
+
+        List<Runnable> allTasks = tasksCaptor.getAllValues();
+        String firstTaskName = allTasks.get(0).getClass().toString();
+        MatcherAssert.assertThat(firstTaskName, is(startsWith("class org.prebid.mobile.rendering.sdk.SdkInitializer$UserConsentFetcherTask")));
+
+        String secondTaskName = allTasks.get(1).getClass().toString();
+        MatcherAssert.assertThat(secondTaskName, is(startsWith("class org.prebid.mobile.rendering.sdk.UserAgentFetcherTask")));
+
+        verify(executorMock, times(1)).shutdown();
+        verify(executorMock, times(1)).awaitTermination(TERMINATION_TIMEOUT, TimeUnit.SECONDS);
+    }
+
 
     private void advanceBackgroundTasks() throws InterruptedException {
         shadowOf(getMainLooper()).idle();
@@ -293,7 +323,7 @@ public class SdkInitializerTest {
 
     private void setStatusResponse(int code, String body) {
         String host = createStatusResponse(code, body).replace("/status", "/openrtb2/auction");
-        PrebidMobile.setPrebidServerHost(Host.createCustomHost(host));
+        PrebidMobileReflection.setHost(host);
     }
 
     private void setCustomStatusResponse(int code, String body) {
