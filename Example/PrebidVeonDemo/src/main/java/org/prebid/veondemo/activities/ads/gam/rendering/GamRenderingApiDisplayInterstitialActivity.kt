@@ -27,8 +27,8 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
-        const val AD_UNIT_ID = "/23081467975/beeline_uzbekistan_android/beeline_uz_android_wheel_interstitial"
-        const val CONFIG_ID = "beeline_uz_android_wheel_interstitial"
+        const val AD_UNIT_ID = "/21808260008/prebid_oxb_html_interstitial"
+        const val CONFIG_ID = "prebid-demo-display-interstitial-320-480"
     }
 
     private var adUnit: InterstitialAdUnit? = null

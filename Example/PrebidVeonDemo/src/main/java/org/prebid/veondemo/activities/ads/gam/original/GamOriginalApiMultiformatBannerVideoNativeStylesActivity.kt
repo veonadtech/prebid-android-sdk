@@ -84,7 +84,6 @@ class GamOriginalApiMultiformatBannerVideoNativeStylesActivity : BaseAdActivity(
         }
     }
 
-
     private fun createBannerParameters(): BannerParameters {
         val params = BannerParameters()
         params.adSizes = mutableSetOf(org.prebid.mobile.AdSize(300, 250))

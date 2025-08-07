@@ -411,7 +411,6 @@ public class PrebidNativeAd {
         return impEvent;
     }
 
-
     private void notifyImpressionEvent() {
         if (impressionIsNotNotified) {
             impressionIsNotNotified = false;
