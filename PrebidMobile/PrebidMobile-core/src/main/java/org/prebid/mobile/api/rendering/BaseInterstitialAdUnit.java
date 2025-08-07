@@ -27,7 +27,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
@@ -47,8 +46,6 @@ import org.prebid.mobile.rendering.bidding.loader.BidLoader;
 import org.prebid.mobile.rendering.models.AdPosition;
 
 import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Internal base interstitial ad unit for rendering API.
@@ -142,6 +139,7 @@ public abstract class BaseInterstitialAdUnit {
     /**
      * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
      * Expected format: {@code "{"new_field": "value"}"}.
+     *
      * @param ortbConfig JSON config string.
      */
     public void setImpOrtbConfig(@Nullable String ortbConfig) {
@@ -310,34 +308,34 @@ public abstract class BaseInterstitialAdUnit {
         return new InterstitialControllerListener() {
             @Override
             public void onInterstitialReadyForDisplay() {
-                SdkLogUtil.info("interstitial loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
+                SdkLogUtil.info("interstitial loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_TO_DISPLAY_PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_LOADED);
             }
 
             @Override
             public void onInterstitialClicked() {
-                SdkLogUtil.info("interstitial clicked", SdkAdStatus.CLICKED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
+                SdkLogUtil.info("interstitial clicked", SdkAdStatus.CLICKED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_CLICKED);
             }
 
             @Override
             public void onInterstitialFailedToLoad(AdException exception) {
-                SdkLogUtil.error(exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "ad failed", AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
+                SdkLogUtil.error(exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "ad failed", AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_FOR_LOAD);
                 notifyErrorListener(exception);
             }
 
             @Override
             public void onInterstitialDisplayed() {
-                SdkLogUtil.info("interstitial displayed", SdkAdStatus.DISPLAYED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
+                SdkLogUtil.info("interstitial displayed", SdkAdStatus.DISPLAYED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_FOR_LOAD);
                 notifyAdEventListener(AdListenerEvent.AD_DISPLAYED);
             }
 
             @Override
             public void onInterstitialClosed() {
-                SdkLogUtil.info("interstitial closed", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, adUnitConfig.getConfigId(), SdkType.PREBID);
+                SdkLogUtil.info("interstitial closed", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_CLOSE);
                 notifyUserReward();
             }
