@@ -10,7 +10,10 @@ See [this page](https://docs.prebid.org/prebid-server/overview/prebid-server-ove
 Easily include the Prebid Mobile SDK using Maven. Simply add this line to your gradle dependencies:
 
 ```
-implementation 'org.prebid:prebid-mobile-sdk:3.0.2'
+implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.0.7'
+implementation 'com.github.veonadtech.prebid-android-sdk:core:0.0.7'
+implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.0.7'
+implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.0.7'
 ```
 
 ## Build from source
