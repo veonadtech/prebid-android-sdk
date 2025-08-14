@@ -2,6 +2,7 @@ package org.prebid.mobile.logging
 
 import android.util.Log
 import androidx.annotation.Size
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 
 object SdkLogUtil {
@@ -50,7 +51,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
+        log(Level.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -58,7 +59,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
+        log(Level.ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -76,7 +77,7 @@ object SdkLogUtil {
      * Prints information with set priority. Every tag
      */
     private fun log(
-        messagePriority: Int,
+        level: Level,
         tag: String?,
         message: String?,
         status: SdkAdStatus,
@@ -86,7 +87,10 @@ object SdkLogUtil {
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
         val finalTag = getTagWithBase(tag)
-        Log.println(messagePriority, finalTag, message)
+        Log.println(Log.DEBUG, finalTag, message)
+
+        if (!PrebidMobile.getSdkLogState().level.contains(level)) return
+        if (!PrebidMobile.getSdkLogState().sdkType.contains(sdkType)) return
 
         // Send to server
         LogServerSender.getInstance().sendLog(

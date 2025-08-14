@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
@@ -13,13 +14,19 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
+import org.prebid.mobile.logging.Level;
+import org.prebid.mobile.logging.SdkStateLoader;
+import org.prebid.mobile.logging.SdkLogState;
 import org.prebid.mobile.logging.SdkLogUtil;
+import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
 import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.tasksmanager.TasksManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,10 +76,22 @@ public class SdkInitializer {
             }
         });
 
-        SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
-
         try {
             PrebidMobile.registerPluginRenderer(new PrebidRenderer());
+
+            new SdkStateLoader().loadSdkConfig(new SdkStateLoader.SdkConfigResponseHandler() {
+
+                @Override
+                public void onSdkConfigReceived(@NonNull SdkLogState sdkLogState) {
+                    PrebidMobile.setSdkLogState(sdkLogState);
+                    SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", sdkLogState.isActive());
+                }
+
+                @Override
+                public void onError(@NonNull String error) {
+                    LogUtil.debug(TAG, "Error loading SDK log state: " + error);
+                }
+            });
 
             AppInfoManager.init(applicationContext);
 

@@ -1,0 +1,129 @@
+package org.prebid.mobile.logging
+
+import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
+import org.json.JSONObject
+import org.prebid.mobile.PrebidMobile
+import org.prebid.mobile.rendering.networking.BaseNetworkTask
+import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
+import org.prebid.mobile.rendering.networking.ResponseHandler
+import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
+
+class SdkStateLoader {
+
+    companion object Companion {
+        private const val CONFIG_URL = "url" // TODO: Replace with actual URL
+        private const val MAX_RETRY_COUNT = 3
+        private const val RETRY_DELAY_MS = 1000L
+    }
+
+    private var configRequestAsyncTask: AsyncTask<*, *, *>? = null
+    private var responseHandler: SdkConfigResponseHandler? = null
+    private var retryCount = 0
+
+    interface SdkConfigResponseHandler {
+        fun onSdkConfigReceived(sdkLogState: SdkLogState)
+        fun onError(error: String)
+    }
+
+    fun loadSdkConfig(handler: SdkConfigResponseHandler) {
+        cancelTask()
+        retryCount = 0
+        responseHandler = handler
+        executeRequest()
+    }
+
+    private fun executeRequest() {
+        cancelTask()
+
+        val params = BaseNetworkTask.GetUrlParams().apply {
+            url = CONFIG_URL
+            queryParams = requestBody()
+            requestType = "POST"
+            name = "sdkstate"
+            userAgent = AppInfoManager.getUserAgent()
+        }
+
+        val networkTask = BaseNetworkTask(object : ResponseHandler {
+            override fun onResponse(response: GetUrlResult) {
+                if (response.isOkStatusCode && !response.responseString.isNullOrEmpty()) {
+                    try {
+                        val sdks = parseConfigResponse(response.responseString)
+                        notifySuccess(sdks)
+                    } catch (e: Exception) {
+                        handleRetryOrError(e.message ?: "Failed to parse config")
+                    }
+                } else {
+                    handleRetryOrError("Invalid response from server (code: ${response.statusCode})")
+                }
+            }
+
+            override fun onError(msg: String, responseTime: Long) {
+                handleRetryOrError(msg)
+            }
+
+            override fun onErrorWithException(e: Exception, responseTime: Long) {
+                handleRetryOrError(e.message ?: "Unknown error")
+            }
+        })
+
+        configRequestAsyncTask = networkTask.executeOnExecutor(
+            AsyncTask.THREAD_POOL_EXECUTOR,
+            params
+        )
+    }
+
+    private fun handleRetryOrError(error: String) {
+        if (retryCount < MAX_RETRY_COUNT) {
+            retryCount++
+            Handler(Looper.getMainLooper()).postDelayed({
+                executeRequest()
+            }, RETRY_DELAY_MS)
+        } else {
+            notifyError(error)
+        }
+    }
+
+    private fun parseConfigResponse(json: String): SdkLogState {
+        val jsonObject = JSONObject(json)
+        val isActive: Boolean = jsonObject.getBoolean("active")
+
+        val levelJson = jsonObject.getJSONArray("level")
+
+        val level: List<Level> = List(levelJson.length()) { index ->
+            Level.valueOf(levelJson.getString(index))
+        }
+
+        val sdkTypeJson = jsonObject.getJSONArray("sdkType")
+
+        val sdkTypeList: List<SdkType> = List(sdkTypeJson.length()) { index ->
+            SdkType.valueOf(sdkTypeJson.getString(index))
+        }
+
+        return SdkLogState(isActive, sdkTypeList, level)
+    }
+
+    private fun notifySuccess(sdks: SdkLogState) {
+        Handler(Looper.getMainLooper()).post {
+            responseHandler?.onSdkConfigReceived(sdks)
+        }
+    }
+
+    private fun notifyError(error: String) {
+        Handler(Looper.getMainLooper()).post {
+            responseHandler?.onError(error)
+        }
+    }
+
+    fun cancelTask() {
+        configRequestAsyncTask?.cancel(true)
+        configRequestAsyncTask = null
+    }
+
+    private fun requestBody(): String {
+        val jsonObject = JSONObject()
+        jsonObject.put("accountId", PrebidMobile.getPrebidServerAccountId())
+        return jsonObject.toString()
+    }
+}
