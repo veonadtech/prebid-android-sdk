@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.multiadloader.MultiBannerLoader
@@ -17,7 +16,6 @@ class MultiBannerActivity : BaseAdActivity() {
     companion object Companion {
         const val CONFIG_ID = "prebid-demo-banner-320-50"
         const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
-        const val YANDEX_AD_UNIT_ID = "demo-banner-yandex"
         const val WIDTH = 320
         const val HEIGHT = 50
     }
@@ -33,8 +31,7 @@ class MultiBannerActivity : BaseAdActivity() {
             context = this,
             adSize = AdSize(WIDTH, HEIGHT),
             configId = CONFIG_ID,
-            gamAdUnitId = AD_UNIT_ID,
-            yandexAdUnitId = YANDEX_AD_UNIT_ID,
+            gamAdUnitId = AD_UNIT_ID
         )
 
         adLoader.setListener(object : MultiBannerViewListener {
@@ -51,9 +48,7 @@ class MultiBannerActivity : BaseAdActivity() {
             }
 
             override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) = showToast("Ad clicked (${sdk.name})")
-            override fun onLeftApplication(sdk: SdkType) = showToast("Left app (${sdk.name})")
-            override fun onReturnedToApplication(sdk: SdkType) = showToast("Returned to app (${sdk.name})")
-            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) = showToast("Impression tracked (${sdk.name})")
+            override fun onImpression(sdk: SdkType) = showToast("Impression tracked (${sdk.name})")
             override fun onAdUrlClicked(url: String?, sdk: SdkType) = showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
             override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad closed (${sdk.name})")
             override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad displayed (${sdk.name})")

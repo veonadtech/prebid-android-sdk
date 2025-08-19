@@ -35,10 +35,10 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.0.5.1'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.0.5.1'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.0.5.1'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.0.5.1'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.0.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.0.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.0.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.0.7'
 
     // Standard libraries
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -51,10 +51,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:23.6.0'
     implementation "com.applovin:applovin-sdk:11.5.3"
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1" // For Applovin Max
-    implementation "com.yandex.android:mobileads-mediation:7.14.1.0"
-    implementation "com.yandex.ads.mediation:mobileads-extras:7.14.1.0"
-
-    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
 
     // Image Downloader
     implementation "com.github.bumptech.glide:glide:4.14.2"
