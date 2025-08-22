@@ -111,10 +111,6 @@ class MultiBannerLoader(
                         listener?.onAdClicked(bannerView, SdkType.PREBID)
                     }
 
-                    override fun onAdUrlClicked(url: String?) {
-                        listener?.onAdUrlClicked(url, SdkType.PREBID)
-                    }
-
                     override fun onAdClosed(bannerView: BannerView?) {
                         listener?.onAdClosed(bannerView, SdkType.PREBID)
                     }

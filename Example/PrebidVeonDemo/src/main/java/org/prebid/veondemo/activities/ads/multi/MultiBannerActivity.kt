@@ -49,7 +49,6 @@ class MultiBannerActivity : BaseAdActivity() {
 
             override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) = showToast("Ad clicked (${sdk.name})")
             override fun onImpression(sdk: SdkType) = showToast("Impression tracked (${sdk.name})")
-            override fun onAdUrlClicked(url: String?, sdk: SdkType) = showToast("URL clicked (${sdk.name}): ${url ?: "no url"}")
             override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad closed (${sdk.name})")
             override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) = showToast("Ad displayed (${sdk.name})")
             override fun onAdOpened(sdk: SdkType) = showToast("Ad opened (${sdk.name})")
