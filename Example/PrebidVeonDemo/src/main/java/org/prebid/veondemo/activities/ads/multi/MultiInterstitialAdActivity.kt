@@ -8,7 +8,7 @@ import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
 import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
 import org.prebid.veondemo.activities.BaseAdActivity
 
-class MultiInterstitialAdLoader : BaseAdActivity() {
+class MultiInterstitialAdActivity : BaseAdActivity() {
 
     companion object {
         const val CONFIG_ID = "prebid-demo-banner-320-50"

@@ -153,7 +153,7 @@
             android:name=".activities.ads.multi.MultiBannerActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.ads.multi.MultiInterstitialAdLoader"
+            android:name=".activities.ads.multi.MultiInterstitialAdActivity"
             android:exported="true" />
 
     </application>
