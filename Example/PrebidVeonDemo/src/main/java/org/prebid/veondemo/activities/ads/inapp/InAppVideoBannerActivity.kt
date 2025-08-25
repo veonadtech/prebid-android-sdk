@@ -56,6 +56,7 @@ class InAppVideoBannerActivity : BaseAdActivity() {
 
             override fun onAdLoaded(bannerView: BannerView?) {}
             override fun onAdClicked(bannerView: BannerView?) {}
+
             override fun onAdDisplayed(bannerView: BannerView?) {}
             override fun onAdClosed(bannerView: BannerView?) {}
         })

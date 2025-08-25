@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
@@ -12,7 +13,9 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
+import org.prebid.mobile.configuration.SdkConfigHolder;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.session.manager.OmAdSessionManager;
@@ -20,6 +23,7 @@ import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.tasksmanager.TasksManager;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -73,6 +77,18 @@ public class SdkInitializer {
 
         try {
             PrebidMobile.registerPluginRenderer(new PrebidRenderer());
+
+            new AsyncSdkConfigLoader().loadSdkConfig(new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
+                @Override
+                public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
+                    SdkConfigHolder.priorityOrderSDK = sdks;
+                }
+
+                @Override
+                public void onError(@NonNull String error) {
+
+                }
+            });
 
             AppInfoManager.init(applicationContext);
 

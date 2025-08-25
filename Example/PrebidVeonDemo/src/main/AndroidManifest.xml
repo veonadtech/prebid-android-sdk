@@ -146,6 +146,14 @@
             android:name=".activities.ads.inapp.InAppNativeActivity"
             android:exported="true" />
 
+        <!-- Multi Ad -->
+        <activity
+            android:name=".activities.ads.multi.MultiBannerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.ads.multi.MultiInterstitialAdActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>

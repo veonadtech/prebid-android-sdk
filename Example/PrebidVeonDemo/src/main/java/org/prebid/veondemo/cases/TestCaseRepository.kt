@@ -33,6 +33,8 @@ import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialMultiFormatActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialWithEndCardActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoRewardedActivity
+import org.prebid.veondemo.activities.ads.multi.MultiBannerActivity
+import org.prebid.veondemo.activities.ads.multi.MultiInterstitialAdActivity
 
 object TestCaseRepository {
 
@@ -236,6 +238,20 @@ object TestCaseRepository {
             IntegrationKind.NO_AD_SERVER,
             InAppNativeActivity::class.java,
         ),
+
+        /* Multi ad */
+        TestCase(
+            R.string.multi_ad,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.MULTI_AD_SERVER,
+            MultiBannerActivity::class.java
+        ),
+        TestCase(
+            R.string.multi_ad_interstitial,
+            AdFormat.DISPLAY_INTERSTITIAL,
+            IntegrationKind.MULTI_AD_SERVER,
+            MultiInterstitialAdActivity::class.java
+        )
     )
 
 }
