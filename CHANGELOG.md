@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.7.1
+# Added
+* Added MultiBanner and MultiInterstitial methods (waterfall with SDK priority list)
+
 ## 0.0.7-yango
 # Added
 * Synced all changes from open-source Prebid Mobile
@@ -13,7 +17,7 @@
 
 ## 0.0.6-yango
 # Added
-* Yandex integration
+* Yandex integration (waterfall with SDK priority list)
 
 ## 0.0.6
 # Changed
