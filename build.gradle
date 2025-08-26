@@ -68,12 +68,11 @@ allprojects {
 
     // Global dependency resolution strategy to handle Guava conflicts
     configurations.all {
-        resolutionStrategy {
-            // Force exclude guava's listenablefuture to prevent conflicts with CameraX
-            exclude group: 'com.google.guava', module: 'listenablefuture'
-
-            // Ensure consistent concurrent-futures usage
-            force 'androidx.concurrent:concurrent-futures:1.1.0'
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.google.guava' && details.requested.name == 'listenablefuture') {
+                details.useTarget('androidx.concurrent:concurrent-futures:1.1.0')
+                details.because('Use androidx.concurrent.futures instead of guava listenablefuture to avoid conflicts')
+            }
         }
     }
 }
