@@ -18,7 +18,6 @@ package org.prebid.veondemo
 
 import android.app.Application
 import android.util.Log
-import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
