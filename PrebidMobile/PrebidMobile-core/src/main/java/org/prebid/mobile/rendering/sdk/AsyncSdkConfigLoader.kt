@@ -13,13 +13,13 @@ import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 class AsyncSdkConfigLoader {
 
     companion object {
-        private const val CONFIG_URL = "https://dcdn.veonadx.com/sdk/sdk_config_test.json"
         private const val MAX_RETRY_COUNT = 3
         private const val RETRY_DELAY_MS = 1000L
     }
 
     private var configRequestAsyncTask: AsyncTask<*, *, *>? = null
     private var responseHandler: SdkConfigResponseHandler? = null
+    private var configUrl: String? = null
     private var retryCount = 0
 
     interface SdkConfigResponseHandler {
@@ -27,10 +27,17 @@ class AsyncSdkConfigLoader {
         fun onError(error: String)
     }
 
-    fun loadSdkConfig(handler: SdkConfigResponseHandler) {
+    fun loadSdkConfig(configUrl: String?, handler: SdkConfigResponseHandler) {
         cancelTask()
         retryCount = 0
         responseHandler = handler
+        this.configUrl = configUrl
+
+        if (configUrl == null) {
+            handleRetryOrError("Config URL cannot be null")
+            return
+        }
+
         executeRequest()
     }
 
@@ -38,7 +45,7 @@ class AsyncSdkConfigLoader {
         cancelTask()
 
         val params = BaseNetworkTask.GetUrlParams().apply {
-            url = CONFIG_URL
+            url = configUrl
             requestType = "GET"
             name = "sdkconfig"
             userAgent = AppInfoManager.getUserAgent()

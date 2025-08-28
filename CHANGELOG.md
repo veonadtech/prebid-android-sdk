@@ -1,8 +1,16 @@
 # CHANGELOG
 
-## 0.0.7.1
+## 0.0.7.4
 # Added
-* Added MultiBanner and MultiInterstitial methods (waterfall with SDK priority list)
+* Added SDK priority list
+
+## 0.0.7.3
+# Fixed
+* Fixed bug with changing ver com.google.guava:listenablefuture
+
+## 0.0.7.2
+# Added
+* Added MultiBanner and MultiInterstitial methods (waterfall)
 
 ## 0.0.7-yango
 # Added
