@@ -79,19 +79,17 @@ public class SdkInitializer {
         try {
             PrebidMobile.registerPluginRenderer(new PrebidRenderer());
 
-            new AsyncSdkConfigLoader().loadSdkConfig(
-                    configURL,
-                    new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
-                        @Override
-                        public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
-                            SdkConfigHolder.priorityOrderSDK = sdks;
-                        }
+            new AsyncSdkConfigLoader().loadSdkConfig(configURL, new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
+                @Override
+                public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
+                    SdkConfigHolder.priorityOrderSDK = sdks;
+                }
 
-                        @Override
-                        public void onError(@NonNull String error) {
+                @Override
+                public void onError(@NonNull String error) {
 
-                        }
-                    });
+                }
+            });
 
             AppInfoManager.init(applicationContext);
 
