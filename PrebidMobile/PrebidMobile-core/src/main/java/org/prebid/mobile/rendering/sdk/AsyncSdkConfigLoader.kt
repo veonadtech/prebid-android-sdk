@@ -93,7 +93,7 @@ class AsyncSdkConfigLoader {
 
     private fun parseConfigResponse(json: String): List<SdkType> {
         val jsonObject = JSONObject(json)
-        val priorityArray = jsonObject.getJSONArray("sdkType")
+        val priorityArray = jsonObject.getJSONArray("priority")
 
         return List(priorityArray.length()) { index ->
             SdkType.valueOf(priorityArray.getString(index))
