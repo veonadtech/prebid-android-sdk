@@ -13,7 +13,6 @@ interface MultiBannerViewListener {
     fun onLeftApplication(sdk: SdkType)
     fun onReturnedToApplication(sdk: SdkType)
     fun onImpression(impressionData: ImpressionData?, sdk: SdkType)
-    fun onAdUrlClicked(url: String?, sdk: SdkType)
     fun onAdClosed(bannerView: BannerView?, sdk: SdkType)
     fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType)
     fun onAdOpened(sdk: SdkType)
