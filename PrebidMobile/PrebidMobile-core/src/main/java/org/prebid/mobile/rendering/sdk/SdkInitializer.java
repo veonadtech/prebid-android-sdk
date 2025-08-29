@@ -32,10 +32,11 @@ import java.util.concurrent.TimeUnit;
 public class SdkInitializer {
 
     private static final String TAG = SdkInitializer.class.getSimpleName();
-    private static TasksManager tasksManager = TasksManager.getInstance();
+    private static final TasksManager tasksManager = TasksManager.getInstance();
 
     public static void init(
             @Nullable Context context,
+            String configURL,
             @Nullable SdkInitializationListener listener
     ) {
         if (PrebidMobile.isSdkInitialized() || InitializationNotifier.isInitializationInProgress()) {
@@ -78,17 +79,19 @@ public class SdkInitializer {
         try {
             PrebidMobile.registerPluginRenderer(new PrebidRenderer());
 
-            new AsyncSdkConfigLoader().loadSdkConfig(new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
-                @Override
-                public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
-                    SdkConfigHolder.priorityOrderSDK = sdks;
-                }
+            new AsyncSdkConfigLoader().loadSdkConfig(
+                    configURL,
+                    new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
+                        @Override
+                        public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
+                            SdkConfigHolder.priorityOrderSDK = sdks;
+                        }
 
-                @Override
-                public void onError(@NonNull String error) {
+                        @Override
+                        public void onError(@NonNull String error) {
 
-                }
-            });
+                        }
+                    });
 
             AppInfoManager.init(applicationContext);
 

@@ -247,12 +247,24 @@ public class PrebidMobile {
             String serverURL,
             @Nullable SdkInitializationListener listener
     ) {
+        initializeSdk(context, serverURL, null, listener);
+    }
+    /**
+    * @param configURL the list of SDK's priority
+    */
+    @MainThread
+    public static void initializeSdk(
+            @Nullable Context context,
+            String serverURL,
+            @Nullable String configURL,
+            @Nullable SdkInitializationListener listener
+    ) {
         if (serverURL == null) {
             LogUtil.error(TAG, "initializeSdk: serverURL is null.");
             return;
         }
         PrebidMobile.host = Host.createCustomHost(serverURL);
-        SdkInitializer.init(context, listener);
+        SdkInitializer.init(context, configURL, listener);
     }
 
     /**
