@@ -101,7 +101,7 @@ object SdkLogUtil {
             Level.ASSERT -> 7
         }
 
-        if (level > logPriority) return
+        if (level < logPriority) return
         if (!PrebidMobile.getSdkLogState().sdkType.contains(sdkType)) return
 
         // Send to server
