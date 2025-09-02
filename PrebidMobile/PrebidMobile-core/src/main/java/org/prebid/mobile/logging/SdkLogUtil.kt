@@ -92,7 +92,7 @@ object SdkLogUtil {
         Log.println(Log.DEBUG, finalTag, message)
 
         val logPriority = when (PrebidMobile.getSdkLogState().level) {
-            Level.NONE -> -1
+            Level.NONE -> Int.MAX_VALUE
             Level.VERBOSE -> 2
             Level.DEBUG -> 3
             Level.INFO -> 4
