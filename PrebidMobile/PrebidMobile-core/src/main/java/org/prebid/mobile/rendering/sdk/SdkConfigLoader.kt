@@ -33,6 +33,12 @@ class SdkConfigLoader {
         cancelTask()
         retryCount = 0
         responseHandler = handler
+
+        if (configUrl.isEmpty()) {
+            handleRetryOrError("Config URL cannot be empty")
+            return
+        }
+
         executeRequest()
     }
 
