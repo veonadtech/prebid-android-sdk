@@ -42,8 +42,8 @@ class SdkConfigLoader {
         val params = BaseNetworkTask.GetUrlParams().apply {
             url = configUrl
             queryParams = requestBody()
-            requestType = "POST"
-            name = "sdkstate"
+            requestType = "GET"
+            name = "sdkconfig"
             userAgent = AppInfoManager.getUserAgent()
         }
 
