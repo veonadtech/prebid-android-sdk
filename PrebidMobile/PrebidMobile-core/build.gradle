@@ -47,6 +47,16 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.google.guava' && details.requested.name == 'listenablefuture') {
+            details.useTarget('androidx.concurrent:concurrent-futures:1.1.0')
+            details.because('Use androidx.concurrent.futures instead of guava listenablefuture to avoid conflicts')
+        }
+    }
 }
 
 afterEvaluate {

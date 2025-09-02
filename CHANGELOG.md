@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 0.0.7.4
+# Added
+* Added SDK priority list
+
+## 0.0.7.3
+# Fixed
+* Fixed bug with changing ver com.google.guava:listenablefuture
+
+## 0.0.7.2
+# Added
+* Added MultiBanner and MultiInterstitial methods (waterfall)
+
 ## 0.0.7-yango
 # Added
 * Synced all changes from open-source Prebid Mobile
@@ -13,7 +25,7 @@
 
 ## 0.0.6-yango
 # Added
-* Yandex integration
+* Yandex integration (waterfall with SDK priority list)
 
 ## 0.0.6
 # Changed

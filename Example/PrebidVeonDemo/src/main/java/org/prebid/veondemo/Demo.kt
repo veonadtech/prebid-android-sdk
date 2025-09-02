@@ -18,7 +18,6 @@ package org.prebid.veondemo
 
 import android.app.Application
 import android.util.Log
-import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
@@ -46,7 +45,11 @@ class Demo : Application() {
         PrebidMobile.setShareGeoLocation(true)
         PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
 
-        PrebidMobile.initializeSdk(applicationContext, "https://prebid.veonadx.com/openrtb2/auction") { status ->
+        PrebidMobile.initializeSdk(
+            applicationContext,
+            "https://prebid.veonadx.com/openrtb2/auction",
+            "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
+        ) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")
             } else {

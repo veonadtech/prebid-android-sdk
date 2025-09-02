@@ -30,7 +30,7 @@ import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
-import org.prebid.mobile.logging.SdkType;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.interstitial.InterstitialManagerDisplayDelegate;
 import org.prebid.mobile.rendering.interstitial.rewarded.RewardedExt;
 import org.prebid.mobile.rendering.listeners.CreativeViewListener;

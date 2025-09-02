@@ -1,5 +1,5 @@
 ext {
-    prebidSdkVersionName = "0.0.7"
+    prebidSdkVersionName = "0.0.7.4"
     prebidSdkMinVersion = 16
     prebidSdkTargetVersion = 34
     prebidSdkCompileVersion = 34
@@ -34,6 +34,16 @@ allprojects {
         maven { url 'https://maven.google.com' }
         maven { url 'https://jitpack.io' }
         maven { url "https://oss.sonatype.org/content/repositories/orgprebid-1079" }
+    }
+
+    // Global dependency resolution strategy to handle Guava conflicts
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.google.guava' && details.requested.name == 'listenablefuture') {
+                details.useTarget('androidx.concurrent:concurrent-futures:1.1.0')
+                details.because('Use androidx.concurrent.futures instead of guava listenablefuture to avoid conflicts')
+            }
+        }
     }
 }
 

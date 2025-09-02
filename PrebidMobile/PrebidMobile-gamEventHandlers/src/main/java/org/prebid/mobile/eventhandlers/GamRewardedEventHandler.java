@@ -30,7 +30,7 @@ import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
 import org.prebid.mobile.logging.SdkLogUtil;
-import org.prebid.mobile.logging.SdkType;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.interfaces.RewardedEventHandler;
 import org.prebid.mobile.rendering.bidding.listeners.RewardedVideoEventListener;

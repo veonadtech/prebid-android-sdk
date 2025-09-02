@@ -13,10 +13,12 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.logging.Level;
 import org.prebid.mobile.logging.SdkStateLoader;
 import org.prebid.mobile.logging.SdkLogState;
+import org.prebid.mobile.configuration.SdkConfigHolder;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.logging.SdkType;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
@@ -26,6 +28,7 @@ import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.tasksmanager.TasksManager;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +42,7 @@ public class SdkInitializer {
 
     public static void init(
             @Nullable Context context,
+            String configURL,
             @Nullable SdkInitializationListener listener
     ) {
         if (PrebidMobile.isSdkInitialized() || InitializationNotifier.isInitializationInProgress()) {
@@ -90,6 +94,18 @@ public class SdkInitializer {
                 @Override
                 public void onError(@NonNull String error) {
                     LogUtil.debug(TAG, "Error loading SDK log state: " + error);
+                }
+            });
+
+            new AsyncSdkConfigLoader().loadSdkConfig(configURL, new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
+                @Override
+                public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
+                    SdkConfigHolder.priorityOrderSDK = sdks;
+                }
+
+                @Override
+                public void onError(@NonNull String error) {
+
                 }
             });
 
