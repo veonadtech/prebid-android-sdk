@@ -34,7 +34,7 @@ public class SdkInitializer {
 
     public static void init(
             @Nullable Context context,
-            String configURL,
+            @Nullable String configURL,
             @Nullable SdkInitializationListener listener
     ) {
         if (PrebidMobile.isSdkInitialized() || InitializationNotifier.isInitializationInProgress()) {

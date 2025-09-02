@@ -4,7 +4,6 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import org.json.JSONObject
-import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
@@ -28,14 +27,14 @@ class SdkConfigLoader {
         fun onError(error: String)
     }
 
-    fun loadSdkConfig(configUrl: String, handler: SdkConfigResponseHandler) {
+    fun loadSdkConfig(configUrl: String?, handler: SdkConfigResponseHandler) {
         this.configUrl = configUrl
         cancelTask()
         retryCount = 0
         responseHandler = handler
 
-        if (configUrl.isEmpty()) {
-            handleRetryOrError("Config URL cannot be empty")
+        if (configUrl == null) {
+            handleRetryOrError("Config URL cannot be null")
             return
         }
 
