@@ -2,8 +2,10 @@ package org.prebid.mobile.logging
 
 import android.util.Log
 import androidx.annotation.Size
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.SdkType
+import org.prebid.mobile.rendering.sdk.Level
 
 object SdkLogUtil {
     private const val GAM_TAG = "GAM"
@@ -51,7 +53,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
+        log(Log.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -59,7 +61,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
+        log(Log.ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -77,7 +79,7 @@ object SdkLogUtil {
      * Prints information with set priority. Every tag
      */
     private fun log(
-        messagePriority: Int,
+        level: Int,
         tag: String?,
         message: String?,
         status: SdkAdStatus,
@@ -87,7 +89,20 @@ object SdkLogUtil {
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
         val finalTag = getTagWithBase(tag)
-        Log.println(messagePriority, finalTag, message)
+        Log.println(Log.DEBUG, finalTag, message)
+
+        val logPriority = when (PrebidMobile.getSdkLogState().level) {
+            Level.NONE -> Int.MAX_VALUE
+            Level.VERBOSE -> 2
+            Level.DEBUG -> 3
+            Level.INFO -> 4
+            Level.WARN -> 5
+            Level.ERROR -> 6
+            Level.ASSERT -> 7
+        }
+
+        if (level < logPriority) return
+        if (!PrebidMobile.getSdkLogState().sdkType.contains(sdkType)) return
 
         // Send to server
         LogServerSender.getInstance().sendLog(
