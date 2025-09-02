@@ -41,7 +41,6 @@ class SdkConfigLoader {
 
         val params = BaseNetworkTask.GetUrlParams().apply {
             url = configUrl
-            queryParams = requestBody()
             requestType = "GET"
             name = "sdkconfig"
             userAgent = AppInfoManager.getUserAgent()
@@ -123,11 +122,5 @@ class SdkConfigLoader {
     fun cancelTask() {
         configRequestAsyncTask?.cancel(true)
         configRequestAsyncTask = null
-    }
-
-    private fun requestBody(): String {
-        val jsonObject = JSONObject()
-        jsonObject.put("accountId", PrebidMobile.getPrebidServerAccountId())
-        return jsonObject.toString()
     }
 }
