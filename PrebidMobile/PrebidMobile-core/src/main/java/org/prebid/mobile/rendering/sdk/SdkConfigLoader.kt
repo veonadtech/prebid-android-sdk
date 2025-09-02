@@ -88,7 +88,7 @@ class SdkConfigLoader {
 
     private fun parseConfigResponse(json: String): SdkConfig {
         val jsonObject = JSONObject(json)
-        val isActive: Boolean = jsonObject.getBoolean("active")
+        val isActive: Boolean = jsonObject.getBoolean("isActive")
 
         val level = Level.valueOf(jsonObject.getString("level"))
 
