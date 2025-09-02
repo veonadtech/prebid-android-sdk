@@ -5,6 +5,7 @@ import androidx.annotation.Size
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.SdkType
+import org.prebid.mobile.rendering.sdk.Level
 
 object SdkLogUtil {
     private const val GAM_TAG = "GAM"

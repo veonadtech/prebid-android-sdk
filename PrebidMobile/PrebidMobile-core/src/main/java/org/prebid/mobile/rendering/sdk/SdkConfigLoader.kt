@@ -4,40 +4,35 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import org.json.JSONObject
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.rendering.networking.BaseNetworkTask
 import org.prebid.mobile.rendering.networking.BaseNetworkTask.GetUrlResult
 import org.prebid.mobile.rendering.networking.ResponseHandler
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 
-class AsyncSdkConfigLoader {
+class SdkConfigLoader {
 
-    companion object {
+    companion object Companion {
         private const val MAX_RETRY_COUNT = 3
         private const val RETRY_DELAY_MS = 1000L
     }
 
     private var configRequestAsyncTask: AsyncTask<*, *, *>? = null
     private var responseHandler: SdkConfigResponseHandler? = null
-    private var configUrl: String? = null
     private var retryCount = 0
+    private var configUrl: String? = null
 
     interface SdkConfigResponseHandler {
-        fun onSdkConfigReceived(sdks: List<SdkType>)
+        fun onSdkConfigReceived(sdkConfig: SdkConfig)
         fun onError(error: String)
     }
 
-    fun loadSdkConfig(configUrl: String?, handler: SdkConfigResponseHandler) {
+    fun loadSdkConfig(configUrl: String, handler: SdkConfigResponseHandler) {
+        this.configUrl = configUrl
         cancelTask()
         retryCount = 0
         responseHandler = handler
-        this.configUrl = configUrl
-
-        if (configUrl == null) {
-            handleRetryOrError("Config URL cannot be null")
-            return
-        }
-
         executeRequest()
     }
 
@@ -46,8 +41,9 @@ class AsyncSdkConfigLoader {
 
         val params = BaseNetworkTask.GetUrlParams().apply {
             url = configUrl
-            requestType = "GET"
-            name = "sdkconfig"
+            queryParams = requestBody()
+            requestType = "POST"
+            name = "sdkstate"
             userAgent = AppInfoManager.getUserAgent()
         }
 
@@ -91,16 +87,28 @@ class AsyncSdkConfigLoader {
         }
     }
 
-    private fun parseConfigResponse(json: String): List<SdkType> {
+    private fun parseConfigResponse(json: String): SdkConfig {
         val jsonObject = JSONObject(json)
-        val priorityArray = jsonObject.getJSONArray("priority")
+        val isActive: Boolean = jsonObject.getBoolean("active")
 
-        return List(priorityArray.length()) { index ->
-            SdkType.valueOf(priorityArray.getString(index))
+        val level = Level.valueOf(jsonObject.getString("level"))
+
+        val sdkTypeJson = jsonObject.getJSONArray("sdkType")
+
+        val sdkTypeList: List<SdkType> = List(sdkTypeJson.length()) { index ->
+            SdkType.valueOf(sdkTypeJson.getString(index))
         }
+
+        val priorityJson = jsonObject.getJSONArray("priority")
+
+        val priorityList: List<SdkType> = List(priorityJson.length()) { index ->
+            SdkType.valueOf(priorityJson.getString(index))
+        }
+
+        return SdkConfig(isActive, sdkTypeList, level, priorityList)
     }
 
-    private fun notifySuccess(sdks: List<SdkType>) {
+    private fun notifySuccess(sdks: SdkConfig) {
         Handler(Looper.getMainLooper()).post {
             responseHandler?.onSdkConfigReceived(sdks)
         }
@@ -115,5 +123,11 @@ class AsyncSdkConfigLoader {
     fun cancelTask() {
         configRequestAsyncTask?.cancel(true)
         configRequestAsyncTask = null
+    }
+
+    private fun requestBody(): String {
+        val jsonObject = JSONObject()
+        jsonObject.put("accountId", PrebidMobile.getPrebidServerAccountId())
+        return jsonObject.toString()
     }
 }

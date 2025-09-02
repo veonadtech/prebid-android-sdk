@@ -31,7 +31,7 @@ import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.PBSConfig;
 import org.prebid.mobile.core.BuildConfig;
-import org.prebid.mobile.logging.SdkLogState;
+import org.prebid.mobile.rendering.sdk.SdkConfig;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.mraid.MraidEnv;
 import org.prebid.mobile.rendering.sdk.InitializationNotifier;
@@ -135,7 +135,7 @@ public class PrebidMobile {
     private static boolean disableStatusCheck = false;
     private static String AAID = "";
 
-    private static SdkLogState sdkLogState;
+    private static SdkConfig sdkConfig;
 
     private PrebidMobile() {
     }
@@ -566,12 +566,12 @@ public class PrebidMobile {
         return disableStatusCheck;
     }
 
-    public static void setSdkLogState(SdkLogState sdkLogState) {
-        PrebidMobile.sdkLogState = sdkLogState;
+    public static void setSdkLogState(SdkConfig sdkConfig) {
+        PrebidMobile.sdkConfig = sdkConfig;
     }
 
-    public static SdkLogState getSdkLogState(){
-        return PrebidMobile.sdkLogState;
+    public static SdkConfig getSdkLogState(){
+        return PrebidMobile.sdkConfig;
     }
 
     /**
