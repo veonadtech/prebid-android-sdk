@@ -89,11 +89,7 @@ class SdkStateLoader {
         val jsonObject = JSONObject(json)
         val isActive: Boolean = jsonObject.getBoolean("active")
 
-        val levelJson = jsonObject.getJSONArray("level")
-
-        val level: List<Level> = List(levelJson.length()) { index ->
-            Level.valueOf(levelJson.getString(index))
-        }
+        val level = Level.valueOf(jsonObject.getString("level"))
 
         val sdkTypeJson = jsonObject.getJSONArray("sdkType")
 

@@ -51,7 +51,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(Level.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
+        log(Log.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -59,7 +59,7 @@ object SdkLogUtil {
      */
     @JvmStatic
     fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
-        log(Level.ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
+        log(Log.ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
     }
 
     /**
@@ -77,7 +77,7 @@ object SdkLogUtil {
      * Prints information with set priority. Every tag
      */
     private fun log(
-        level: Level,
+        level: Int,
         tag: String?,
         message: String?,
         status: SdkAdStatus,
@@ -89,7 +89,17 @@ object SdkLogUtil {
         val finalTag = getTagWithBase(tag)
         Log.println(Log.DEBUG, finalTag, message)
 
-        if (!PrebidMobile.getSdkLogState().level.contains(level)) return
+        val logPriority = when (PrebidMobile.getSdkLogState().level) {
+            Level.NONE -> -1
+            Level.VERBOSE -> 2
+            Level.DEBUG -> 3
+            Level.INFO -> 4
+            Level.WARN -> 5
+            Level.ERROR -> 6
+            Level.ASSERT -> 7
+        }
+
+        if (level > logPriority) return
         if (!PrebidMobile.getSdkLogState().sdkType.contains(sdkType)) return
 
         // Send to server
