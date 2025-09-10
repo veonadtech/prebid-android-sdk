@@ -111,9 +111,8 @@ dependencies {
 
     // Video Player
     implementation libs.exoplayer
-    implementation libs.exoplayer.core
     implementation libs.exoplayer.ui
-    implementation libs.extension.ima
+    implementation libs.exoplayer.ima
 
     // Tests
     testImplementation libs.junit

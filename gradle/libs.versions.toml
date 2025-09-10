@@ -16,7 +16,7 @@ apache-camel-json-patch = "3.22.2"
 apache-commons-lang3 = "3.7"
 assertj-core = "1.7.0"
 concurrent-futures = "1.1.0"
-exoplayer = "2.15.1"
+exoplayer = "1.1.0"
 glide = "4.14.2"
 google-play-services-ads = "23.6.0"
 google-play-services-ads-identifier = "18.0.1"
@@ -63,8 +63,6 @@ apache-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.re
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj-core" }
 concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "concurrent-futures" }
 exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayer" }
-exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoplayer" }
-extension-ima = { module = "com.google.android.exoplayer:extension-ima", version.ref = "exoplayer" }
 exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoplayer" }
 exoplayer-ima = { module = "androidx.media3:media3-exoplayer-ima", version.ref = "exoplayer" }
 exoplayer-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
