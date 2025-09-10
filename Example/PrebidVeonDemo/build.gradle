@@ -55,7 +55,6 @@ dependencies {
     implementation libs.google.play.services.base
     implementation libs.google.play.services.ads
     implementation libs.google.play.services.ads.identifier
-    implementation libs.applovin.sdk
 
     // Image Downloader
     implementation libs.glide
@@ -65,9 +64,8 @@ dependencies {
 
     // Video Player
     implementation libs.exoplayer
-    implementation libs.exoplayer.core
     implementation libs.exoplayer.ui
-    implementation libs.extension.ima
+    implementation libs.exoplayer.ima
 
     // Tests
     testImplementation libs.junit
