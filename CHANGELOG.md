@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.0.7.6
+# Migration
+* ExoPlayer migrated to Media3
+* targetSdkVersion upgraded to 35
+
 ## 0.0.7.5
 # Added
 * Added logging for Prebid and Yango events

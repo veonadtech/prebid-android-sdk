@@ -287,7 +287,10 @@ public class HTMLCreative extends AbstractCreative implements WebViewDelegate, I
 
         if (shouldFireImpression && isViewable) {
             LogUtil.debug(TAG, "Impression fired");
-            SdkLogUtil.info("ad impression", SdkAdStatus.IMPRESSION, adFormat, getCreativeModel().getAdConfiguration().getConfigId(), SdkType.PREBID);
+            String configId = getCreativeModel().getAdConfiguration().getConfigId();
+            if (configId != null) {
+                SdkLogUtil.info("ad impression", SdkAdStatus.IMPRESSION, adFormat, getCreativeModel().getAdConfiguration().getConfigId(), SdkType.PREBID);
+            }
             getCreativeModel().trackDisplayAdEvent(TrackingEvent.Events.IMPRESSION);
         }
         getCreativeView().onWindowFocusChanged(isViewable);
