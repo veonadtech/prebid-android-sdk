@@ -16,7 +16,6 @@
 
 package org.prebid.mobile.rendering.session.manager;
 
-import android.app.UiModeManager;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
@@ -85,28 +84,19 @@ public class OmAdSessionManager {
      * NOTE: The {@link #OmAdSessionManager} instance won't be created if OMSDK activation fails.
      */
     public static boolean activateOmSdk(Context applicationContext) {
-        Log.d(TAG, "activateOmSdk");
         if (applicationContext == null) {
-            LogUtil.error(TAG, "Context is null");
+            LogUtil.error(TAG, "Activation failed: applicationContext is null");
             return false;
         }
 
         try {
-            UiModeManager uiModeManager = (UiModeManager) applicationContext.getSystemService(Context.UI_MODE_SERVICE);
-            if (uiModeManager == null) {
-                LogUtil.error(TAG, "UiModeManager not available");
-
-                return false;
-            } else {
-                Omid.activate(applicationContext.getApplicationContext());
-
-                return Omid.isActive();
-            }
-        } catch (Exception e) {
-            LogUtil.error(TAG, "Failed to init openMeasurementSDK. System services not ready: " + e.getMessage());
-
-            return false;
+            Omid.activate(applicationContext);
+            return Omid.isActive();
         }
+        catch (Throwable e) {
+            LogUtil.error(TAG, "Did you add omsdk-android.aar? Failed to init openMeasurementSDK: " + Log.getStackTraceString(e));
+        }
+        return false;
     }
 
     /**
