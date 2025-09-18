@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.7.7
+# Migration
+* Conflict ListenableFuture with CameraX fixed
+
 ## 0.0.7.6
 # Migration
 * ExoPlayer migrated to Media3
