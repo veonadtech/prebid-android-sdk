@@ -92,7 +92,7 @@ public class SdkInitializer {
 
             AppInfoManager.init(applicationContext);
 
-            OmAdSessionManager.activateOmSdk(applicationContext);
+            OmAdSessionManager.activateOmSdk(context);
 
             ManagersResolver.getInstance()
                             .prepare(applicationContext);
