@@ -53,8 +53,7 @@ public class SdkInitializer {
         PrebidContextHolder.setContext(applicationContext);
 
         if (PrebidMobile.getLogLevel() != null) {
-            LogUtil.setLogLevel(PrebidMobile.getLogLevel()
-                                            .getValue());
+            LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
         }
 
         PrebidLogger customLogger = PrebidMobile.getCustomLogger();
@@ -92,10 +91,9 @@ public class SdkInitializer {
 
             AppInfoManager.init(applicationContext);
 
-            OmAdSessionManager.activateOmSdk(applicationContext);
+            OmAdSessionManager.activateOmSdk(context);
 
-            ManagersResolver.getInstance()
-                            .prepare(applicationContext);
+            ManagersResolver.getInstance().prepare(applicationContext);
 
             JSLibraryManager.getInstance(applicationContext)
                             .checkIfScriptsDownloadedAndStartDownloadingIfNot();
