@@ -75,37 +75,12 @@ public class DeviceInfoImpl extends BaseManager implements DeviceInfoManager {
 
         if (context != null) {
             telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
+            windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
             packageManager = context.getPackageManager();
 
-            initWindowManager(context);
             hasTelephony();
-        }
-    }
-
-    private void initWindowManager(Context context) {
-        try {
-            if (context instanceof Activity) {
-                // UI Context - direct access
-                windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            } else {
-                if (Build.VERSION.SDK_INT >= 34) { // Android 14+
-                    try {
-                        Context windowContext = context.createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION, null);
-                        windowManager = (WindowManager) windowContext.getSystemService(Context.WINDOW_SERVICE);
-                    } catch (Exception e) {
-                        Log.w("Prebid", "Failed to create window context, using fallback", e);
-                        windowManager = null;
-                    }
-                } else {
-                    windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-                }
-            }
-        } catch (Exception e) {
-            Log.w("Prebid", "WindowManager initialization failed", e);
-            windowManager = null;
         }
     }
 

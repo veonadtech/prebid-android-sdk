@@ -3,6 +3,8 @@
 ## 0.0.7.7
 # Migration
 * Conflict ListenableFuture with CameraX fixed
+* Fixed bug with SDK Log
+* Fixed bug with Guava
 
 ## 0.0.7.6
 # Migration
