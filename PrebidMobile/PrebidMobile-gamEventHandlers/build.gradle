@@ -11,7 +11,6 @@ android {
     defaultConfig {
         namespace 'org.prebid.mobile.eventhandlers'
         minSdkVersion 19
-        minSdkVersion 23
     }
     testOptions {
         unitTests.all {

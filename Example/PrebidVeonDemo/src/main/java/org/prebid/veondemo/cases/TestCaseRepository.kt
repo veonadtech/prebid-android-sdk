@@ -34,7 +34,7 @@ import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialMultiForma
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialWithEndCardActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoRewardedActivity
 import org.prebid.veondemo.activities.ads.multi.MultiBannerActivity
-import org.prebid.veondemo.activities.ads.multi.MultiInterstitialAdLoader
+import org.prebid.veondemo.activities.ads.multi.MultiInterstitialAdActivity
 
 object TestCaseRepository {
 
@@ -250,7 +250,7 @@ object TestCaseRepository {
             R.string.multi_ad_interstitial,
             AdFormat.DISPLAY_INTERSTITIAL,
             IntegrationKind.MULTI_AD_SERVER,
-            MultiInterstitialAdLoader::class.java
+            MultiInterstitialAdActivity::class.java
         )
     )
 

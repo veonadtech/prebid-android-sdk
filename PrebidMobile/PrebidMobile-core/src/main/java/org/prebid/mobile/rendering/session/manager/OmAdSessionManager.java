@@ -82,6 +82,7 @@ public class OmAdSessionManager {
     /**
      * First step to begin with when working with this class.
      * NOTE: The {@link #OmAdSessionManager} instance won't be created if OMSDK activation fails.
+     * Since API 34 WindowManager gets only ui context
      */
     public static boolean activateOmSdk(Context applicationContext) {
         try {

@@ -13,7 +13,6 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.LogUtil.PrebidLogger;
 import org.prebid.mobile.PrebidMobile;
-import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.rendering.PrebidRenderer;
 import org.prebid.mobile.configuration.SdkConfigHolder;
 import org.prebid.mobile.logging.SdkLogUtil;
@@ -23,7 +22,6 @@ import org.prebid.mobile.rendering.utils.helpers.AdvertisingIdManager;
 import org.prebid.mobile.rendering.utils.helpers.AppInfoManager;
 import org.prebid.mobile.tasksmanager.TasksManager;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -36,7 +34,7 @@ public class SdkInitializer {
 
     public static void init(
             @Nullable Context context,
-            String configURL,
+            @Nullable String configURL,
             @Nullable SdkInitializationListener listener
     ) {
         if (PrebidMobile.isSdkInitialized() || InitializationNotifier.isInitializationInProgress()) {
@@ -55,8 +53,7 @@ public class SdkInitializer {
         PrebidContextHolder.setContext(applicationContext);
 
         if (PrebidMobile.getLogLevel() != null) {
-            LogUtil.setLogLevel(PrebidMobile.getLogLevel()
-                                            .getValue());
+            LogUtil.setLogLevel(PrebidMobile.getLogLevel().getValue());
         }
 
         PrebidLogger customLogger = PrebidMobile.getCustomLogger();
@@ -74,31 +71,29 @@ public class SdkInitializer {
             }
         });
 
-        SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", true);
-
         try {
             PrebidMobile.registerPluginRenderer(new PrebidRenderer());
 
-            new AsyncSdkConfigLoader().loadSdkConfig(
-                    configURL,
-                    new AsyncSdkConfigLoader.SdkConfigResponseHandler() {
-                        @Override
-                        public void onSdkConfigReceived(@NonNull List<? extends SdkType> sdks) {
-                            SdkConfigHolder.priorityOrderSDK = sdks;
-                        }
+            new SdkConfigLoader().loadSdkConfig(configURL, new SdkConfigLoader.SdkConfigResponseHandler() {
 
-                        @Override
-                        public void onError(@NonNull String error) {
+                @Override
+                public void onSdkConfigReceived(@NonNull SdkConfig sdkConfig) {
+                    PrebidMobile.setSdkLogState(sdkConfig);
+                    SdkConfigHolder.priorityOrderSDK = sdkConfig.getPriority();
+                    SdkLogUtil.configureLogServer("https://gamsdklog.veonadx.com/api/v1/log", sdkConfig.isActive());
+                }
 
-                        }
-                    });
+                @Override
+                public void onError(@NonNull String error) {
+                    LogUtil.debug(TAG, "Error loading SDK log state: " + error);
+                }
+            });
 
             AppInfoManager.init(applicationContext);
 
-            OmAdSessionManager.activateOmSdk(applicationContext);
+            OmAdSessionManager.activateOmSdk(context);
 
-            ManagersResolver.getInstance()
-                            .prepare(applicationContext);
+            ManagersResolver.getInstance().prepare(applicationContext);
 
             JSLibraryManager.getInstance(applicationContext)
                             .checkIfScriptsDownloadedAndStartDownloadingIfNot();

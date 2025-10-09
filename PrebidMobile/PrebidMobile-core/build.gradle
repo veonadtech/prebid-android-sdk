@@ -41,10 +41,13 @@ dependencies {
 
     implementation 'androidx.annotation:annotation:1.9.1'
 
+    implementation 'com.google.guava:guava:31.1-android'
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+
     implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
+    implementation("androidx.media3:media3-exoplayer:1.1.0")
+    implementation("androidx.media3:media3-ui:1.1.0")
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
     implementation 'com.google.android.gms:play-services-ads:23.6.0'

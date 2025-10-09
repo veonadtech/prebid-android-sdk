@@ -31,6 +31,7 @@ import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.PBSConfig;
 import org.prebid.mobile.core.BuildConfig;
+import org.prebid.mobile.rendering.sdk.SdkConfig;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.mraid.MraidEnv;
 import org.prebid.mobile.rendering.sdk.InitializationNotifier;
@@ -133,6 +134,8 @@ public class PrebidMobile {
     private static WeakReference<PrebidEventDelegate> eventDelegateReference = new WeakReference<>(null);
     private static boolean disableStatusCheck = false;
     private static String AAID = "";
+
+    private static SdkConfig sdkConfig;
 
     private PrebidMobile() {
     }
@@ -238,6 +241,7 @@ public class PrebidMobile {
      *
      * @param context  any context (must be not null)
      * @param serverURL the Prebid Server URL
+     * @param configURL the list of SDK's priority
      * @param listener initialization listener (can be null).
      * <p>
      */
@@ -249,9 +253,7 @@ public class PrebidMobile {
     ) {
         initializeSdk(context, serverURL, null, listener);
     }
-    /**
-    * @param configURL the list of SDK's priority
-    */
+
     @MainThread
     public static void initializeSdk(
             @Nullable Context context,
@@ -562,6 +564,14 @@ public class PrebidMobile {
      */
     public static boolean shouldDisableStatusCheck() {
         return disableStatusCheck;
+    }
+
+    public static void setSdkLogState(SdkConfig sdkConfig) {
+        PrebidMobile.sdkConfig = sdkConfig;
+    }
+
+    public static SdkConfig getSdkLogState(){
+        return PrebidMobile.sdkConfig;
     }
 
     /**
