@@ -1,21 +1,6 @@
-/*
- *    Copyright 2018-2021 Prebid.org, Inc.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
+package org.prebid.veondemo.activities.ads.gam.original
 
-package org.prebid.mobile.renderingtestapp.plugplay.bidding.gam.original
-
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -23,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdSize
@@ -36,71 +22,57 @@ import com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd.OnCustomFormatAdLoadedListener
 import com.google.common.collect.Lists
-import org.prebid.mobile.*
+import org.prebid.mobile.BannerParameters
+import org.prebid.mobile.NativeAdUnit
+import org.prebid.mobile.NativeAsset
+import org.prebid.mobile.NativeDataAsset
+import org.prebid.mobile.NativeEventTracker
+import org.prebid.mobile.NativeImageAsset
+import org.prebid.mobile.NativeParameters
+import org.prebid.mobile.NativeTitleAsset
+import org.prebid.mobile.PrebidNativeAd
+import org.prebid.mobile.PrebidNativeAdListener
+import org.prebid.mobile.VideoParameters
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.original.PrebidAdUnit
 import org.prebid.mobile.api.original.PrebidRequest
-import org.prebid.mobile.renderingtestapp.AdFragment
-import org.prebid.mobile.renderingtestapp.R
-import org.prebid.mobile.renderingtestapp.databinding.FragmentBiddingMultiformatBinding
-import org.prebid.mobile.renderingtestapp.plugplay.config.AdConfiguratorDialogFragment
-import org.prebid.mobile.renderingtestapp.utils.BaseEvents
-import org.prebid.mobile.renderingtestapp.utils.loadImage
+import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.BaseAdActivity
+import org.prebid.veondemo.utils.ImageUtils
 
-open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
+class GamOriginalApiMultiformatBannerVideoNativeInAppActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid-demo-multiformat"
-        const val CONFIG_ID_BANNER = "prebid-demo-banner-320-50"
+        const val CONFIG_ID_BANNER = "prebid-demo-banner-300-250"
         const val CONFIG_ID_NATIVE = "prebid-demo-banner-native-styles"
         const val CONFIG_ID_VIDEO = "prebid-demo-video-outstream-original-api"
         const val CUSTOM_FORMAT_ID = "12304464"
     }
 
-    override val layoutRes = R.layout.fragment_bidding_multiformat
-
-    protected val events by lazy { Events(binding.root) }
     private var prebidAdUnit: PrebidAdUnit? = null
-    private val params = arrayOf(Params.BANNER, Params.VIDEO, Params.NATIVE)
-    private val binding: FragmentBiddingMultiformatBinding get() = getBinding()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    override fun configuratorMode(): AdConfiguratorDialogFragment.AdConfiguratorMode {
-        return AdConfiguratorDialogFragment.AdConfiguratorMode.BANNER
+        createAd()
     }
 
-    override fun initUi(view: View, savedInstanceState: Bundle?) {
-        super.initUi(view, savedInstanceState)
-        initButtons()
-    }
+    private fun createAd() {
+        // Random only for test cases. For production use one config id.
+        val configId = listOf(CONFIG_ID_BANNER, CONFIG_ID_VIDEO, CONFIG_ID_NATIVE).random()
 
-    override fun initAd() = Unit
-
-    override fun loadAd() {}
-
-    private fun load() {
-        val configIds = mutableListOf<String>()
-        val prebidRequest = PrebidRequest()
-
-        if (Params.BANNER.activated) {
-            prebidRequest.setBannerParameters(createBannerParameters())
-            configIds.add(CONFIG_ID_BANNER)
-        }
-
-        if (Params.VIDEO.activated) {
-            prebidRequest.setVideoParameters(createVideoParameters())
-            configIds.add(CONFIG_ID_VIDEO)
-        }
-
-        if (Params.NATIVE.activated) {
-            prebidRequest.setNativeParameters(createNativeParameters())
-            configIds.add(CONFIG_ID_NATIVE)
-        }
-
-        val configId = configIds.random()
+        // 1. Create PrebidAdUnit with configId
         prebidAdUnit = PrebidAdUnit(configId)
 
+        // 2. Create PrebidRequest with needed multiformat parameters
+        val prebidRequest = PrebidRequest()
+        prebidRequest.setBannerParameters(createBannerParameters())
+        prebidRequest.setVideoParameters(createVideoParameters())
+        prebidRequest.setNativeParameters(createNativeParameters())
+
+        // 3. Make a bid request to Prebid Server
         val gamRequest = AdManagerAdRequest.Builder().build()
         prebidAdUnit?.fetchDemand(gamRequest, prebidRequest) {
             loadGam(gamRequest)
@@ -108,36 +80,40 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
     }
 
     private fun loadGam(gamRequest: AdManagerAdRequest) {
+        // 4. Load GAM ad
         val onBannerLoaded = OnAdManagerAdViewLoadedListener { adView ->
             showBannerAd(adView)
         }
 
         val onNativeLoaded = OnNativeAdLoadedListener { nativeAd ->
-            showNativeAd(nativeAd, binding.viewContainer)
+            showNativeAd(nativeAd, adWrapperView)
         }
 
-        val onCustomAdLoaded = OnCustomFormatAdLoadedListener { customNativeAd ->
-            showCustomNativeAd(customNativeAd)
+        val onPrebidNativeAdLoaded = OnCustomFormatAdLoadedListener { customNativeAd ->
+            showPrebidNativeAd(customNativeAd)
         }
 
-        val adLoader = AdLoader.Builder(requireContext(), AD_UNIT_ID)
+        val adLoader = AdLoader.Builder(this, AD_UNIT_ID)
             .forAdManagerAdView(onBannerLoaded, AdSize.BANNER, AdSize.MEDIUM_RECTANGLE)
             .forNativeAd(onNativeLoaded)
-            .forCustomFormatAd(CUSTOM_FORMAT_ID, onCustomAdLoaded, null)
-            .withAdListener(AdListenerWithToast(events, onAdLoadingFinished = { binding.btnLoad.isEnabled = true }))
+            .forCustomFormatAd(CUSTOM_FORMAT_ID, onPrebidNativeAdLoaded, null)
+            .withAdListener(AdListenerWithToast(this))
             .withAdManagerAdViewOptions(AdManagerAdViewOptions.Builder().build())
             .build()
 
         adLoader.loadAd(gamRequest)
     }
 
-
     private fun createBannerParameters(): BannerParameters {
-        return BannerParameters()
+        val params = BannerParameters()
+        params.adSizes = mutableSetOf(org.prebid.mobile.AdSize(300, 250))
+        return params
     }
 
     private fun createVideoParameters(): VideoParameters {
-        return VideoParameters(listOf("video/mp4"))
+        val params = VideoParameters(listOf("video/mp4"))
+        params.adSize = org.prebid.mobile.AdSize(320, 480)
+        return params
     }
 
     private fun createNativeParameters(): NativeParameters {
@@ -189,7 +165,8 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
     }
 
     private fun showBannerAd(adView: AdManagerAdView) {
-        binding.viewContainer.addView(adView)
+        // 5.1. Show banner
+        adWrapperView.addView(adView)
         AdViewUtils.findPrebidCreativeSize(adView, object : AdViewUtils.PbFindSizeListener {
             override fun success(width: Int, height: Int) {
                 adView.setAdSizes(AdSize(width, height))
@@ -200,12 +177,13 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
     }
 
     private fun showNativeAd(ad: NativeAd, wrapper: ViewGroup) {
+        // 5.2. Show GAM native
         val nativeContainer = View.inflate(wrapper.context, R.layout.layout_native, null)
 
         val icon = nativeContainer.findViewById<ImageView>(R.id.imgIcon)
         val iconUrl = ad.icon?.uri?.toString()
         if (iconUrl != null) {
-            loadImage(icon, iconUrl)
+            ImageUtils.download(iconUrl, icon)
         }
 
         val title = nativeContainer.findViewById<TextView>(R.id.tvTitle)
@@ -214,7 +192,7 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
         val image = nativeContainer.findViewById<ImageView>(R.id.imgImage)
         val imageUrl = ad.images.getOrNull(0)?.uri?.toString()
         if (imageUrl != null) {
-            loadImage(image, imageUrl)
+            ImageUtils.download(imageUrl, image)
         }
 
         val description = nativeContainer.findViewById<TextView>(R.id.tvDesc)
@@ -226,7 +204,8 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
         wrapper.addView(nativeContainer)
     }
 
-    private fun showCustomNativeAd(customNativeAd: NativeCustomFormatAd) {
+    private fun showPrebidNativeAd(customNativeAd: NativeCustomFormatAd) {
+        // 5.3. Show Prebid native
         AdViewUtils.findNative(customNativeAd, object : PrebidNativeAdListener {
             override fun onPrebidNativeLoaded(ad: PrebidNativeAd) {
                 inflatePrebidNativeAd(ad)
@@ -243,16 +222,16 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
     }
 
     private fun inflatePrebidNativeAd(ad: PrebidNativeAd) {
-        val nativeContainer = View.inflate(requireContext(), R.layout.layout_native, null)
+        val nativeContainer = View.inflate(this, R.layout.layout_native, null)
 
         val icon = nativeContainer.findViewById<ImageView>(R.id.imgIcon)
-        loadImage(icon, ad.iconUrl)
+        ImageUtils.download(ad.iconUrl, icon)
 
         val title = nativeContainer.findViewById<TextView>(R.id.tvTitle)
         title.text = ad.title
 
         val image = nativeContainer.findViewById<ImageView>(R.id.imgImage)
-        loadImage(image, ad.imageUrl)
+        ImageUtils.download(ad.imageUrl, image)
 
         val description = nativeContainer.findViewById<TextView>(R.id.tvDesc)
         description.text = ad.description
@@ -262,86 +241,27 @@ open class GamOriginalMultiformatBannerVideoNativeFragment : AdFragment() {
 
         ad.registerView(nativeContainer, Lists.newArrayList(icon, title, image, description, cta), null)
 
-        binding.viewContainer.addView(nativeContainer)
+        adWrapperView.addView(nativeContainer)
     }
 
-    private fun initButtons() {
-        binding.btnLoad.isEnabled = true
-        binding.btnLoad.setOnClickListener {
-            binding.viewContainer.removeAllViews()
-            binding.btnLoad.isEnabled = false
-            resetEventButtons()
-            load()
-        }
-
-        listOf(
-            binding.btnBannerParams,
-            binding.btnVideoParams,
-            binding.btnNativeParams
-        ).forEachIndexed { i, toggleButton ->
-            toggleButton.isChecked = true
-            toggleButton.setOnClickListener {
-                val newValue = toggleButton.isChecked
-                toggleButton.isChecked = newValue
-                params[i].activated = newValue
-
-                val notEnoughActivations = params.count { it.activated } < 2
-                if (notEnoughActivations) {
-                    binding.btnLoad.isEnabled = false
-                } else {
-                    binding.btnLoad.isEnabled = true
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         prebidAdUnit?.destroy()
     }
 
-    protected class Events(parentView: View) : BaseEvents(parentView) {
-
-        fun loaded(b: Boolean) = enable(R.id.btnAdLoaded, b)
-        fun impression(b: Boolean) = enable(R.id.btnAdImpression, b)
-        fun clicked(b: Boolean) = enable(R.id.btnAdClicked, b)
-        fun failed(b: Boolean) = enable(R.id.btnAdFailed, b)
-
-    }
-
-    private enum class Params(var activated: Boolean = true) {
-
-        BANNER, VIDEO, NATIVE
-
-    }
-
     private class AdListenerWithToast(
-        private val events: Events,
-        private val onAdLoadingFinished: () -> Unit
+        context: Context,
     ) : AdListener() {
 
-        override fun onAdLoaded() {
-            super.onAdLoaded()
-            events.loaded(true)
-            onAdLoadingFinished()
-        }
-
-        override fun onAdImpression() {
-            super.onAdImpression()
-            events.impression(true)
-        }
-
-        override fun onAdClicked() {
-            super.onAdClicked()
-            events.clicked(true)
-        }
+        private val applicationContext = context.applicationContext
 
         override fun onAdFailedToLoad(adError: LoadAdError) {
-            super.onAdFailedToLoad(adError);
-            events.failed(true)
-            onAdLoadingFinished()
+            Toast.makeText(
+                applicationContext,
+                "Ad failed to load!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-
     }
 
 }
