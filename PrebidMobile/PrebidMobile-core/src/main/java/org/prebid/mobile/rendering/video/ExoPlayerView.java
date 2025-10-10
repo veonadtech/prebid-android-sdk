@@ -228,7 +228,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
                     (int) player.getDuration(),
                     config
             );
-            adViewProgressUpdateTask.setVastVideoDuration(vastVideoDuration);
+            adViewProgressUpdateTask.setVastTagDuration(vastVideoDuration);
             adViewProgressUpdateTask.execute();
         } catch (AdException e) {
             e.printStackTrace();

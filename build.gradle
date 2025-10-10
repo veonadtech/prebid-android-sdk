@@ -12,18 +12,14 @@ ext {
 }
 
 buildscript {
-    ext {
-        kotlin_version = '1.8.10'
-        agp_version = "8.1.1"
-    }
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:$agp_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath libs.gradle
+        classpath libs.kotlin.gradle.plugin
     }
 }
 
@@ -33,7 +29,7 @@ allprojects {
         mavenCentral()
         maven { url 'https://maven.google.com' }
         maven { url 'https://jitpack.io' }
-        maven { url "https://oss.sonatype.org/content/repositories/orgprebid-1079" }
+//        maven { url "https://oss.sonatype.org/content/repositories/orgprebid-1079" }
     }
 
     // Global dependency resolution strategy to handle Guava conflicts
