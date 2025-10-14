@@ -54,28 +54,12 @@ dependencies {
     implementation libs.applovin.sdk
 
     // Yandex Mobile Ads SDK core lib
-    implementation("com.yandex.android:mobileads:7.14.1")
-    // Yandex Mobile Ads SDK core lib
-    implementation("com.yandex.ads.mediation:mobileads-bigoads:5.3.0.6")
-    implementation("com.yandex.ads.mediation:mobileads-google:23.6.0.6")
-    implementation("com.yandex.ads.mediation:mobileads-vungle:7.4.2.10")
-    implementation("com.yandex.ads.mediation:mobileads-mintegral:16.9.81.0")
-    implementation("com.yandex.ads.mediation:mobileads-extras:7.14.1.0") {
-        exclude group: "com.facebook.android", module: "audience-network-sdk"
-        exclude group: "com.unity3d.mediation", module: "facebookadapter"
-        exclude group: "com.inmobi.monetization", module: "inmobi-ads-kotlin"
-        exclude group: "com.unity3d.mediation", module: "inmobiadapter"
-        exclude group: "com.mbridge.msdk.oversea"
-        exclude group: "com.unity3d.mediation", module: "mintegraladapter"
-        exclude group: "com.pangle.global", module: "ads-sdk"
-        exclude group: "com.unity3d.mediation", module: "pangleadapter"
-        exclude group: "com.chartboost", module: "chartboost-sdk"
-        exclude group: "com.unity3d.mediation", module: "chartboost-adapter"
-        exclude group: "com.applovin", module: "applovin-sdk"
-        exclude group: "com.unity3d.mediation", module: "applovin-adapter"
-    }
+    implementation libs.yandex.ads
+    implementation libs.yandex.ads.bigoads
+    implementation libs.yandex.ads.google
+    implementation libs.yandex.ads.vungle
 
-    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
+    implementation libs.facebook.audience
 
     // Image Downloader
     implementation libs.glide
