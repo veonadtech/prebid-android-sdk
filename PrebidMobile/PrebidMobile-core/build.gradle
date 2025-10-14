@@ -39,18 +39,19 @@ android {
 dependencies {
     implementation project(":omsdk-android")
 
-    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation libs.androidx.annotation
 
-    implementation 'com.google.guava:guava:31.1-android'
-    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    implementation libs.guava
+    implementation libs.concurrent.futures
 
-    implementation 'com.google.android.gms:play-services-base:18.1.0'
-    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation("androidx.media3:media3-exoplayer:1.1.0")
-    implementation("androidx.media3:media3-ui:1.1.0")
+    implementation libs.google.play.services.base
+    implementation libs.google.play.services.ads
+    implementation libs.google.play.services.ads.identifier
 
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
-    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    implementation libs.exoplayer
+    implementation libs.exoplayer.ui
+
+    implementation libs.androidx.localbroadcastmanager
 
     // Yandex Mobile Ads SDK core lib
     implementation("com.yandex.android:mobileads:7.14.1")
