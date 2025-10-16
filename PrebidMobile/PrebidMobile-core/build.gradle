@@ -39,18 +39,33 @@ android {
 dependencies {
     implementation project(":omsdk-android")
 
-    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation libs.androidx.annotation
 
-    implementation 'com.google.android.gms:play-services-base:18.1.0'
-    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
+    implementation libs.guava
+    implementation libs.concurrent.futures
 
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
-    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    implementation libs.google.play.services.base
+    implementation libs.google.play.services.ads
+    implementation libs.google.play.services.ads.identifier
+
+    implementation libs.exoplayer
+    implementation libs.exoplayer.ui
+
+    implementation libs.androidx.localbroadcastmanager
 
     // Yandex Mobile Ads SDK core lib
     implementation("com.yandex.android:mobileads:7.14.1")
+
+    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.google.guava' && details.requested.name == 'listenablefuture') {
+            details.useTarget('androidx.concurrent:concurrent-futures:1.1.0')
+            details.because('Use androidx.concurrent.futures instead of guava listenablefuture to avoid conflicts')
+        }
+    }
 }
 
 afterEvaluate {

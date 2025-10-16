@@ -41,7 +41,7 @@ class Demo : Application() {
 
         PrebidMobile.setPrebidServerAccountId("org.prebid.veondemo")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
-        PrebidMobile.setTimeoutMillis(500)
+        PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
         PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
 
