@@ -54,9 +54,9 @@ dependencies {
     implementation libs.androidx.localbroadcastmanager
 
     // Yandex Mobile Ads SDK core lib
-    implementation("com.yandex.android:mobileads:7.14.1")
+    implementation libs.yandex.ads
 
-    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
+    implementation libs.facebook.audience
 }
 
 configurations.all {

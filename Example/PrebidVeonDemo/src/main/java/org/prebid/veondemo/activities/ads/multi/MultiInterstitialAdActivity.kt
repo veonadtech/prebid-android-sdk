@@ -3,6 +3,7 @@ package org.prebid.veondemo.activities.ads.multi
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
 import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
@@ -13,6 +14,7 @@ class MultiInterstitialAdActivity : BaseAdActivity() {
     companion object {
         const val CONFIG_ID = "prebid-demo-banner-320-50"
         const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
+        const val YANDEX_AD_UNIT_ID = "demo-interstitial-yandex"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +27,8 @@ class MultiInterstitialAdActivity : BaseAdActivity() {
         val interstitialLoader = MultiInterstitialAdLoader(
             context = this,
             configId = CONFIG_ID,
-            gamAdUnitId = AD_UNIT_ID
+            gamAdUnitId = AD_UNIT_ID,
+            yandexAdUnitId = YANDEX_AD_UNIT_ID
         )
 
         interstitialLoader.setListener(object : MultiInterstitialAdListener {
@@ -45,6 +48,7 @@ class MultiInterstitialAdActivity : BaseAdActivity() {
             override fun onAdFailedToShow(error: String?, sdk: SdkType?) = showToast("Interstitial failed to show (${sdk?.name}): $error")
             override fun onAdClicked(sdk: SdkType) = showToast("Interstitial clicked (${sdk.name})")
             override fun onAdClosed(sdk: SdkType) = showToast("Interstitial closed (${sdk.name})")
+            override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) = showToast("Interstitial impression (${sdk.name})")
         })
 
         interstitialLoader.loadAd()
