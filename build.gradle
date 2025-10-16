@@ -29,6 +29,18 @@ allprojects {
         mavenCentral()
         maven { url 'https://maven.google.com' }
         maven { url 'https://jitpack.io' }
+        maven {url 'https://android-sdk.is.com/'}
+
+        // Pangle
+        maven {url 'https://artifact.bytedance.com/repository/pangle'}
+        // Tapjoy
+        maven {url "https://sdk.tapjoy.com/"}
+        // Mintegral
+        maven {url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea"}
+        // Chartboost
+        maven {url "https://cboost.jfrog.io/artifactory/chartboost-ads/"}
+        // AppNext
+        maven {url "https://dl.appnext.com/"}
 //        maven { url "https://oss.sonatype.org/content/repositories/orgprebid-1079" }
     }
 

@@ -58,6 +58,21 @@ dependencies {
     implementation libs.yandex.ads.bigoads
     implementation libs.yandex.ads.google
     implementation libs.yandex.ads.vungle
+    implementation libs.yandex.ads.mintegral
+    implementation (libs.yandex.ads.extras){
+        exclude group: "com.facebook.android", module: "audience-network-sdk"
+        exclude group: "com.unity3d.mediation", module: "facebookadapter"
+        exclude group: "com.inmobi.monetization", module: "inmobi-ads-kotlin"
+        exclude group: "com.unity3d.mediation", module: "inmobiadapter"
+        exclude group: "com.mbridge.msdk.oversea"
+        exclude group: "com.unity3d.mediation", module: "mintegraladapter"
+        exclude group: "com.pangle.global", module: "ads-sdk"
+        exclude group: "com.unity3d.mediation", module: "pangleadapter"
+        exclude group: "com.chartboost", module: "chartboost-sdk"
+        exclude group: "com.unity3d.mediation", module: "chartboost-adapter"
+        exclude group: "com.applovin", module: "applovin-sdk"
+        exclude group: "com.unity3d.mediation", module: "applovin-adapter"
+    }
 
     implementation libs.facebook.audience
 

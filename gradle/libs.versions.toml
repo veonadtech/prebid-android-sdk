@@ -45,6 +45,8 @@ yandex-ads = "7.14.1"
 yandex-ads-bigoads = "5.3.0.6"
 yandex-ads-google = "23.6.0.6"
 yandex-ads-vungle = "7.4.2.10"
+yandex-ads-mintegral = "16.9.81.0"
+yandex-ads-extras = "7.14.1.0"
 
 [libraries]
 androidx-annotation = { module = 'androidx.annotation:annotation', version.ref = "androidx-annotation" }
@@ -104,3 +106,5 @@ yandex-ads = { module = "com.yandex.android:mobileads", version.ref = "yandex-ad
 yandex-ads-bigoads = { module = "com.yandex.ads.mediation:mobileads-bigoads", version.ref = "yandex-ads-bigoads" }
 yandex-ads-google = { module = "com.yandex.ads.mediation:mobileads-google", version.ref = "yandex-ads-google" }
 yandex-ads-vungle = { module = "com.yandex.ads.mediation:mobileads-vungle", version.ref = "yandex-ads-vungle" }
+yandex-ads-mintegral = { module = "com.yandex.ads.mediation:mobileads-mintegral", version.ref = "yandex-ads-mintegral" }
+yandex-ads-extras = { module = "com.yandex.ads.mediation:mobileads-extras", version.ref = "yandex-ads-extras" }
