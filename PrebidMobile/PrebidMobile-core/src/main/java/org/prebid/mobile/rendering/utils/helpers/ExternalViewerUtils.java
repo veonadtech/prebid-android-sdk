@@ -101,13 +101,44 @@ public class ExternalViewerUtils {
     }
 
     public static void launchApplicationUrl(Context context, Uri uri)
-    throws ActionNotResolvedException {
+            throws ActionNotResolvedException {
+
+        if ("intent".equalsIgnoreCase(uri.getScheme())) {
+            launchIntentUrl(context, uri);
+            return;
+        }
+
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         if (!isActivityCallable(context, intent)) {
             throw new ActionNotResolvedException("launchApplicationUrl: Failure. No activity was found to handle action for " + uri);
         }
 
         launchApplicationIntent(context, intent);
+    }
+
+    private static void launchIntentUrl(Context context, Uri uri)
+            throws ActionNotResolvedException {
+        try {
+            Intent intent = Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
+
+            if (!isActivityCallable(context, intent)) {
+                String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+                if (fallbackUrl != null) {
+                    Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl));
+                    if (isActivityCallable(context, fallbackIntent)) {
+                        launchApplicationIntent(context, fallbackIntent);
+                        return;
+                    }
+                }
+                throw new ActionNotResolvedException("No activity found to handle intent: " + uri);
+            }
+
+            launchApplicationIntent(context, intent);
+
+        } catch (Exception e) {
+            LogUtil.error(TAG, "Failed to parse intent URL: " + uri + ", Error: " + e.getMessage());
+            throw new ActionNotResolvedException("Failed to parse intent URL");
+        }
     }
 
     public static void startBrowser(Context context, String url,
