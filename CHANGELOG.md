@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.0.7.9
+## Changed
+* Device IP bug fixed
+
 # 0.0.7.8
 ## Changed
 * Redirect bug fixed

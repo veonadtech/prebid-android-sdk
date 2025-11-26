@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.devices.Geo;
 
 public class Device extends BaseBid {
@@ -84,7 +85,7 @@ public class Device extends BaseBid {
         toJSON(jsonObject, "ua", ua);
         toJSON(jsonObject, "dnt", dnt);
         toJSON(jsonObject, "lmt", lmt);
-        toJSON(jsonObject, "ip", ip);
+        toJSON(jsonObject, "ip", ip != null ? ip : PrebidMobile.getDeviceIP());
         toJSON(jsonObject, "ipv6", ipv6);
         toJSON(jsonObject, "devicetype", devicetype);
         toJSON(jsonObject, "make", make);
