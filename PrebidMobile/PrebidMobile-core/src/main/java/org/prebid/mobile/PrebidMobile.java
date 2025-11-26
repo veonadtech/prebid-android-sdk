@@ -31,11 +31,12 @@ import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.PBSConfig;
 import org.prebid.mobile.core.BuildConfig;
-import org.prebid.mobile.rendering.sdk.SdkConfig;
 import org.prebid.mobile.rendering.listeners.SdkInitializationListener;
 import org.prebid.mobile.rendering.mraid.MraidEnv;
+import org.prebid.mobile.rendering.networking.NetworkHelper;
 import org.prebid.mobile.rendering.sdk.InitializationNotifier;
 import org.prebid.mobile.rendering.sdk.PrebidContextHolder;
+import org.prebid.mobile.rendering.sdk.SdkConfig;
 import org.prebid.mobile.rendering.sdk.SdkInitializer;
 
 import java.lang.ref.WeakReference;
@@ -134,6 +135,7 @@ public class PrebidMobile {
     private static WeakReference<PrebidEventDelegate> eventDelegateReference = new WeakReference<>(null);
     private static boolean disableStatusCheck = false;
     private static String AAID = "";
+    private static String deviceIP = null;
 
     private static SdkConfig sdkConfig;
 
@@ -267,6 +269,7 @@ public class PrebidMobile {
         }
         PrebidMobile.host = Host.createCustomHost(serverURL);
         SdkInitializer.init(context, configURL, listener);
+        setDeviceIP();
     }
 
     /**
@@ -508,6 +511,10 @@ public class PrebidMobile {
         return PrebidMobile.AAID;
     }
 
+    public static String getDeviceIP() {
+        return PrebidMobile.deviceIP;
+    }
+
     /**
      * Registers plugin renderer for displaying ad in custom wrapper.
      * Prebid SDK will choose this renderer only if the winning bid contains this renderer.
@@ -608,6 +615,20 @@ public class PrebidMobile {
             }
         }
         return versions;
+    }
+
+    private static void setDeviceIP() {
+        NetworkHelper.fetchPublicIP(new NetworkHelper.PublicIpCallback() {
+            @Override
+            public void onIpReady(String ip) {
+                PrebidMobile.deviceIP = ip;
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("IP", "Failed: " + error);
+            }
+        });
     }
 
 }
