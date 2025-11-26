@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 0.0.7.8
+## Changed
+* Redirect bug fixed
+* Interstitial Rendering method bug fixed
+
 ## 0.0.7.7
 # Migration
 * Conflict ListenableFuture with CameraX fixed

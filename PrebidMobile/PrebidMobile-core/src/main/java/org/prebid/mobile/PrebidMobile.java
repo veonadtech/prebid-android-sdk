@@ -89,7 +89,7 @@ public class PrebidMobile {
     /**
      * Tested Google SDK version.
      */
-    public static final String TESTED_GOOGLE_SDK_VERSION = "24.6.0";
+    public static final String TESTED_GOOGLE_SDK_VERSION = "24.7.0";
 
     private static LogLevel logLevel = LogLevel.NONE;
     @Nullable
@@ -107,6 +107,7 @@ public class PrebidMobile {
     private static boolean useCacheForReportingWithRenderingApi = false;
 
     private static int timeoutMillis = 2_000;
+    private static boolean isTimeoutModified = false;
 
     private static final String TAG = PrebidMobile.class.getSimpleName();
 
@@ -169,6 +170,11 @@ public class PrebidMobile {
      */
     public static void setTimeoutMillis(int timeoutMillis) {
         PrebidMobile.timeoutMillis = timeoutMillis;
+        PrebidMobile.isTimeoutModified = true;
+    }
+
+    public static boolean getTimeoutModified() {
+        return isTimeoutModified;
     }
 
     public static void setPrebidServerAccountId(String accountId) {
@@ -578,12 +584,14 @@ public class PrebidMobile {
      * LogLevel for logging control.c
      * NONE - no sdk logs.
      * ERROR - sdk logs with error level only.
+     * INFO - sdk logs with info level only.
      * WARN - sdk logs with warn level only.
      * DEBUG - sdk logs with debug level only. Noisy level.
      */
     public enum LogLevel {
         NONE(-1),
         DEBUG(3),
+        INFO(4),
         WARN(5),
         ERROR(6);
 
