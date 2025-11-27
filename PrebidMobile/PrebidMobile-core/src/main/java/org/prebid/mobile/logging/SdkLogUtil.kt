@@ -88,6 +88,7 @@ object SdkLogUtil {
         sdkType: SdkType
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
+        if (PrebidMobile.getSdkLogState() == null) return
         val finalTag = getTagWithBase(tag)
         Log.println(Log.DEBUG, finalTag, message)
 

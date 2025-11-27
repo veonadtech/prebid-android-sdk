@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.0.7.5.2
+# Fixed
+* Conflict ListenableFuture with CameraX fixed
+* Fixed bug with SDK Log
+* Fixed bug with Guava
+
+## 0.0.7.5.1
+# Fixed
+* Added DeviceIP 
+
 ## 0.0.7.5
 # Added
 * Added logging for Prebid and Yango events
