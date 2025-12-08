@@ -33,6 +33,8 @@ import java.net.URL;
 @VisibleForTesting
 public class UrlResolutionTask extends AsyncTask<String, Void, String> {
     private static final String TAG = UrlResolutionTask.class.getSimpleName();
+    private static final char FRAGMENT_SEPARATOR = '#';
+    private static final String FRAGMENT_SEPARATOR_ENCODED = "%23";
 
     @NonNull private final UrlResolutionListener listener;
 
@@ -105,6 +107,31 @@ public class UrlResolutionTask extends AsyncTask<String, Void, String> {
         }
     }
 
+    /**
+     * Sanitizes URL by replacing all '#' except the first one with '%23'
+     * to avoid Illegal character in fragment errors.
+     * Fix bug with JeeMee expanded Banner.
+     */
+    @VisibleForTesting
+    @NonNull
+    private static String sanitizeUrl(@NonNull String url) {
+        int fragmentSeparatorIndex = url.indexOf(FRAGMENT_SEPARATOR);
+        if (fragmentSeparatorIndex == -1) {
+            return url;
+        }
+
+        String firstPartUrl = url.substring(0, fragmentSeparatorIndex + 1);
+        String secondPartUrl = url.substring(fragmentSeparatorIndex + 1);
+
+        // Replace all remaining `#` → `%23`
+        secondPartUrl = secondPartUrl.replace(
+                String.valueOf(FRAGMENT_SEPARATOR),
+                FRAGMENT_SEPARATOR_ENCODED
+        );
+
+        return firstPartUrl + secondPartUrl;
+    }
+
     @VisibleForTesting
     @Nullable
     static String resolveRedirectLocation(@NonNull final String baseUrl,
@@ -112,10 +139,13 @@ public class UrlResolutionTask extends AsyncTask<String, Void, String> {
     throws IOException, URISyntaxException {
         final URI baseUri = new URI(baseUrl);
         final int responseCode = httpUrlConnection.getResponseCode();
-        final String redirectUrl = httpUrlConnection.getHeaderField("location");
+        String redirectUrl = httpUrlConnection.getHeaderField("location");
         String result = null;
 
         if (responseCode >= 300 && responseCode < 400) {
+            // Fix invalid redirect URLs BEFORE passing to URI.resolve()
+            redirectUrl = sanitizeUrl(redirectUrl);
+
             try {
                 // If redirectUrl is a relative path, then resolve() will correctly complete the path;
                 // otherwise, resolve() will return the redirectUrl
