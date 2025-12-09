@@ -232,6 +232,7 @@ public class Prebid {
                     JSONObject storedBid = new JSONObject();
                     Utils.addValue(storedBid, "bidder", bidder);
                     Utils.addValue(storedBid, "id", bidId);
+                    bidResponseArray.put(storedBid);
                 }
             }
 
