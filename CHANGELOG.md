@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.0.8
+## Changed
+* Second fragment separator in URL fixed
+
 # 0.0.7.9
 ## Changed
 * Device IP bug fixed
