@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 0.0.7.5.3
+## Changed
+* Second fragment separator in URL fixed
+
+
 ## 0.0.7.5.2
 # Fixed
 * Conflict ListenableFuture with CameraX fixed
