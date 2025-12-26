@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 0.0.9
+## Changed
+* GAM version upgraded
+* Resume auto refresh implemented
+
 # 0.0.8
 ## Changed
 * Second fragment separator in URL fixed
