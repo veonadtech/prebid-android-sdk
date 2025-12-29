@@ -88,11 +88,13 @@ object SdkLogUtil {
         sdkType: SdkType
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
-        if (PrebidMobile.getSdkLogState() == null) return
+
+        val sdkLogState = PrebidMobile.getSdkLogState() ?: return
+
         val finalTag = getTagWithBase(tag)
         Log.println(Log.DEBUG, finalTag, message)
 
-        val logPriority = when (PrebidMobile.getSdkLogState().level) {
+        val logPriority = when (sdkLogState.level) {
             Level.NONE -> Int.MAX_VALUE
             Level.VERBOSE -> 2
             Level.DEBUG -> 3
@@ -103,7 +105,7 @@ object SdkLogUtil {
         }
 
         if (level < logPriority) return
-        if (!PrebidMobile.getSdkLogState().sdkType.contains(sdkType)) return
+        if (!sdkLogState.sdkType.contains(sdkType)) return
 
         // Send to server
         LogServerSender.getInstance().sendLog(

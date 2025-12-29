@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.0
+## Changed
+* SdkLog race condition bug fixed
+
 # 0.0.9
 ## Changed
 * GAM version upgraded
