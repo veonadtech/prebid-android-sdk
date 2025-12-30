@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.1
+## Changed
+* hotfix: SDK version name changed
+
 # 0.1.0
 ## Changed
 * SdkLog race condition bug fixed
