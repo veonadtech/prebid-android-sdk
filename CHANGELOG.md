@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.0.7.5.4
+## Changed
+* SdkLog race condition bug fixed
+
 # 0.0.7.5.3
 ## Changed
 * Second fragment separator in URL fixed
