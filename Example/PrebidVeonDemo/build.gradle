@@ -29,6 +29,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+//    lint {
+//        baseline = file("lint-baseline.xml")
+//        checkReleaseBuilds = false
+//    }
 }
 
 dependencies {
