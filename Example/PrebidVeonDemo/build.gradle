@@ -55,6 +55,7 @@ dependencies {
 
     // Yandex Mobile Ads SDK core lib
     implementation libs.yandex.ads
+    implementation libs.yandex.appmetrica
     implementation libs.yandex.ads.bigoads
     implementation libs.yandex.ads.google
     implementation libs.yandex.ads.vungle
@@ -64,7 +65,7 @@ dependencies {
         exclude group: "com.unity3d.mediation", module: "facebookadapter"
         exclude group: "com.inmobi.monetization", module: "inmobi-ads-kotlin"
         exclude group: "com.unity3d.mediation", module: "inmobiadapter"
-        exclude group: "com.mbridge.msdk.oversea"
+        exclude group: "com.mbridge.msdk.oversea", module: ""
         exclude group: "com.unity3d.mediation", module: "mintegraladapter"
         exclude group: "com.pangle.global", module: "ads-sdk"
         exclude group: "com.unity3d.mediation", module: "pangleadapter"

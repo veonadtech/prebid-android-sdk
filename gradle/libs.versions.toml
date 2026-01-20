@@ -41,12 +41,13 @@ okhttp3 = "4.9.3"
 robolectric = "4.12.2"
 robotium-solo = "5.5.4"
 segmentedcontrol = "1.1.3"
-yandex-ads = "7.14.1"
-yandex-ads-bigoads = "5.3.0.6"
-yandex-ads-google = "23.6.0.6"
-yandex-ads-vungle = "7.4.2.10"
-yandex-ads-mintegral = "16.9.81.0"
-yandex-ads-extras = "7.14.1.0"
+yandex-ads = "7.9.0"
+yandexAnalytics = "7.9.0"
+yandex-ads-bigoads = "5.0.2.1"
+yandex-ads-google = "23.6.0.1"
+yandex-ads-vungle = "7.4.2.1"
+yandex-ads-mintegral = "16.8.61.3"
+yandex-ads-extras = "7.9.0.0"
 
 [libraries]
 androidx-annotation = { module = 'androidx.annotation:annotation', version.ref = "androidx-annotation" }
@@ -103,6 +104,7 @@ robotium-solo = { module = "com.jayway.android.robotium:robotium-solo", version.
 segmentedcontrol = { module = "com.github.RobertApikyan:SegmentedControl", version.ref = "segmentedcontrol" }
 shadows-httpclient = { module = "org.robolectric:shadows-httpclient", version.ref = "robolectric" }
 yandex-ads = { module = "com.yandex.android:mobileads", version.ref = "yandex-ads" }
+yandex-appmetrica = { module = "io.appmetrica.analytics:analytics", version.ref = "yandexAnalytics" }
 yandex-ads-bigoads = { module = "com.yandex.ads.mediation:mobileads-bigoads", version.ref = "yandex-ads-bigoads" }
 yandex-ads-google = { module = "com.yandex.ads.mediation:mobileads-google", version.ref = "yandex-ads-google" }
 yandex-ads-vungle = { module = "com.yandex.ads.mediation:mobileads-vungle", version.ref = "yandex-ads-vungle" }
