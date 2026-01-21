@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.2
+## Fixed
+* Added necessary files for starting unit tests. Changed test of SDK initialization.
+
 # 0.1.1
 ## Changed
 * hotfix: SDK version name changed
