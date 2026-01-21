@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.2
+## Changed
+* Yango SDK version downgraded
+
 # 0.1.1
 ## Changed
 * hotfix: SDK version name changed
