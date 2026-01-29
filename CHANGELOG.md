@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.2.1
+## Fixed
+* Yango SDK version downgraded to 7.9
+
 # 0.1.2
 ## Changed
 * Yango SDK version downgraded
