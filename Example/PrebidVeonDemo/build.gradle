@@ -35,10 +35,10 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.1.1-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.1.1-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.1.1-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.1.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.1.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.1.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.1.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.1.3-yango'
 
     // Standard libraries
     implementation libs.kotlin.stdlib
@@ -54,25 +54,44 @@ dependencies {
     implementation libs.applovin.sdk
 
     // Yandex Mobile Ads SDK core lib
-    implementation libs.yandex.ads
-    implementation libs.yandex.appmetrica
-    implementation libs.yandex.ads.bigoads
-    implementation libs.yandex.ads.google
-    implementation libs.yandex.ads.vungle
-    implementation libs.yandex.ads.mintegral
-    implementation (libs.yandex.ads.extras){
-        exclude group: "com.facebook.android", module: "audience-network-sdk"
-        exclude group: "com.unity3d.mediation", module: "facebookadapter"
+    implementation(libs.yandex.ads) {
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-applovin"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-appnext"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-chartboost"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-google"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-inmobi"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-mytarget"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-pangle"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-tapjoy"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-unityads"
+    }
+    implementation (libs.yandex.ads.extras) {
         exclude group: "com.inmobi.monetization", module: "inmobi-ads-kotlin"
-        exclude group: "com.unity3d.mediation", module: "inmobiadapter"
-        exclude group: "com.mbridge.msdk.oversea", module: ""
-        exclude group: "com.unity3d.mediation", module: "mintegraladapter"
-        exclude group: "com.pangle.global", module: "ads-sdk"
-        exclude group: "com.unity3d.mediation", module: "pangleadapter"
-        exclude group: "com.chartboost", module: "chartboost-sdk"
-        exclude group: "com.unity3d.mediation", module: "chartboost-adapter"
-        exclude group: "com.applovin", module: "applovin-sdk"
-        exclude group: "com.unity3d.mediation", module: "applovin-adapter"
+        exclude group: "com.ironsource.adapters", module:  "admobadapter"
+        exclude group:  "com.google.android.gms", module:  "play-services-ads"
+        exclude group:  "com.ironsource.adapters", module:  "facebookadapter"
+        exclude group:  "com.facebook.android", module:  "audience-network-sdk"
+        exclude group:  "com.ironsource.adapters", module:  "fyberadapter"
+        exclude group:  "com.fyber", module:  "marketplace-sdk"
+        exclude group:  "com.ironsource.adapters", module:  "inmobiadapter"
+        exclude group:  "com.ironsource.adapters", module:  "pangleadapter"
+        exclude group:  "com.ironsource.adapters", module:  "unityadsadapter"
+        exclude group:  "com.mbridge.msdk.oversea", module:  "mbbanner"
+        exclude group:  "com.mbridge.msdk.oversea", module:  "mbbid"
+        exclude group:  "com.mbridge.msdk.oversea", module:  "newinterstitial"
+        exclude group:  "com.mbridge.msdk.oversea", module:  "reward"
+        exclude group:  "com.pangle.global", module:  "ads-sdk"
+        exclude group:  "com.unity3d.ads", module:  "unity-ads"
+    }
+    implementation("com.yandex.android:mobileads") {
+        version {
+            strictly("7.9.0")
+        }
+    }
+    implementation("io.appmetrica.analytics:analytics") {
+        version {
+            strictly("7.9.0")
+        }
     }
 
     implementation libs.facebook.audience
