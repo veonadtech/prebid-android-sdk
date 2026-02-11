@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.rendering.utils.url.BrowserUserAgentGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,6 +90,9 @@ public class UrlResolutionTask extends AsyncTask<String, Void, String> {
             httpUrlConnection = (HttpURLConnection) url.openConnection();
             httpUrlConnection.setInstanceFollowRedirects(false);
 
+            // Set correct browser User-Agent
+            setBrowserUserAgent(httpUrlConnection);
+
             return resolveRedirectLocation(urlString, httpUrlConnection);
         }
         finally {
@@ -104,6 +108,17 @@ public class UrlResolutionTask extends AsyncTask<String, Void, String> {
                 }
                 httpUrlConnection.disconnect();
             }
+        }
+    }
+
+    /**
+     * Sets browser-like User-Agent for HTTP connection using utility class
+     */
+    private void setBrowserUserAgent(@NonNull HttpURLConnection connection) {
+        String userAgent = BrowserUserAgentGenerator.getBrowserUserAgent();
+        if (userAgent != null && !userAgent.isEmpty()) {
+            connection.setRequestProperty("User-Agent", userAgent);
+            LogUtil.debug(TAG, "Set User-Agent: " + userAgent.substring(0, Math.min(80, userAgent.length())) + "...");
         }
     }
 
