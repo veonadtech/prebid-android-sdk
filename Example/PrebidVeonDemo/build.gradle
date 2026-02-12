@@ -32,8 +32,8 @@ android {
 }
 
 dependencies {
-    implementation project(':PrebidMobile')
-    implementation project(':PrebidMobile-gamEventHandlers')
+//    implementation project(':PrebidMobile')
+//    implementation project(':PrebidMobile-gamEventHandlers')
 
 //    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.1.3-yango'
 //    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.1.3-yango'

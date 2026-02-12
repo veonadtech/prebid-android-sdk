@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.1.2.2
+## Fixed
+*  Set browser-like User-Agent for redirect request
+
 # 0.1.2.1
 ## Fixed
 * Yango SDK version downgraded to 7.9
