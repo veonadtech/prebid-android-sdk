@@ -3,6 +3,7 @@
 # 0.1.2
 ## Fixed
 * Added necessary files for starting unit tests. Changed test of SDK initialization.
+*  Set browser-like User-Agent for redirect request
 
 # 0.1.1
 ## Changed
