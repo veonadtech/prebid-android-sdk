@@ -17,9 +17,11 @@
 package org.prebid.mobile.rendering.mraid.methods.network;
 
 import android.os.AsyncTask;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.rendering.utils.url.BrowserUserAgentGenerator;
