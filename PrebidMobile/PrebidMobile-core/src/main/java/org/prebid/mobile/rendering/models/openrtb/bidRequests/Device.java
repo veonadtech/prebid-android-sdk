@@ -26,8 +26,6 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.devices.Geo;
 
-import java.util.Random;
-
 public class Device extends BaseBid {
 
     @Nullable
@@ -87,7 +85,7 @@ public class Device extends BaseBid {
         toJSON(jsonObject, "ua", ua);
         toJSON(jsonObject, "dnt", dnt);
         toJSON(jsonObject, "lmt", lmt);
-        toJSON(jsonObject, "ip", "43.245.120.165");
+        toJSON(jsonObject, "ip", ip != null ? ip : PrebidMobile.getDeviceIP());
         toJSON(jsonObject, "ipv6", ipv6);
         toJSON(jsonObject, "devicetype", devicetype);
         toJSON(jsonObject, "make", make);
@@ -97,9 +95,9 @@ public class Device extends BaseBid {
         toJSON(jsonObject, "hwv", hwv);
         toJSON(jsonObject, "flashver", flashver);
         toJSON(jsonObject, "language", language);
-        toJSON(jsonObject, "carrier", "Banglalink");
+        toJSON(jsonObject, "carrier", carrier);
         toJSON(jsonObject, "mccmnc", mccmnc);
-        toJSON(jsonObject, "ifa", generateIfa());
+        toJSON(jsonObject, "ifa", ifa);
         toJSON(jsonObject, "didsha1", didsha1);
         toJSON(jsonObject, "didmd5", didmd5);
         toJSON(jsonObject, "dpidsha1", dpidsha1);
@@ -115,12 +113,6 @@ public class Device extends BaseBid {
         toJSON(jsonObject, "geo", (geo != null) ? geo.getJsonObject() : null);
 
         return jsonObject;
-    }
-
-    private String generateIfa() {
-        Random random = new Random();
-        int randomSuffix = random.nextInt(90000) + 10000; // Генерирует число от 10000 до 99999
-        return "39f977e1-e5a8-4e7a-a986-7b4e1cb" + randomSuffix;
     }
 
     // Accessors to prevent NPE while maintaining null if object is not set

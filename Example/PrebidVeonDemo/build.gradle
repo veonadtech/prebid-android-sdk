@@ -9,7 +9,7 @@ android {
         targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
-        applicationId "com.banglalink.toffee"
+        applicationId "org.prebid.veondemo"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

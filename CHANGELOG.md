@@ -3,13 +3,15 @@
 # 0.0.7.5.5
 ## Fixed
 *  Set browser-like User-Agent for redirect request
+## Changed
+* Request parameter device.ext.ifa_type added
 
 # 0.0.7.5.4
-## Changed
+## Fixed
 * SdkLog race condition bug fixed
 
 # 0.0.7.5.3
-## Changed
+## Fixed
 * Second fragment separator in URL fixed
 
 

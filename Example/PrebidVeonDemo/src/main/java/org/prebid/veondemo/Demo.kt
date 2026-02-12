@@ -39,7 +39,7 @@ class Demo : Application() {
     private fun initTestPrebidSDK() {
         Log.d(TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("com.banglalink.toffee")
+        PrebidMobile.setPrebidServerAccountId("org.prebid.veondemo")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
@@ -47,7 +47,7 @@ class Demo : Application() {
 
         PrebidMobile.initializeSdk(
             applicationContext,
-            "https://prebid.bangladsp.com/openrtb2/auction",
+            "https://prebid.veonadx.com/openrtb2/auction",
             "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
         ) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
