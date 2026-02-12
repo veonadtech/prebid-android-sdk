@@ -44,16 +44,20 @@ object BrowserUserAgentGenerator {
             val deviceModel = getDeviceModel()
             val buildId = getBuildId()
 
-            val chromeVersion = getActualChromeVersion() ?: getChromeVersionForAndroid(androidVersion).also {
-                LogUtil.debug(TAG, "Using Chrome version mapping for Android $androidVersion: $it")
-            }.alsoIfNotNull {
-                LogUtil.debug(TAG, "Using actual Chrome version from system: $it")
+            val chromeVersion = getActualChromeVersion()
+            val finalChromeVersion = if (chromeVersion != null) {
+                LogUtil.debug(TAG, "Using actual Chrome version from system: $chromeVersion")
+                chromeVersion
+            } else {
+                val mappedVersion = getChromeVersionForAndroid(androidVersion)
+                LogUtil.debug(TAG, "Using Chrome version mapping for Android $androidVersion: $mappedVersion")
+                mappedVersion
             }
 
             "Mozilla/5.0 (Linux; Android $androidVersion; $deviceModel Build/$buildId; wv) " +
                     "AppleWebKit/537.36 (KHTML, like Gecko) " +
                     "Version/4.0 " +
-                    "Chrome/$chromeVersion Mobile Safari/537.36"
+                    "Chrome/$finalChromeVersion Mobile Safari/537.36"
         } catch (e: Exception) {
             LogUtil.error(TAG, "Error generating User-Agent: ${e.message}")
             FALLBACK_USER_AGENT
@@ -187,13 +191,4 @@ object BrowserUserAgentGenerator {
         }
     }
 
-    /**
-     * Utility extension function for conditional logging.
-     */
-    private inline fun <T> T?.alsoIfNotNull(block: (T) -> Unit): T? {
-        if (this != null) {
-            block(this)
-        }
-        return this
-    }
 }
