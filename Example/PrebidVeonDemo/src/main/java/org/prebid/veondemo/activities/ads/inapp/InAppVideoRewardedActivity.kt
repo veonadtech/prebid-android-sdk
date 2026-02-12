@@ -26,7 +26,7 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class InAppVideoRewardedActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-demo-video-rewarded-endcard-time-close-button"
+        const val CONFIG_ID = "beeline_uz_android_universal_interstitial_test2"
     }
 
     private var adUnit: RewardedAdUnit? = null

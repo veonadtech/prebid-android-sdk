@@ -60,6 +60,10 @@ public class MraidExpand {
     }
 
     public void expand(final String url, final CompletedCallBack completedCallBack) {
+        Log.d(TAG, "MRAID EXPAND CALLED with URL: " + url);
+        Log.d(TAG, "mraidExpanded flag: " + mraidExpanded);
+        Log.d(TAG, "webViewBanner: " + (webViewBanner != null));
+        Log.d(TAG, "jsi: " + (jsi != null));
 
         jsi.followToOriginalUrl(url, new RedirectUrlListener() {
             @Override
@@ -72,6 +76,7 @@ public class MraidExpand {
                     jsi.playVideo(url);
                 } else {
                     performExpand(url, completedCallBack);
+                    LogUtil.debug(TAG,"Perfomed expanding");
                 }
             }
 
@@ -129,6 +134,8 @@ public class MraidExpand {
 
     private void performExpand(String url, CompletedCallBack completedCallBack) {
         final Context context = this.context;
+        Log.d(TAG, "performExpand called with URL: " + url);
+        Log.d(TAG, "Context: " + (context != null ? context.getClass().getSimpleName() : "null"));
         if (context == null) {
             LogUtil.error(TAG, "Context is null");
             return;

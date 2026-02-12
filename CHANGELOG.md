@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.0.7.5.5
+## Fixed
+*  Set browser-like User-Agent for redirect request
+
 # 0.0.7.5.4
 ## Changed
 * SdkLog race condition bug fixed
