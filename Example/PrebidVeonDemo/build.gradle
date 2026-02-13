@@ -9,7 +9,7 @@ android {
         targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
-        applicationId "org.prebid.veondemo"
+        applicationId "uz.beeline.odp"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -32,13 +32,13 @@ android {
 }
 
 dependencies {
-//    implementation project(':PrebidMobile')
-//    implementation project(':PrebidMobile-gamEventHandlers')
+    implementation project(':PrebidMobile')
+    implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.1.3-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.1.3-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.1.3-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.1.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.1.1.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.1.1.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.1.1.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.1.1.1-yango'
 
     // Standard libraries
     implementation libs.kotlin.stdlib
