@@ -54,7 +54,7 @@ public class PrebidMobile {
      * Minimum refresh interval allowed. 30 seconds
      */
     public static final int AUTO_REFRESH_DELAY_MIN = 30_000;
-
+    public static boolean useExternalBrowser = false;
     /**
      * Maximum refresh interval allowed. 120 seconds
      */
