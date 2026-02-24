@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.2.0
+## Added
+* Added useExternalBrowser option (allows opening links in an external browser instead of WebView)
+
 # 0.1.2.2
 ## Fixed
 *  Set browser-like User-Agent for redirect request
