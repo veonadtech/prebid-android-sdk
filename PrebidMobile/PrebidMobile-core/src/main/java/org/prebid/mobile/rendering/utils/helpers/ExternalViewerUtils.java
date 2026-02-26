@@ -162,7 +162,7 @@ public class ExternalViewerUtils {
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         }
 
-        if (isActivityCallable(context, intent)) {
+        if (!PrebidMobile.useExternalBrowser && isActivityCallable(context, intent)) {
             startActivity(context, intent);
             notifyBrowserActionSuccess(BrowserActionResult.INTERNAL_BROWSER, onBrowserActionResultListener);
         } else {
