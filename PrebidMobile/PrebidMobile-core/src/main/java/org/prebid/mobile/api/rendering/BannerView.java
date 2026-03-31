@@ -194,8 +194,6 @@ public class BannerView extends FrameLayout {
                         AdException.INTERNAL_ERROR,
                         "WinnerBid is null when executing onPrebidSdkWin."
                 ));
-                return;
-            } else {
                 String config = adUnitConfig.getConfigId() != null ? adUnitConfig.getConfigId() : "";
                 SdkLogUtil.error(
                         "WinnerBid is null when executing onPrebidSdkWin.",
@@ -203,6 +201,7 @@ public class BannerView extends FrameLayout {
                         config,
                         SdkType.PREBID
                 );
+                return;
             }
 
             displayPrebidView();
