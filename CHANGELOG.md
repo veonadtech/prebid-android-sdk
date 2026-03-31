@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.2.1
+## Fixed
+* Fixed null safety for configId in BannerView
+
 # 0.2.0
 ## Added
 * Added useExternalBrowser option (allows opening links in an external browser instead of WebView)
