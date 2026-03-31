@@ -1,5 +1,15 @@
 # CHANGELOG
 
+# 0.2.0
+## Added
+* Added useExternalBrowser option (allows opening links in an external browser instead of WebView)
+
+
+# 0.1.2
+## Fixed
+* Added necessary files for starting unit tests. Changed test of SDK initialization.
+*  Set browser-like User-Agent for redirect request
+
 # 0.1.1
 ## Changed
 * hotfix: SDK version name changed

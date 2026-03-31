@@ -55,6 +55,7 @@ import okhttp3.mockwebserver.MockWebServer;
 public class SdkInitializerTest {
 
     private static final int TERMINATION_TIMEOUT = 10;
+    private static final String TEST_ACCOUNT_ID = "test-account-id";
 
     private boolean calledAlready = false;
     private Boolean isSuccessful;
@@ -92,14 +93,14 @@ public class SdkInitializerTest {
 
     @Test
     public void init_putNullContextAndNullListener_initializationFail() {
-        SdkInitializer.init(null, null);
+        SdkInitializer.init(null, TEST_ACCOUNT_ID, null);
 
         assertFalse(PrebidMobile.isSdkInitialized());
     }
 
     @Test
     public void init_putNullContext_initializationFail() {
-        SdkInitializer.init(null, createListener());
+        SdkInitializer.init(null, TEST_ACCOUNT_ID, createListener());
 
         assertFalse(isSuccessful);
         assertFalse(PrebidMobile.isSdkInitialized());
@@ -110,7 +111,7 @@ public class SdkInitializerTest {
     public void init_statusResponseIsOk_initializationIsSuccessful() throws IOException, InterruptedException {
         setStatusResponse(200, "Good");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
@@ -123,7 +124,7 @@ public class SdkInitializerTest {
     public void init_longStatusResponse_initializationIsFailed() throws IOException, InterruptedException {
         setStatusResponse(200, "Good");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         Thread.sleep(12_000);
         shadowOf(getMainLooper()).idle();
@@ -137,7 +138,7 @@ public class SdkInitializerTest {
     public void init_statusResponseIsEmpty_initializationIsSuccessful() throws IOException, InterruptedException {
         setStatusResponse(204, "");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
@@ -149,7 +150,7 @@ public class SdkInitializerTest {
     public void init_statusResponseIsBad_statusWarning() throws InterruptedException {
         setStatusResponse(404, "");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
@@ -164,7 +165,7 @@ public class SdkInitializerTest {
     public void init_customStatusResponseIsOk_initializationIsSuccessful() throws IOException, InterruptedException {
         setCustomStatusResponse(200, "Good");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
@@ -178,7 +179,7 @@ public class SdkInitializerTest {
     public void init_customStatusResponseIsEmpty_initializationIsSuccessful() throws IOException, InterruptedException {
         setCustomStatusResponse(204, "");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
@@ -190,7 +191,7 @@ public class SdkInitializerTest {
     public void init_customStatusResponseIsBad_statusWarning() throws InterruptedException {
         setCustomStatusResponse(404, "");
 
-        SdkInitializer.init(context, createListener());
+        SdkInitializer.init(context, TEST_ACCOUNT_ID, createListener());
 
         advanceBackgroundTasks();
 
