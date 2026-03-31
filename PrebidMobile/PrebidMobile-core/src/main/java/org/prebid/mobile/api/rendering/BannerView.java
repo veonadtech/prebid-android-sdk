@@ -33,6 +33,7 @@ import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.data.VideoPlacementType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.api.rendering.listeners.BannerVideoListener;
@@ -41,6 +42,7 @@ import org.prebid.mobile.api.rendering.pluginrenderer.PluginEventListener;
 import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.core.R;
+import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.interfaces.BannerEventHandler;
@@ -193,6 +195,14 @@ public class BannerView extends FrameLayout {
                         "WinnerBid is null when executing onPrebidSdkWin."
                 ));
                 return;
+            } else {
+                String config = adUnitConfig.getConfigId() != null ? adUnitConfig.getConfigId() : "";
+                SdkLogUtil.error(
+                        "WinnerBid is null when executing onPrebidSdkWin.",
+                        AdFormat.BANNER,
+                        config,
+                        SdkType.PREBID
+                );
             }
 
             displayPrebidView();
