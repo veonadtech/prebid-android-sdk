@@ -54,17 +54,7 @@ dependencies {
     implementation libs.androidx.localbroadcastmanager
 
     // Yandex Mobile Ads SDK core lib
-    implementation(libs.yandex.ads) {
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-applovin"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-appnext"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-chartboost"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-google"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-inmobi"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-mytarget"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-pangle"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-tapjoy"
-        exclude group: "com.yandex.ads.mediation", module: "mobileads-unityads"
-    }
+    implementation libs.mobileads
 
     implementation libs.facebook.audience
 }
