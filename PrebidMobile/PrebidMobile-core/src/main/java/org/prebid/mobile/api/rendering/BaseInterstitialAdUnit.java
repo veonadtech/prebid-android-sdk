@@ -16,13 +16,7 @@
 
 package org.prebid.mobile.api.rendering;
 
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.LOADING;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_FOR_LOAD;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_GAM;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_PREBID;
-
 import android.content.Context;
-
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -47,14 +41,14 @@ import org.prebid.mobile.rendering.models.AdPosition;
 
 import java.lang.ref.WeakReference;
 
+import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.*;
+
 /**
  * Internal base interstitial ad unit for rendering API.
  */
 public abstract class BaseInterstitialAdUnit {
 
     private static final String TAG = BaseInterstitialAdUnit.class.getSimpleName();
-    private final WeakReference<Context> weakContext;
-    protected AdUnitConfiguration adUnitConfig;
 
     protected boolean userHasNotEarnedRewardYet = true;
 
@@ -62,8 +56,11 @@ public abstract class BaseInterstitialAdUnit {
 
     private BidLoader bidLoader;
     private BidResponse bidResponse;
+    protected AdException prebidException;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
+
+    private final WeakReference<Context> weakContext;
     private final BidRequesterListener bidRequesterListener = createBidRequesterListener();
     protected final InterstitialControllerListener controllerListener = createInterstitialControllerListener();
 
@@ -139,7 +136,6 @@ public abstract class BaseInterstitialAdUnit {
     /**
      * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
      * Expected format: {@code "{"new_field": "value"}"}.
-     *
      * @param ortbConfig JSON config string.
      */
     public void setImpOrtbConfig(@Nullable String ortbConfig) {
@@ -246,10 +242,6 @@ public abstract class BaseInterstitialAdUnit {
         return weakContext.get();
     }
 
-    protected boolean isBidInvalid() {
-        return bidResponse == null || bidResponse.getWinningBid() == null;
-    }
-
     protected void changeInterstitialAdUnitState(InterstitialAdUnitState state) {
         interstitialAdUnitState = state;
     }
@@ -291,6 +283,7 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;
+                prebidException = null;
 
                 changeInterstitialAdUnitState(LOADING);
                 requestAdWithBid(getWinnerBid());
@@ -299,6 +292,8 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onError(AdException exception) {
                 bidResponse = null;
+                prebidException = exception;
+
                 requestAdWithBid(null);
             }
         };

@@ -13,6 +13,8 @@ import org.prebid.veondemo.utils.Settings
 
 open class BaseAdActivity : AppCompatActivity() {
 
+    protected val TAG = "ExampleActivity"
+
     /**
      * ViewGroup container for any ad view.
      */
