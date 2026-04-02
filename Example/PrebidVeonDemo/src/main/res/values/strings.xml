@@ -1,6 +1,215 @@
 <resources>
 
-    <string name="app_name">Prebid Veon Demo</string>
+    <!-- App -->
+    <string name="app_name">Prebid Rendering Kotlin Demo</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="text_load">Load</string>
+    <string name="text_show">Show</string>
+    <string name="text_retry">Retry</string>
+    <string name="text_stop_refresh">Stop refresh</string>
+    <string name="enable_caching">Enable Caching</string>
+    <string name="enable_custom_renderer">CustomRenderer</string>
+
+    <string name="title_preload_failed">Preload failed</string>
+    <string name="title_examples">Examples</string>
+
+    <string name="onAdLoaded">onAdLoaded called</string>
+    <string name="onAdDisplayed">onAdDisplayed called</string>
+    <string name="onAdHidden">onAdHidden called</string>
+    <string name="onAdImpression">onAdImpression called</string>
+    <string name="onAdFailed">onAdFailed called</string>
+    <string name="onAdClicked">onAdClicked called</string>
+    <string name="onAdClosed">onAdClosed called</string>
+    <string name="onAdLoadFailed">onAdLoadFailed called</string>
+    <string name="onAdDisplayFailed">onAdDisplayFailed called</string>
+    <string name="onAdExpanded">onAdExpanded called</string>
+    <string name="onAdCollapsed">onAdCollapsed called</string>
+    <string name="onRewardedVideoStarted">onRewardedVideoStarted called</string>
+    <string name="onRewardedVideoCompleted">onRewardedVideoCompleted called</string>
+    <string name="onUserRewarded">onUserRewarded called</string>
+    <string name="onAdRevenuePaid">onAdRevenuePaid called</string>
+    <string name="onNativeAdLoaded">onNativeAdLoaded called</string>
+    <string name="onNativeAdClicked">onNativeAdClicked called</string>
+    <string name="onNativeAdLoadFailed">onNativeAdLoadFailed called</string>
+
+
+
+    <string name="event_admob_loaded">onAdLoaded</string>
+    <string name="event_admob_clicked">onAdClicked</string>
+    <string name="event_admob_opened">onAdOpened</string>
+    <string name="event_admob_impression">onAdImpression</string>
+    <string name="event_admob_closed">onAdClosed</string>
+    <string name="event_admob_failed">onAdFailed</string>
+    <string name="event_admob_interstitial_showed_full_screen">onAdShowedFullScreenContent</string>
+    <string name="event_admob_interstitial_failed_full_screen">onAdFailedToShowFullScreenContent</string>
+    <string name="event_admob_interstitial_dismissed_full_screen">onAdDismissedFullScreenContent</string>
+
+    <!-- TCF V1 -->
+    <string name="key_subject_to_gdpr">IABConsent_SubjectToGDPR</string>
+    <string name="key_consent_string">IABConsent_ConsentString</string>
+    <string name="key_us_privacy">IABUSPrivacy_String</string>
+    <string name="key_keep_settings">IABConsent__KeepSettings</string>
+
+    <!-- TCF V2 -->
+    <string name="key_consent_string_v2">IABTCF_TCString</string>
+    <string name="key_subject_to_gdpr_v2">IABTCF_gdprApplies</string>
+    <string name="key_cmp_sdk_id">IABTCF_CmpSdkID</string>
+
+    <!--Bidding-->
+    <string name="key_ad_unit">KEY_AD_UNIT</string>
+    <string name="key_bid_config_id">KEY_CONFIG_ID</string>
+    <string name="key_width">KEY_WIDTH</string>
+    <string name="key_height">KEY_HEIGHT</string>
+    <string name="key_title">KEY_TITLE</string>
+
+    <!--In-App Titles-->
+    <string name="demo_bidding_in_app_banner_320_50">Banner 320x50 (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_events">Banner 320x50 Events (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_reusable">Banner 320x50 Scrollable Reusable (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_recycler_view">Banner 320x50 Recycler view (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_custom_renderer">Banner 320x50 [Custom Renderer] (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_custom_renderer_plugin_event_listener">Banner 320x50 [Custom Renderer, PluginEventListener] (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_no_bids">Banner 320x50 [noBids] (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_imp_prebid_random_bid"> Banner 320x50 [Bid - RANDOM noBids, Ad - RESPECTIVE]</string>
+    <string name="demo_bidding_in_app_banner_300_250">Banner 300x250 (In-App)</string>
+    <string name="demo_bidding_in_app_banner_728_90">Banner 728x90 (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_scrollable">Banner 320x50 Scrollable (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_vast">Banner 320x50 (In-App) [Incorrect VAST]</string>
+    <string name="demo_bidding_in_app_banner_320_50_deeplink">Banner 320x50 (In-App) [DeepLink+]</string>
+    <string name="demo_bidding_in_app_banner_320_50_special_symbols">Banner 320x50 Special Symbols (In-App)</string>
+    <string name="demo_bidding_in_app_banner_layout">Banner 320x50 Layout (In-App)</string>
+    <string name="demo_bidding_in_app_banner_multisize">Banner Multisize (In-App)</string>
+    <string name="demo_bidding_in_app_banners_and_interstitial">Banners and Interstitial (In-App)</string>
+    <string name="demo_bidding_in_app_banner_320_50_creative_factory">Banner 320x50 Server-Side Creative Factory Timeout (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_320_480">Display Interstitial 320x480 (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_320_480_custom_renderer">Display Interstitial 320x480 [Custom Renderer] (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_320_480_custom_renderer_plugin_event_listener">Display Interstitial 320x480 [Custom Renderer, PluginEventListener] (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_320_480_no_bids">Display Interstitial 320x480 [noBids] (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_320_480_multiformat">Multiformat Interstitial 320x480 (In-App)</string>
+    <string name="demo_bidding_in_app_banner_video_outstream">Video Outstream (In-App)</string>
+    <string name="demo_bidding_in_app_banner_video_outstream_no_bids">Video Outstream [noBids] (In-App)</string>
+    <string name="demo_bidding_in_app_banner_video_outstream_feed">Video Outstream Feed (In-App)</string>
+    <string name="demo_bidding_in_app_banner_video_outstream_end_card">Video Outstream with End Card (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480">Video Interstitial 320x480 (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_deeplink">Video Interstitial 320x480 Deeplink+ (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_skipoffset">Video Interstitial 320x480 SkipOffset (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_end_card">Video Interstitial 320x480 With End Card (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_close_button_area">Video Interstitial 320x480 With Close Button (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_end_card_sound_button">Video Interstitial 320x480 With End Card and Sound Button (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_end_card_skip_button">Video Interstitial 320x480 With End Card and Skip Button (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_mraid_end_card">Video Interstitial 320x480 with MRAID End Card (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_no_bids">Video Interstitial 320x480 (In-App) [noBids]</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_with_ad_configuration">Video Interstitial 320x480 With Ad Configuration (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_320_480_end_card_with_ad_configuration">Video Interstitial 320x480 With End Card With Ad Configuration (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_vertical_end_card">Video Interstitial Vertical With End Card (In-App)</string>
+    <string name="demo_bidding_in_app_interstitial_video_landscape_end_card">Video Interstitial Landscape With End Card (In-App)</string>
+
+    <string name="demo_bidding_in_app_display_rewarded_default">Display Rewarded 320x480 (Default)</string>
+    <string name="demo_bidding_in_app_display_rewarded_time">Display Rewarded 320x480 (5s to reward + 3s postreward + autoclose)</string>
+    <string name="demo_bidding_in_app_display_rewarded_event">Display Rewarded 320x480 (click for url event + 3s postreward + close button)</string>
+
+    <string name="demo_bidding_in_app_video_rewarded_default">Video Rewarded 320x480 (Default)</string>
+    <string name="demo_bidding_in_app_video_rewarded_time">Video Rewarded 320x480 (3s to reward + 3s postreward + autoclose)</string>
+    <string name="demo_bidding_in_app_video_rewarded_event">Video Rewarded 320x480 (midpoint + 2s postreward + close button)</string>
+
+    <string name="demo_bidding_in_app_video_rewarded_endcard_default">Video Rewarded Endcard 320x480 (Default)</string>
+    <string name="demo_bidding_in_app_video_rewarded_endcard_time">Video Rewarded Endcard 320x480 (5s to reward + 3s postreward + autoclose)</string>
+    <string name="demo_bidding_in_app_video_rewarded_endcard_event">Video Rewarded Endcard 320x480 (click for url event + 3s postreward + close button)</string>
+
+    <string name="demo_bidding_in_app_video_rewarded_end_card_320_480">Video Rewarded 320x480 (In-App)</string>
+    <string name="demo_bidding_in_app_video_rewarded_end_card_320_480_no_bids">Video Rewarded 320x480 with End Card (In-App) [noBids]</string>
+    <string name="demo_bidding_in_app_video_rewarded_320_480">Video Rewarded 320x480 without End Card (In-App)</string>
+    <string name="demo_bidding_in_app_video_rewarded_320_480_with_ad_configuration">Video Rewarded 320x480 With Ad Configuration (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_expand">MRAID 2.0: Expand - 1 Part (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_expand_2">MRAID 2.0: Expand - 2 Part (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_resize">MRAID 2.0: Resize (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_resize_with_errors">MRAID 2.0: Resize With Errors (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_fullscreen">MRAID 2.0: Fullscreen (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_fullscreen_video">MRAID 2.0: Video Interstitial (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_resize_negative">MRAID 3.0: Resize Negative Test (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_viewability_compliance">MRAID 3.0: Viewability Compliance Ad (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_load_and_events">MRAID 3.0: Load And Events (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_test_methods">MRAID OX: Test Methods 3.0 (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_test_properties">MRAID OX: Test Properties 3.0 (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_resize_expandable">MRAID OX: Resize (Expandable) (In-App)</string>
+    <string name="demo_bidding_in_app_mraid_resize_scroll">MRAID OX: Resize (With Scroll) (In-App)</string>
+    <string name="demo_bidding_in_app_native_styles_map">Banner Native Styles (In-App) [MAP]</string>
+    <string name="demo_bidding_in_app_native_styles_keys">Banner Native Styles (In-App) [KEYS]</string>
+    <string name="demo_bidding_in_app_native_styles_no_assets">Banner Native Styles No Assets (In-App)</string>
+    <string name="demo_bidding_in_app_native_styles_no_creative">Banner Native Styles No Creative (In-App)</string>
+    <string name="demo_bidding_in_app_native">Native Ad (In-App)</string>
+    <string name="demo_bidding_in_app_native_events">Native Ad Events (In-App)</string>
+    <string name="demo_bidding_in_app_native_feed">Native Ad Feed (In-App)</string>
+    <string name="demo_bidding_in_app_native_links">Native Ad Links (In-App)</string>
+    <string name="demo_bidding_in_app_native_video">Native Ad Video (In-App)</string>
+
+    <!--GAM Titles-->
+    <string name="demo_bidding_gam_banner_320_50_app_event">Banner 320x50 (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_banner_320_50_original">Banner 320x50 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_banner_320_50_app_event_with_events_url">Banner 320x50 Events (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_banner_320_50_gam_ad">Banner 320x50 (GAM) [OK, GAM Ad]</string>
+    <string name="demo_bidding_gam_banner_320_50_no_bids">Banner 320x50 (GAM) [noBids, GAM Ad]</string>
+    <string name="demo_bidding_gam_banner_320_50_random">Banner 320x50 (GAM) [OK, Random]</string>
+    <string name="demo_bidding_gam_banner_300_250">Banner 300x250 (GAM)</string>
+    <string name="demo_bidding_gam_banner_300_250_multiformat">Banner 300x250 Multiformat (GAM) [OK, PUC]</string>
+    <string name="demo_bidding_gam_banner_300_250_multiformat_old">Banner 300x250 Multiformat With Old Ad Unit (GAM) [OK, PUC]</string>
+    <string name="demo_bidding_gam_banner_300_250_original">Banner 300x250 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_banner_728_90">Banner 728x90 (GAM)</string>
+    <string name="demo_bidding_gam_banner_728_90_original">Banner 728x90 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_banner_multisize">Banner Multisize (GAM)</string>
+    <string name="demo_bidding_gam_banner_multisize_original">Banner Multisize (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_app_event">Display Interstitial 320x480 (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_original">Display Interstitial 320x480 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_original_multiformat">Interstitial Multiformat 320x480 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_random">Display Interstitial 320x480 (GAM) [OK, Random]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_no_bids">Display Interstitial 320x480 (GAM) [noBids, GAM Ad]</string>
+    <string name="demo_bidding_gam_interstitial_320_480_multiformat">Multiformat Interstitial 320x480 (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_app_event">Video Interstitial 320x480 (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_original">Video Interstitial 320x480 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_app_event_configuration">Video Interstitial 320x480 With Ad Configuration (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_app_event_endcard_configuration">Video Interstitial 320x480 With End Card And Ad Configuration (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_random">Video Interstitial 320x480 (GAM) [OK, Random]</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_no_bids">Video Interstitial 320x480 (GAM) [noBids, GAM Ad]</string>
+    <string name="demo_bidding_gam_video_outstream_no_bids">Video Outstream (GAM) [noBids, GAM Ad]</string>
+    <string name="demo_bidding_gam_video_oustream_app_event">Video Outstream (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_video_oustream_original">Video Outstream (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_video_oustream_original_new_api">Video Outstream New API (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_video_instream_original">Instream Video (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_video_instream_original_new_api">Instream Video New API (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_video_outstream_random">Video Outstream (GAM) [OK, Random]</string>
+    <string name="demo_bidding_gam_video_outstream_feed">Video Outstream Feed (GAM)</string>
+    <string name="demo_bidding_gam_video_rewarded_320_480_metadata">Video Rewarded 320x480 without End Card (GAM) [OK, Metadata]</string>
+    <string name="demo_bidding_gam_video_rewarded_end_card_320_480_metadata">Video Rewarded 320x480 (GAM) [OK, Metadata]</string>
+    <string name="demo_bidding_gam_video_rewarded_end_card_320_480_original">Video Rewarded 320x480 (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_video_rewarded_end_card_320_480_metadata_configuration">Video Rewarded 320x480 With End Card And Ad Configuration(GAM) [OK, Metadata]</string>
+    <string name="demo_bidding_gam_video_rewarded_end_card_320_480_random">Video Rewarded 320x480 (GAM) [OK, Random]</string>
+    <string name="demo_bidding_gam_video_rewarded_end_card_320_480_no_bids">Video Rewarded 320x480 (GAM) [noBids, GAM Ad]</string>
+    <string name="demo_bidding_gam_mraid_resize">MRAID 2.0: Resize (GAM)</string>
+    <string name="demo_bidding_gam_mraid_expand">MRAID 2.0: Expand - 1 Part (GAM)</string>
+    <string name="demo_bidding_gam_banner_320_50_vanilla">Banner 320x50 - Vanilla Prebid Order (GAM)</string>
+    <string name="demo_bidding_gam_interstitial_320_480_vanilla">Display Interstitial 320x480 - Vanilla Prebid Order (GAM)</string>
+    <string name="demo_bidding_gam_interstitial_video_320_480_vanilla">Video Interstitial 320x480 - Vanilla Prebid Order (GAM)</string>
+    <string name="demo_bidding_gam_banners_and_interstitial">Banners and Interstitial (GAM) [OK, AppEvent]</string>
+    <string name="demo_bidding_gam_mraid_fullscreen_video">MRAID 2.0: Video Interstitial (GAM)</string>
+    <string name="demo_bidding_gam_native_styles_mrect">Banner Native Styles (GAM) [MRect]</string>
+    <string name="demo_bidding_gam_native_styles_fluid">Banner Native Styles (GAM) [Fluid]</string>
+    <string name="demo_bidding_gam_native_styles_no_assets">Banner Native Styles No Assets (GAM) [MRect]</string>
+    <string name="demo_bidding_gam_native_custom_templates">Native Ad Custom Templates (GAM) [OK, NativeAd]</string>
+    <string name="demo_bidding_gam_native_custom_templates_events">Native Ad Custom Templates Events (GAM) [OK, NativeAd]</string>
+    <string name="demo_bidding_gam_native_custom_templates_no_bids">Native Ad (GAM) [noBids, GADNativeCustomTemplateAd]</string>
+    <string name="demo_bidding_gam_native_unified_ads">Native Ad Unified Ad (GAM) [OK, NativeAd]</string>
+    <string name="demo_bidding_gam_native_banner_original">Native Banner (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_native_in_app_original">Native In-App (GAM Original) [OK, PUC]</string>
+    <string name="demo_bidding_gam_native_unified_ads_no_bids">Native Ad (GAM) [noBids, GADUnifiedNativeAd]</string>
+    <string name="demo_bidding_gam_native_custom_templates_prebid_ok">Native Ad (GAM) [OK, GADNativeCustomTemplateAd]</string>
+    <string name="demo_bidding_gam_native_unified_ads_prebid_ok">Native Ad (GAM) [OK, GADUnifiedNativeAd]</string>
+    <string name="demo_bidding_gam_native_feed">Native Ad Feed (GAM) [OK, NativeAd]</string>
+    <string name="demo_bidding_gam_multiformat">Multiformat (Banner + Video + In-App Native) (GAM Original)</string>
+    <string name="demo_bidding_gam_multiformat_native_styles">Multiformat (Banner + Video + Native Styles) (GAM Original)</string>
+    <string name="demo_bidding_gam_multiformat_interstitial">Multiformat Interstitial (Banner + Video) (GAM Original)</string>
+    <string name="demo_bidding_gam_multiformat_rewarded">Multiformat Rewarded (GAM Original)</string>
 
     <string name="integration_kind">Integration</string>
     <string name="ad_format">Format</string>
