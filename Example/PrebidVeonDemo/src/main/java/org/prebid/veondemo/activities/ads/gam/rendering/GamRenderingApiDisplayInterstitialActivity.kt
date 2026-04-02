@@ -43,29 +43,7 @@ class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
     private fun createAd() {
         val eventHandler = GamInterstitialEventHandler(this, AD_UNIT_ID)
         adUnit = InterstitialAdUnit(this, CONFIG_ID, eventHandler)
-        adUnit?.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-            override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
-                adUnit?.show()
-                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "loaded", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {
-                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "displayed", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, exception: AdException?) {
-                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "failed: $exception", Toast.LENGTH_SHORT).show()
-                Log.d("AAAA", "onAdFailed: $exception")
-            }
-
-            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {
-                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "clicked", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {
-                Toast.makeText(this@GamRenderingApiDisplayInterstitialActivity, "closed", Toast.LENGTH_SHORT).show()
-            }
-        })
+        adUnit?.setInterstitialAdUnitListener(createListener(adUnit))
         adUnit?.loadAd()
     }
 
@@ -74,5 +52,21 @@ class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
         super.onDestroy()
         adUnit?.destroy()
     }
+
+
+    private fun createListener(adUnit: InterstitialAdUnit?): InterstitialAdUnitListener =
+        object : InterstitialAdUnitListener {
+            override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
+                adUnit?.show()
+            }
+
+            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, exception: AdException?) {
+                Log.e(TAG, "Ad failed: $exception")
+            }
+
+            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {}
+            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {}
+            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {}
+        }
 
 }
