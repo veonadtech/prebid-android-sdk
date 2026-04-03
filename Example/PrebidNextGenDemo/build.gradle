@@ -54,10 +54,10 @@ dependencies {
     implementation libs.androidx.multidex
 
     // Video Player
-    implementation libs.exoplayer
-    implementation libs.exoplayer.core
-    implementation libs.exoplayer.ui
-    implementation libs.extension.ima
+//    implementation libs.exoplayer
+//    implementation libs.exoplayer.core
+//    implementation libs.exoplayer.ui
+//    implementation libs.extension.ima
 
     // Tests
     testImplementation libs.junit
