@@ -1,5 +1,21 @@
 # CHANGELOG
 
+# 0.3.0
+## Fixed
+* Make NativeDataAsset len optional like iOS
+* hb_cache_id_local is not added to targetingKeywords if adObject is null
+* Fix bar layout params is null 
+*  Fix Adm native wrapper parsing
+* Exception during looking for cache
+## Changed
+* Send ifa_type for IFA 
+* Resume refreshing for Mediation banner 
+* Readable exceptions and useless logs
+* ORTB config for ad unit level (Aligns with iOS implementation)
+* Reusable rendering API banner (removes the destruction of Prebid WebView when it is detached 
+from the screen. So now the Prebid banner can be used in the RecyclerView and can be reused 
+many times to show the advertisement faster.)
+
 # 0.2.1
 ## Fixed
 * Fixed null safety for configId in BannerView
