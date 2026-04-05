@@ -37,3 +37,16 @@ dependencies {
 tasks.named('javadoc', Javadoc) {
     source = files()
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = "org.prebid.mobile"
+                artifactId = "eventhandlers.nextgen"
+                version = '1.0.0'
+            }
+        }
+    }
+}
