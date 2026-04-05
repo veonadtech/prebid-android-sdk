@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
     namespace "org.prebid.mobile.prebidnextgendemo"
-    setCompileSdkVersion(34)
+    setCompileSdkVersion(35)
     setBuildToolsVersion("35.0.1")
     defaultConfig {
         minSdkVersion 24
@@ -17,6 +17,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
@@ -33,6 +34,10 @@ android {
 dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-nextGenEventHandlers')
+
+    configurations.all {
+        exclude group: "com.google.android.gms", module: "play-services-ads-api"
+    }
 
     // For testing SNAPSHOT releases
     // implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName-SNAPSHOT"
@@ -64,4 +69,6 @@ dependencies {
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
     androidTestImplementation libs.androidx.uiautomator
+
+    coreLibraryDesugaring libs.desugar.jdk.libs
 }
