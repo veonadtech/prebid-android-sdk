@@ -5,7 +5,7 @@
 * Make NativeDataAsset len optional like iOS
 * hb_cache_id_local is not added to targetingKeywords if adObject is null
 * Fix bar layout params is null 
-*  Fix Adm native wrapper parsing
+* Fix Adm native wrapper parsing
 * Exception during looking for cache
 ## Changed
 * Send ifa_type for IFA 
