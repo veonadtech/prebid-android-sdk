@@ -34,6 +34,11 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-nextGenEventHandlers')
 
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.3.0-test5'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.3.0-test5'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers.nextgen:0.3.0-test5'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.3.0-test5'
+
     configurations.configureEach {
         exclude group: "com.google.android.gms", module: "play-services-ads-api"
     }
