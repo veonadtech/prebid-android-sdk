@@ -87,7 +87,7 @@ import org.robolectric.shadows.ShadowLocationManager;
 import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 19)
+@Config(sdk = 23)
 @LooperMode(LEGACY)
 public class BaseJSInterfaceTest {
 
