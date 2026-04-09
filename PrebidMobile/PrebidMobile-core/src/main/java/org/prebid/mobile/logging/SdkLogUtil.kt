@@ -1,7 +1,6 @@
 package org.prebid.mobile.logging
 
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.Size
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
