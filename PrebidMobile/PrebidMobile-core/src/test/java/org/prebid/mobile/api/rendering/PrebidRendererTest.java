@@ -65,6 +65,8 @@ public class PrebidRendererTest {
 
     @Test
     public void createBannerAdView_returnPrebidDisplayViewInstance() {
+        mockAdUnitConfiguration = new AdUnitConfiguration();
+        mockAdUnitConfiguration.setConfigId("test-ad-unit-id");
         DisplayViewListener mockDisplayViewListener = mock(DisplayViewListener.class);
         DisplayVideoListener mockDisplayVideoListener = mock(DisplayVideoListener.class);
         View result = prebidRenderer.createBannerAdView(context, mockDisplayViewListener, mockDisplayVideoListener, mockAdUnitConfiguration, mockBidResponse);

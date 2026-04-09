@@ -67,7 +67,7 @@ public class DeviceInfoParameterBuilderTest {
         expectedBidRequestDevice.w = SCREEN_WIDTH;
         expectedBidRequestDevice.h = SCREEN_HEIGHT;
         expectedBidRequestDevice.language = Locale.getDefault().getLanguage();
-        expectedBidRequestDevice.osv = "4.4";
+        expectedBidRequestDevice.osv = android.os.Build.VERSION.RELEASE;
         expectedBidRequestDevice.os = "Android";
         expectedBidRequestDevice.devicetype = Device.DeviceType.TABLET.value;
         expectedBidRequestDevice.model = "robolectric";
@@ -76,6 +76,7 @@ public class DeviceInfoParameterBuilderTest {
         expectedBidRequestDevice.ua = AppInfoManager.getUserAgent();
         expectedBidRequestDevice.ifa = AdvertisingIdManager.getAdvertisingId(ManagersResolver.getInstance().getUserConsentManager());
         expectedBidRequestDevice.lmt = AdvertisingIdManager.isLimitedAdTrackingEnabled() ? 1 : 0;
+        expectedBidRequestDevice.getExt().put("ifa_type", "dpid");
 
         assertJsonEquals(expectedBidRequest.getJsonObject(),
                      adRequestInput.getBidRequest().getJsonObject());

@@ -83,6 +83,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowLocationManager;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.lang.reflect.Field;
 
@@ -180,13 +182,16 @@ public class BaseJSInterfaceTest {
     }
 
     @Test
-    public void getDefaultPositionTest() {
+    public void getDefaultPositionTest() throws JSONException {
         assertEquals("{}", spyBaseJSInterface.getDefaultPosition());
 
         final MraidScreenMetrics screenMetrics = spyBaseJSInterface.getScreenMetrics();
         screenMetrics.setDefaultPosition(new Rect(0, 0, 0, 0));
 
-        assertEquals("{\"x\":0,\"width\":0,\"y\":0,\"height\":0}", spyBaseJSInterface.getDefaultPosition());
+        JSONAssert.assertEquals("{\"x\":0,\"width\":0,\"y\":0,\"height\":0}",
+                spyBaseJSInterface.getDefaultPosition(),
+                JSONCompareMode.STRICT
+        );
     }
 
     @Test
@@ -348,9 +353,12 @@ public class BaseJSInterfaceTest {
     }
 
     @Test
-    public void getCurrentPositionTest() {
+    public void getCurrentPositionTest() throws JSONException {
         String currentPosition = spyBaseJSInterface.getCurrentPosition();
-        assertEquals("{\"x\":0,\"width\":0,\"y\":0,\"height\":0}", currentPosition);
+        JSONAssert.assertEquals("{\"x\":0,\"width\":0,\"y\":0,\"height\":0}",
+                currentPosition,
+                JSONCompareMode.STRICT
+        );
 
         when(mockWebViewBase.getGlobalVisibleRect(any(Rect.class))).then(invocation -> {
             Rect argumentRect = invocation.getArgument(0);

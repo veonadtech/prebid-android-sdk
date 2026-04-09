@@ -65,6 +65,7 @@ public class PrebidDisplayViewTest {
 
         adUnitConfiguration = new AdUnitConfiguration();
         adUnitConfiguration.setAdFormat(AdFormat.BANNER);
+        adUnitConfiguration.setConfigId("test-ad-unit-id");
 
         BidResponse mockResponse = mock(BidResponse.class);
         Bid mockBid = mock(Bid.class);
