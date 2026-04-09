@@ -1,6 +1,7 @@
 package org.prebid.mobile.logging
 
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.annotation.Size
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
@@ -17,9 +18,6 @@ object SdkLogUtil {
     const val WARN = Log.WARN // 5
     const val ERROR = Log.ERROR // 6
     const val ASSERT = Log.ASSERT // 7
-
-    @JvmStatic
-    var logLevel: Int = 0
 
     /**
      * Configure log server sending
@@ -44,7 +42,7 @@ object SdkLogUtil {
      * Prints a message with ERROR priority and default GAM_TAG
      */
     @JvmStatic
-    fun error(message: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun error(message: String?, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
         error(GAM_TAG, message, adFormat, adUnitId, sdkType)
     }
 
@@ -60,7 +58,7 @@ object SdkLogUtil {
      * Prints a message with ERROR priority.
      */
     @JvmStatic
-    fun error(@Size(max = 23) tag: String, msg: String, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun error(@Size(max = 23) tag: String, msg: String?, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
         log(Log.ERROR, tag, msg, SdkAdStatus.FAILED, adFormat = adFormat, adUnitId, sdkType)
     }
 
