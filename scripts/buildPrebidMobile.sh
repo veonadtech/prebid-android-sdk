@@ -81,16 +81,16 @@ modules=(
   "PrebidMobile"
   "PrebidMobile-core"
   "PrebidMobile-gamEventHandlers"
-  "PrebidMobile-admobAdapters"
-  "PrebidMobile-maxAdapters"
+#  "PrebidMobile-admobAdapters"
+#  "PrebidMobile-maxAdapters"
 )
 
 projectPaths=(
   "$BASEDIR/PrebidMobile"
   "$BASEDIR/PrebidMobile/PrebidMobile-core"
   "$BASEDIR/PrebidMobile/PrebidMobile-gamEventHandlers"
-  "$BASEDIR/PrebidMobile/PrebidMobile-admobAdapters"
-  "$BASEDIR/PrebidMobile/PrebidMobile-maxAdapters"
+#  "$BASEDIR/PrebidMobile/PrebidMobile-admobAdapters"
+#  "$BASEDIR/PrebidMobile/PrebidMobile-maxAdapters"
 )
 
 mkdir "$OUTDIR/aar"
@@ -127,7 +127,8 @@ for n in ${!modules[@]}; do
     mkdir $AARPATH_ABSOLUTE/META-INF/proguard
     mv $AARPATH_ABSOLUTE/proguard.pro $AARPATH_ABSOLUTE/META-INF/proguard
     # move META-INF into a result direcotory
-    mv $AARPATH_ABSOLUTE/META-INF $TEMPDIR/output
+    mkdir -p $TEMPDIR/output/META-INF
+    cp -R $AARPATH_ABSOLUTE/META-INF/. $TEMPDIR/output/META-INF/
 
     rm -r $TEMPDIR/output/META-INF/com
 
@@ -146,8 +147,8 @@ for n in ${!modules[@]}; do
     cd $LIBDIR
 
     # Javadoc
-    echoX "Preparing ${modules[$n]} Javadoc"
-    ./gradlew -i --no-daemon ${modules[$n]}:javadocJar >$LOGPATH/javadoc.log 2>&1 || die "Build Javadoc failed, check log in $LOGPATH/javadoc.log"
+#    echoX "Preparing ${modules[$n]} Javadoc"
+#    ./gradlew -i --no-daemon ${modules[$n]}:javadocJar >$LOGPATH/javadoc.log 2>&1 || die "Build Javadoc failed, check log in $LOGPATH/javadoc.log"
 
     # Sources
     echoX "Preparing ${modules[$n]} Sources"
