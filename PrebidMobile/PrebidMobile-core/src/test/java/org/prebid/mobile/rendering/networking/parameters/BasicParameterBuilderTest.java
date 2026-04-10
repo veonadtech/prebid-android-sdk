@@ -89,7 +89,7 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, qualifiers = "w1920dp-h1080dp")
+@Config(sdk = 21, qualifiers = "w1920dp-h1080dp")
 public class BasicParameterBuilderTest {
 
     private static final int VIDEO_INTERSTITIAL_PLACEMENT = 5;

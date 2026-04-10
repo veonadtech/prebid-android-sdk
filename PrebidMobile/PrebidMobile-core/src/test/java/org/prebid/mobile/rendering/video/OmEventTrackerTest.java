@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config;
 import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class OmEventTrackerTest {
     private OmEventTracker omEventTracker;
 

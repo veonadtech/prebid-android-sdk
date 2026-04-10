@@ -19,6 +19,7 @@ package org.prebid.mobile.rendering.utils.exposure;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -42,7 +43,7 @@ import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 @RunWith(RobolectricTestRunner.class)
 @LargeTest
-@Config(sdk = 23, qualifiers = "w800dp-h800dp-xhdpi")
+@Config(sdk = 21, qualifiers = "w800dp-h800dp-xhdpi")
 @LooperMode(LEGACY)
 public class ViewExposureCheckerTest {
 
@@ -370,15 +371,17 @@ public class ViewExposureCheckerTest {
 
     @Test
     public void whenShouldCollectObstructionWithTransparentBgAndNonTransparentFg_ReturnTrue() {
-        FrameLayout child = new FrameLayout(activity);
-        final ColorDrawable foreground = mock(ColorDrawable.class);
-        final ColorDrawable background = mock(ColorDrawable.class);
-        when(foreground.getAlpha()).thenReturn(255);
-        when(background.getAlpha()).thenReturn(0);
+        if (Build.VERSION.SDK_INT >= 23) {
+            FrameLayout child = new FrameLayout(activity);
+            final ColorDrawable foreground = mock(ColorDrawable.class);
+            final ColorDrawable background = mock(ColorDrawable.class);
+            when(foreground.getAlpha()).thenReturn(255);
+            when(background.getAlpha()).thenReturn(0);
 
-        child.setForeground(foreground);
-        child.setBackground(background);
-        assertTrue(viewExposureChecker.shouldCollectObstruction(child));
+            child.setForeground(foreground);
+            child.setBackground(background);
+            assertTrue(viewExposureChecker.shouldCollectObstruction(child));
+        }
     }
 
     @Test

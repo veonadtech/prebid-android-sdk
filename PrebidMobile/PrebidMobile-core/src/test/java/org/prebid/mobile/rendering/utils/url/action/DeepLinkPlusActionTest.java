@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 import static org.prebid.mobile.rendering.utils.url.action.DeepLinkPlusAction.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class DeepLinkPlusActionTest {
     private static final String INVALID_DEEPLINK_EXAMPLE = "deeplink+://example";
 

@@ -24,7 +24,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class LruControllerTest {
 
     private String url = "http://path/to/video/Vast_Video.mp4";

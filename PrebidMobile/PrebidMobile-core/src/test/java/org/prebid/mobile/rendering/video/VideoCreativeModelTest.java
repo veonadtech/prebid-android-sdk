@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class VideoCreativeModelTest {
 
     private VideoCreativeModel videoCreativeModel;

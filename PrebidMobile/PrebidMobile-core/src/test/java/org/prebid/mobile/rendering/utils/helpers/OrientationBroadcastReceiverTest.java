@@ -37,7 +37,7 @@ import java.lang.reflect.Field;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class OrientationBroadcastReceiverTest {
 
     private OrientationBroadcastReceiver orientationReceiver;

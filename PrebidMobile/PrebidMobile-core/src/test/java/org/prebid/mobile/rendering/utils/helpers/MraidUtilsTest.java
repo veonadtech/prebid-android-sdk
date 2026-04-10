@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class MraidUtilsTest {
 
     @Test

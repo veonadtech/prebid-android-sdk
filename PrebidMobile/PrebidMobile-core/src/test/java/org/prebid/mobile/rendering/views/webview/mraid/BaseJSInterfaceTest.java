@@ -89,7 +89,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 @LooperMode(LEGACY)
 public class BaseJSInterfaceTest {
 

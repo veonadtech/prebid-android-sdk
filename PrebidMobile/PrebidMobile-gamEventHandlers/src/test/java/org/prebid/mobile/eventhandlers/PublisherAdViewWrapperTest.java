@@ -43,7 +43,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class PublisherAdViewWrapperTest {
     private PublisherAdViewWrapper publisherAdViewWrapper;
 

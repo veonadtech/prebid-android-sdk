@@ -45,7 +45,7 @@ import org.robolectric.annotation.Config;
 import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class AdViewProgressUpdateTaskTest {
 
     private AdViewProgressUpdateTask adViewProgressTask;
