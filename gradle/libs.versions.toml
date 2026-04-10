@@ -19,7 +19,7 @@ apache-commons-lang3 = "3.7"
 applovin-sdk = "13.1.0"
 assertj-core = "1.7.0"
 concurrent-futures = "1.1.0"
-exoplayer = "1.1.0"
+exoplayer = "2.15.1"
 glide = "4.14.2"
 google-play-services-ads = "23.6.0"
 google-play-services-ads-identifier = "18.0.1"
@@ -28,7 +28,6 @@ gradle = "8.7.3"
 gson = "2.8.6"
 guava = "31.1-android"
 hamcrest = "2.2"
-interactive-media = "3.36.0"
 jackson-databind = "2.14.3"
 json = "20180813"
 jsonassert = "1.5.0"
@@ -67,11 +66,10 @@ apache-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.re
 applovin-sdk = { module = "com.applovin:applovin-sdk", version.ref = "applovin-sdk" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj-core" }
 concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "concurrent-futures" }
-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayer" }
-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoplayer" }
-exoplayer-ima = { module = "androidx.media3:media3-exoplayer-ima", version.ref = "exoplayer" }
-exoplayer-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
-interactive-media = { module = "com.google.ads.interactivemedia.v3:interactivemedia", version.ref = "interactive-media" }
+exoplayer = { module = "com.google.android.exoplayer:exoplayer", version.ref = "exoplayer" }
+exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoplayer" }
+extension-ima = { module = "com.google.android.exoplayer:extension-ima", version.ref = "exoplayer" }
+exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", version.ref = "exoplayer" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 google-play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "google-play-services-ads" }
 google-play-services-ads-identifier = { module = "com.google.android.gms:play-services-ads-identifier", version.ref = "google-play-services-ads-identifier" }

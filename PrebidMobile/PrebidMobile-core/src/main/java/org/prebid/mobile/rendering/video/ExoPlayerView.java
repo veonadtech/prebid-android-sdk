@@ -19,22 +19,13 @@ package org.prebid.mobile.rendering.video;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.PlaybackException;
-import androidx.media3.common.Player;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
-import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-import androidx.media3.ui.PlayerView;
-
+import com.google.android.exoplayer2.*;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
@@ -43,10 +34,10 @@ import org.prebid.mobile.rendering.video.vast.VASTErrorCodes;
 
 public class ExoPlayerView extends PlayerView implements VideoPlayerView {
 
-    public static final float DEFAULT_INITIAL_VIDEO_VOLUME = 1.0f;
     private static final String TAG = "ExoPlayerView";
-    @NonNull
-    private final VideoCreativeViewListener videoCreativeViewListener;
+    public static final float DEFAULT_INITIAL_VIDEO_VOLUME = 1.0f;
+
+    @NonNull private final VideoCreativeViewListener videoCreativeViewListener;
     private AdViewProgressUpdateTask adViewProgressUpdateTask;
     private AdUnitConfiguration config;
     private ExoPlayer player;
@@ -54,6 +45,15 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
     private Uri videoUri;
 
     private long vastVideoDuration = -1;
+
+    public ExoPlayerView(
+            Context context,
+            @NonNull VideoCreativeViewListener videoCreativeViewListener
+    ) {
+        super(context);
+        this.videoCreativeViewListener = videoCreativeViewListener;
+    }
+
     private final Player.Listener eventListener = new Player.Listener() {
 
         @Override
@@ -82,14 +82,6 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
         }
     };
 
-    public ExoPlayerView(
-            Context context,
-            @NonNull VideoCreativeViewListener videoCreativeViewListener
-    ) {
-        super(context);
-        this.videoCreativeViewListener = videoCreativeViewListener;
-    }
-
     @Override
     public void mute() {
         setVolume(0);
@@ -107,7 +99,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
 
     @Override
     public void start(float initialVolume) {
-        LogUtil.debug(TAG, "start() called");
+        LogUtil.debug(TAG, "Called start");
         initLayout();
         initPlayer(initialVolume);
         preparePlayer(true);
@@ -142,28 +134,20 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
         return player.getVolume();
     }
 
-    @VisibleForTesting
-    void setVolume(float volume) {
-        if (player != null && volume >= 0.0f) {
-            videoCreativeViewListener.onVolumeChanged(volume);
-            player.setVolume(volume);
-        }
-    }
-
     void setAdUnitConfiguration(AdUnitConfiguration config) {
         this.config = config;
     }
 
     @Override
     public void resume() {
-        LogUtil.debug(TAG, "resume() called");
+        LogUtil.debug(TAG, "Called resume");
         preparePlayer(false);
         videoCreativeViewListener.onEvent(VideoAdEvent.Event.AD_RESUME);
     }
 
     @Override
     public void pause() {
-        LogUtil.debug(TAG, "pause() called");
+        LogUtil.debug(TAG, "Called pause");
         if (player != null) {
             player.stop();
             videoCreativeViewListener.onEvent(VideoAdEvent.Event.AD_PAUSE);
@@ -178,7 +162,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
 
     @Override
     public void destroy() {
-        LogUtil.debug(TAG, "destroy() called");
+        LogUtil.debug(TAG, "Called destroy");
         killUpdateTask();
         if (player != null) {
             player.stop();
@@ -186,6 +170,14 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
             setPlayer(null);
             player.release();
             player = null;
+        }
+    }
+
+    @VisibleForTesting
+    void setVolume(float volume) {
+        if (player != null && volume >= 0.0f) {
+            videoCreativeViewListener.onVolumeChanged(volume);
+            player.setVolume(volume);
         }
     }
 
@@ -209,7 +201,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
             LogUtil.debug(TAG, "Skipping initPlayer(): Player is already initialized.");
             return;
         }
-        player = new ExoPlayer.Builder(getContext()).build();
+        player = new SimpleExoPlayer.Builder(getContext()).build();
         player.addListener(eventListener);
         setPlayer(this.player);
         setUseController(false);
@@ -230,43 +222,34 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
             );
             adViewProgressUpdateTask.setVastTagDuration(vastVideoDuration);
             adViewProgressUpdateTask.execute();
-        } catch (AdException e) {
+        }
+        catch (AdException e) {
             e.printStackTrace();
         }
     }
 
-    @OptIn(markerClass = UnstableApi.class)
     @VisibleForTesting
     void preparePlayer(boolean resetPosition) {
-        MediaSource mediaSource = buildMediaSource(videoUri);
-        if (mediaSource == null || player == null) {
-            LogUtil.debug(TAG, "preparePlayer(): MediaSource or ExoPlayer is null. Skipping prepare.");
+        ProgressiveMediaSource extractorMediaSource = buildMediaSource(videoUri);
+        if (extractorMediaSource == null || player == null) {
+            LogUtil.debug(TAG, "preparePlayer(): ExtractorMediaSource or SimpleExoPlayer is null. Skipping prepare.");
             return;
         }
-        player.setMediaSource(mediaSource, resetPosition);
+        player.setMediaSource(extractorMediaSource, resetPosition);
         player.prepare();
     }
 
-    @OptIn(markerClass = UnstableApi.class)
-    private MediaSource buildMediaSource(Uri uri) {
+    private ProgressiveMediaSource buildMediaSource(Uri uri) {
         if (uri == null) {
             return null;
         }
-        MediaItem mediaItem = MediaItem.fromUri(uri);
-
-        DefaultHttpDataSource.Factory httpDataSourceFactory =
-                new DefaultHttpDataSource.Factory()
-                        .setUserAgent(Util.getUserAgent(getContext(), "PrebidRenderingSDK"));
-
-        DefaultDataSource.Factory dataSourceFactory =
-                new DefaultDataSource.Factory(getContext(), httpDataSourceFactory);
-
-        return new ProgressiveMediaSource.Factory(dataSourceFactory)
+        MediaItem mediaItem = new MediaItem.Builder().setUri(uri).build();
+        return new ProgressiveMediaSource.Factory(
+                new DefaultDataSourceFactory(getContext(), Util.getUserAgent(getContext(), "PrebidRenderingSDK")))
                 .createMediaSource(mediaItem);
     }
 
     private void killUpdateTask() {
-        LogUtil.debug(TAG, "killUpdateTask() called");
         if (adViewProgressUpdateTask != null) {
             adViewProgressUpdateTask.cancel(true);
             adViewProgressUpdateTask = null;
