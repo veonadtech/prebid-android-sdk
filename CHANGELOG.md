@@ -4,8 +4,9 @@
 ## Fixed
 * Fixed Unit tests
 ## Changed
-* minSdkVersion upgraded to 23
+* minSdkVersion upgraded to 21
 * GAM SDK upgraded to 25.1.0
+* Media3 migrated to ExoPlayer
 
 # 0.2.1
 ## Fixed
