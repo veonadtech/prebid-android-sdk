@@ -25,11 +25,11 @@ import androidx.annotation.Nullable;
 
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
-import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.display.BidResponseCache;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
@@ -45,7 +45,7 @@ import org.prebid.mobile.rendering.views.video.VideoViewListener;
 /**
  * Internal view renderer for plugin renderer.
  */
-public class PrebidDisplayView extends FrameLayout {
+public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable {
 
     private final static String TAG = DisplayView.class.getSimpleName();
     private static final String CONTENT_DESCRIPTION_AD_VIEW = "adView";
@@ -56,7 +56,23 @@ public class PrebidDisplayView extends FrameLayout {
 
     @Nullable
     private DisplayViewListener displayViewListener;
+
+    @Nullable
+    private DisplayVideoListener displayVideoListener;
+
+    @Nullable
+    private InterstitialManager interstitialManager;
+
+    @Nullable
+    private AdViewManager adViewManager;
+
+    @Nullable
+    private VideoView videoView;
+
+    @Nullable
+    private EventForwardingLocalBroadcastReceiver eventForwardingReceiver;
     private final EventForwardingLocalBroadcastReceiver.EventForwardingBroadcastListener broadcastListener = this::handleBroadcastAction;
+
     private final AdViewManagerListener adViewManagerListener = new AdViewManagerListener() {
         @Override
         public void adLoaded(AdDetails adDetails) {
@@ -92,8 +108,7 @@ public class PrebidDisplayView extends FrameLayout {
             notifyListenerClose();
         }
     };
-    @Nullable
-    private DisplayVideoListener displayVideoListener;
+
     private final VideoViewListener videoViewListener = new VideoViewListener() {
         @Override
         public void onLoaded(
@@ -103,7 +118,6 @@ public class PrebidDisplayView extends FrameLayout {
             videoAdView.setContentDescription(CONTENT_DESCRIPTION_AD_VIEW);
             notifyListenerLoaded();
         }
-
         @Override
         public void onLoadFailed(
                 @NonNull VideoView videoAdView,
@@ -111,21 +125,18 @@ public class PrebidDisplayView extends FrameLayout {
         ) {
             notifyListenerError(error);
         }
-
         @Override
         public void onDisplayed(
                 @NonNull VideoView videoAdView
         ) {
             notifyListenerDisplayed();
         }
-
         @Override
         public void onClickThroughOpened(
                 @NonNull VideoView videoAdView
         ) {
             notifyListenerClicked();
         }
-
         @Override
         public void onClickThroughClosed(
                 @NonNull VideoView videoAdView
@@ -158,15 +169,6 @@ public class PrebidDisplayView extends FrameLayout {
             notifyVideoMuted();
         }
     };
-    @Nullable
-    private InterstitialManager interstitialManager;
-    @Nullable
-    private AdViewManager adViewManager;
-    @Nullable
-    private VideoView videoView;
-    @Nullable
-    private EventForwardingLocalBroadcastReceiver eventForwardingReceiver;
-
     public PrebidDisplayView(
             @NonNull Context context,
             @NonNull DisplayViewListener listener,
@@ -202,22 +204,7 @@ public class PrebidDisplayView extends FrameLayout {
         this(context, listener, displayVideoListener, adUnitConfiguration, getBidResponseFromCache(responseId));
     }
 
-    private static BidResponse getBidResponseFromCache(String id) throws AdException {
-        BidResponse cachedResponse = BidResponseCache.getInstance()
-                                                     .popBidResponse(id);
-        if (cachedResponse == null) {
-            throw new AdException(AdException.INTERNAL_ERROR, "No cached bid response found");
-        }
-        return cachedResponse;
-    }
-
     @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        destroy();
-    }
-
     public void destroy() {
         adUnitConfiguration = null;
         displayViewListener = null;
@@ -254,64 +241,64 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     private void notifyListenerError(AdException e) {
+        LogUtil.debug(TAG, "Event called: onAdFailed");
         SdkLogUtil.error(e.getLocalizedMessage() != null ? e.getLocalizedMessage() : "ad failed", AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onAdFailed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdFailed(e);
         }
     }
 
     private void notifyListenerClicked() {
+        LogUtil.debug(TAG, "Event called: onAdClicked");
         SdkLogUtil.info("ad clicked", SdkAdStatus.CLICKED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onAdClicked prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdClicked();
         }
     }
 
     private void notifyListenerClose() {
+        LogUtil.debug(TAG, "Event called: onAdClosed");
         SdkLogUtil.info("ad closed", SdkAdStatus.CLOSED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onAdClosed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdClosed();
         }
     }
 
     private void notifyListenerDisplayed() {
+        LogUtil.debug(TAG, "Event called: onAdDisplayed");
         SdkLogUtil.info("ad displayed", SdkAdStatus.DISPLAYED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onAdDisplayed prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdDisplayed();
         }
     }
 
     private void notifyListenerLoaded() {
+        LogUtil.debug(TAG, "Event called: onAdLoaded");
         SdkLogUtil.info("ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onAdLoaded prebid");
         if (displayViewListener != null) {
             displayViewListener.onAdLoaded();
         }
     }
 
     private void notifyVideoPaused() {
+        LogUtil.debug(TAG, "Event called: onVideoPaused");
         SdkLogUtil.info("video paused", SdkAdStatus.PAUSED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onVideoPaused");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoPaused();
         }
     }
 
     private void notifyVideoResumed() {
+        LogUtil.debug(TAG, "Event called: onVideoResumed");
         SdkLogUtil.info("video resumed", SdkAdStatus.RESUMED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onVideoResumed");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoResumed();
         }
     }
 
     private void notifyVideoMuted() {
+        LogUtil.debug(TAG, "Event called: onVideoMuted");
         SdkLogUtil.info("video muted", SdkAdStatus.MUTED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onVideoMuted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoMuted();
         }
@@ -319,7 +306,7 @@ public class PrebidDisplayView extends FrameLayout {
 
     private void notifyVideoUnMuted() {
         SdkLogUtil.info("video unmuted", SdkAdStatus.UNMUTED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onVideoUnMuted");
+        LogUtil.debug(TAG, "Event called: onVideoUnMuted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoUnMuted();
         }
@@ -327,7 +314,7 @@ public class PrebidDisplayView extends FrameLayout {
 
     private void notifyVideoCompleted() {
         SdkLogUtil.info("video completed", SdkAdStatus.COMPLETED, AdFormat.VAST, adUnitConfiguration.getConfigId(), SdkType.PREBID);
-        LogUtil.debug(TAG, "onVideoCompleted");
+        LogUtil.debug(TAG, "Event called: onVideoCompleted");
         if (displayVideoListener != null) {
             displayVideoListener.onVideoCompleted();
         }
@@ -339,13 +326,11 @@ public class PrebidDisplayView extends FrameLayout {
         }
     }
 
-    @Nullable
-    public String getImpOrtbConfig() {
-        return adUnitConfiguration.getImpOrtbConfig();
+    private static BidResponse getBidResponseFromCache(String id) throws AdException {
+        BidResponse cachedResponse = BidResponseCache.getInstance().popBidResponse(id);
+        if (cachedResponse == null) {
+            throw new AdException(AdException.INTERNAL_ERROR, "No cached bid response found");
+        }
+        return cachedResponse;
     }
-
-    public void setImpOrtbConfig(@Nullable String ortbConfig) {
-        adUnitConfiguration.setImpOrtbConfig(ortbConfig);
-    }
-
 }

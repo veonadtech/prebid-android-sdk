@@ -83,6 +83,7 @@ modules=(
   "PrebidMobile-gamEventHandlers"
 #  "PrebidMobile-admobAdapters"
 #  "PrebidMobile-maxAdapters"
+  "PrebidMobile-nextGenEventHandlers"
 )
 
 projectPaths=(
@@ -91,6 +92,7 @@ projectPaths=(
   "$BASEDIR/PrebidMobile/PrebidMobile-gamEventHandlers"
 #  "$BASEDIR/PrebidMobile/PrebidMobile-admobAdapters"
 #  "$BASEDIR/PrebidMobile/PrebidMobile-maxAdapters"
+  "$BASEDIR/PrebidMobile/PrebidMobile-nextGenEventHandlers"
 )
 
 mkdir "$OUTDIR/aar"
@@ -127,10 +129,10 @@ for n in ${!modules[@]}; do
     mkdir $AARPATH_ABSOLUTE/META-INF/proguard
     mv $AARPATH_ABSOLUTE/proguard.pro $AARPATH_ABSOLUTE/META-INF/proguard
     # move META-INF into a result direcotory
-    mkdir -p $TEMPDIR/output/META-INF
-    cp -R $AARPATH_ABSOLUTE/META-INF/. $TEMPDIR/output/META-INF/
+    cp -r $AARPATH_ABSOLUTE/META-INF $TEMPDIR/output
+    rm -r $AARPATH_ABSOLUTE/META-INF
 
-    rm -r $TEMPDIR/output/META-INF/com
+    rm -rf $TEMPDIR/output/META-INF/com
 
     # Creating a JAR File
     if [ "${modules[$n]}" == "PrebidMobile-maxAdapters" ]; then
