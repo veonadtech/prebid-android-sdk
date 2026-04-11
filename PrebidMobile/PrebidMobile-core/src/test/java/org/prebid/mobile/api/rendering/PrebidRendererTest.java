@@ -29,7 +29,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 19)
+@Config(sdk = 23)
 public class PrebidRendererTest {
 
     @Mock
@@ -65,6 +65,8 @@ public class PrebidRendererTest {
 
     @Test
     public void createBannerAdView_returnPrebidDisplayViewInstance() {
+        mockAdUnitConfiguration = new AdUnitConfiguration();
+        mockAdUnitConfiguration.setConfigId("test-ad-unit-id");
         DisplayViewListener mockDisplayViewListener = mock(DisplayViewListener.class);
         DisplayVideoListener mockDisplayVideoListener = mock(DisplayVideoListener.class);
         View result = prebidRenderer.createBannerAdView(context, mockDisplayViewListener, mockDisplayVideoListener, mockAdUnitConfiguration, mockBidResponse);

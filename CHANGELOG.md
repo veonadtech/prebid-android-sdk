@@ -1,5 +1,12 @@
 # CHANGELOG
 
+# 0.3.0
+## Fixed
+* Fixed Unit tests
+## Changed
+* minSdkVersion upgraded to 23
+* GAM SDK upgraded to 25.1.0
+
 # 0.2.1
 ## Fixed
 * Fixed null safety for configId in BannerView
