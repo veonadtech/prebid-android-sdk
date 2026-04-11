@@ -78,6 +78,8 @@ import org.prebid.mobile.testutils.FakePrebidMobilePluginRenderer;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +89,7 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 19, qualifiers = "w1920dp-h1080dp")
+@Config(sdk = 23, qualifiers = "w1920dp-h1080dp")
 public class BasicParameterBuilderTest {
 
     private static final int VIDEO_INTERSTITIAL_PLACEMENT = 5;
@@ -145,11 +147,19 @@ public class BasicParameterBuilderTest {
         assertNotNull(imp);
         Banner banner = imp.banner;
         assertNotNull(banner);
-        assertEquals("{\"format\":[{\"w\":300,\"h\":250}]}", banner.getJsonObject().toString());
+        JSONAssert.assertEquals(
+                "{\"format\":[{\"w\":300,\"h\":250}]}",
+                banner.getJsonObject().toString(),
+                JSONCompareMode.STRICT
+        );
 
         Video video = imp.video;
         assertNotNull(video);
-        assertEquals("{\"delivery\":[3],\"w\":300,\"h\":250,\"mimes\":[\"video\\/mp4\"]}", video.getJsonObject().toString());
+        JSONAssert.assertEquals(
+                "{\"delivery\":[3],\"w\":300,\"h\":250,\"mimes\":[\"video\\/mp4\"]}",
+                video.getJsonObject().toString(),
+                JSONCompareMode.STRICT
+        );
     }
 
     @Test
@@ -185,11 +195,19 @@ public class BasicParameterBuilderTest {
         assertNotNull(imp);
         Banner banner = imp.banner;
         assertNotNull(banner);
-        assertEquals("{\"format\":[{\"w\":300,\"h\":250}],\"api\":[5,6]}", banner.getJsonObject().toString());
+        JSONAssert.assertEquals(
+                "{\"format\":[{\"w\":300,\"h\":250}],\"api\":[5,6]}",
+                banner.getJsonObject().toString(),
+                JSONCompareMode.STRICT
+        );
 
         Video video = imp.video;
         assertNotNull(video);
-        assertEquals("{\"delivery\":[3],\"battr\":[10],\"w\":320,\"h\":480,\"api\":[7,1],\"mimes\":[\"video\\/mp4\"]}", video.getJsonObject().toString());
+        JSONAssert.assertEquals(
+                "{\"delivery\":[3],\"battr\":[10],\"w\":320,\"h\":480,\"api\":[7,1],\"mimes\":[\"video\\/mp4\"]}",
+                video.getJsonObject().toString(),
+                JSONCompareMode.STRICT
+        );
 
         Native nativeObj = imp.nativeObj;
         assertNotNull(nativeObj);

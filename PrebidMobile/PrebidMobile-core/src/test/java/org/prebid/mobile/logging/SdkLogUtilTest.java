@@ -168,10 +168,10 @@ public class SdkLogUtilTest extends BaseSetup {
     }
 
     /**
-     * Test with null or blank tag
+     * Test with blank tag
      */
     @Test
-    public void testErrorWithNullTag_shouldReturnEarly() {
+    public void testErrorWithBlankTag_shouldReturnEarly() {
         // Given: Valid SDK config
         List<SdkType> sdkTypes = Arrays.asList(SdkType.GAM);
         SdkConfig validConfig = new SdkConfig(
@@ -182,13 +182,44 @@ public class SdkLogUtilTest extends BaseSetup {
         );
         PrebidMobile.setSdkLogState(validConfig);
 
+        // When: Calling with blank tag
+        try {
+            SdkLogUtil.error(
+                    "",   // blank tag
+                    "AnotherTestMessage",
+                    AdFormat.BANNER,
+                    "test-ad-unit-id",
+                    SdkType.GAM
+            );
+            // Then: Should return early without exception
+            assertTrue("Method should handle blank tag gracefully", true);
+        } catch (Exception e) {
+            fail("Should handle blank tag without exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Test with null message
+     */
+    @Test
+    public void testErrorWithNullMessage_shouldReturnEarly() {
+        // Given: Valid SDK config
+        List<SdkType> sdkTypes = Arrays.asList(SdkType.GAM);
+        SdkConfig validConfig = new SdkConfig(
+                true,
+                sdkTypes,
+                Level.ERROR,
+                sdkTypes
+        );
+        PrebidMobile.setSdkLogState(validConfig);
+
         // When: Calling with null message (tag defaults to GAM internally)
         try {
             SdkLogUtil.error(
-                null,  // null message
-                AdFormat.BANNER,
-                "test-ad-unit-id",
-                SdkType.GAM
+                    null,  // null message
+                    AdFormat.BANNER,
+                    "test-ad-unit-id",
+                    SdkType.GAM
             );
             // Then: Should return early without exception
             assertTrue("Method should handle null message gracefully", true);

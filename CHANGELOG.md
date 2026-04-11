@@ -7,6 +7,7 @@
 * Fix bar layout params is null 
 * Fix Adm native wrapper parsing
 * Exception during looking for cache
+* Fix Unit tests
 ## Changed
 * Send ifa_type for IFA 
 * Resume refreshing for Mediation banner 
@@ -15,6 +16,8 @@
 * Reusable rendering API banner (removes the destruction of Prebid WebView when it is detached 
 from the screen. So now the Prebid banner can be used in the RecyclerView and can be reused 
 many times to show the advertisement faster.)
+* minSdkVersion upgraded to 23
+* GAM SDK upgraded to 25.1.0
 
 # 0.2.1
 ## Fixed
