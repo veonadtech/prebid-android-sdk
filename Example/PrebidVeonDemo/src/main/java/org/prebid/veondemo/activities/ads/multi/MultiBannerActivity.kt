@@ -44,7 +44,7 @@ class MultiBannerActivity : BaseAdActivity() {
                 showToast("Ad loaded from: ${sdk.name}")
             }
 
-            override fun onAdFailed(bannerView: BannerView?, error: String?, sdk: SdkType?) {
+            override fun onAdFailed(error: String?, sdk: SdkType?) {
                 val errorMsg = error ?: "Unknown error"
                 val sdkName = sdk?.name ?: "unknown SDK"
                 showToast("Ad failed ($sdkName): $errorMsg")

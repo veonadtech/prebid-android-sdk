@@ -37,15 +37,29 @@ class MultiBannerLoader(
         private val TAG = MultiBannerLoader::class.java.simpleName
     }
 
+    enum class SdkState {
+        NOT_STARTED,
+        LOADING,
+        LOADED,
+        FAILED
+    }
+
     private var selectedSDK: SdkType? = null
     private var listener: MultiBannerViewListener? = null
     private val priorityOrder: MutableList<SdkType> = SdkConfigHolder.priorityOrderSDK.toMutableList()
+    private val sdkStates = mutableMapOf<SdkType, SdkState>()
 
     private val adLoaders = mapOf(
         SdkType.GAM to GamAdLoader(),
         SdkType.YANDEX to YandexAdLoader(),
         SdkType.PREBID to PrebidAdLoader()
     )
+
+    init {
+        SdkType.entries.forEach { sdk ->
+            sdkStates[sdk] = SdkState.NOT_STARTED
+        }
+    }
 
     fun setListener(listener: MultiBannerViewListener) {
         this.listener = listener
@@ -54,28 +68,61 @@ class MultiBannerLoader(
     fun loadAd() {
         destroy()
         selectedSDK = null
-        val order = priorityOrder.toList()
-        order.forEach { sdk ->
+
+        sdkStates.keys.forEach { sdk ->
+            sdkStates[sdk] = SdkState.LOADING
+        }
+
+        priorityOrder.forEach { sdk ->
             adLoaders[sdk]?.load()
         }
     }
 
     fun destroy() {
         adLoaders.values.forEach { it.destroy() }
-    }
-
-    private fun handleAdLoaded(sdk: SdkType, view: View) {
-        if (priorityOrder.firstOrNull() == sdk && adLoaders[sdk] != null) {
-            selectedSDK = sdk
-            cancelOtherRequests(sdk)
-            listener?.onAdLoaded(view, sdk)
+        sdkStates.keys.forEach { sdk ->
+            sdkStates[sdk] = SdkState.NOT_STARTED
         }
     }
 
-    private fun handleAdFailed(view: BannerView?, error: String?, sdk: SdkType) {
-        priorityOrder.remove(sdk)
-        listener?.onAdFailed(view, error, sdk)
+    private fun handleAdLoaded(sdk: SdkType) {
+        sdkStates[sdk] = SdkState.LOADED
+        trySelectAd()
+    }
+
+    private fun handleAdFailed(error: String?, sdk: SdkType) {
         LogUtil.debug(TAG, "Ad failed $sdk: $error")
+
+        sdkStates[sdk] = SdkState.FAILED
+        priorityOrder.remove(sdk)
+
+        listener?.onAdFailed(error, sdk)
+
+        trySelectAd()
+    }
+
+    private fun trySelectAd() {
+        if (selectedSDK != null) return
+
+        val firstSdk = priorityOrder.firstOrNull() ?: return
+
+        if (sdkStates[firstSdk] == SdkState.LOADED) {
+            selectedSDK = firstSdk
+            cancelOtherRequests(firstSdk)
+
+            getViewForSdk(firstSdk)?.let { view ->
+                listener?.onAdLoaded(view, firstSdk)
+            }
+            return
+        }
+    }
+
+    private fun getViewForSdk(sdk: SdkType): View? {
+        return when (sdk) {
+            SdkType.GAM -> adLoaders[sdk]?.let { (it as GamAdLoader).banner }
+            SdkType.YANDEX -> adLoaders[sdk]?.let { (it as YandexAdLoader).banner }
+            SdkType.PREBID -> adLoaders[sdk]?.let { (it as PrebidAdLoader).banner }
+        }
     }
 
     private fun cancelOtherRequests(successfulSdk: SdkType) {
@@ -83,16 +130,17 @@ class MultiBannerLoader(
             .filter { it != successfulSdk }
             .forEach { sdk ->
                 adLoaders[sdk]?.destroy()
+                sdkStates[sdk] = SdkState.NOT_STARTED
             }
     }
 
     private inner class PrebidAdLoader : AdLoader {
-        private var banner: BannerView? = null
+        var banner: BannerView? = null
         private var isAdLoaded = false
 
         override fun load() {
             if (configId.isNullOrEmpty()) {
-                handleAdFailed(null, "ConfigId is empty", SdkType.PREBID)
+                handleAdFailed("ConfigId is empty", SdkType.PREBID)
                 return
             }
 
@@ -102,7 +150,7 @@ class MultiBannerLoader(
                     override fun onAdLoaded(bannerView: BannerView?) {
                         if (!isAdLoaded) {
                             isAdLoaded = true
-                            bannerView?.let { handleAdLoaded(SdkType.PREBID, it) }
+                            bannerView?.let { handleAdLoaded(SdkType.PREBID) }
                         }
                     }
 
@@ -112,7 +160,7 @@ class MultiBannerLoader(
                     }
 
                     override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
-                        handleAdFailed(bannerView, exception?.message, SdkType.PREBID)
+                        handleAdFailed(exception?.message, SdkType.PREBID)
                     }
 
                     override fun onAdClicked(bannerView: BannerView?) {
@@ -137,17 +185,17 @@ class MultiBannerLoader(
     }
 
     private inner class GamAdLoader : AdLoader {
-        private var banner: AdManagerAdView? = null
+        var banner: AdManagerAdView? = null
         private var isAdLoaded = false
 
         override fun load() {
             if (gamAdUnitId.isNullOrEmpty()) {
-                handleAdFailed(null, "GAM AdUnitId is empty", SdkType.GAM)
+                handleAdFailed("GAM AdUnitId is empty", SdkType.GAM)
                 return
             }
 
             val size = adSize ?: run {
-                handleAdFailed(null, "GAM adSize is null", SdkType.GAM)
+                handleAdFailed("GAM adSize is null", SdkType.GAM)
                 return
             }
 
@@ -155,21 +203,22 @@ class MultiBannerLoader(
             banner = AdManagerAdView(context).apply {
                 adUnitId = gamAdUnitId
                 setAdSizes(com.google.android.gms.ads.AdSize(size.width, size.height))
+
                 adListener = object : AdListener() {
                     override fun onAdLoaded() {
                         if (!isAdLoaded) {
                             isAdLoaded = true
-                            handleAdLoaded(SdkType.GAM, this@apply)
+                            handleAdLoaded(SdkType.GAM)
                             SdkLogUtil.info("GAM Ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
                         }
                     }
 
                     override fun onAdFailedToLoad(adError: LoadAdError) {
-                        handleAdFailed(null, adError.message, SdkType.GAM)
                         SdkLogUtil.info(
                             "GAM Ad failed to load: ${adError.message}",
                             SdkAdStatus.FAILED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM
                         )
+                        handleAdFailed(adError.message, SdkType.GAM)
                     }
 
                     override fun onAdClicked() {
@@ -207,17 +256,17 @@ class MultiBannerLoader(
     }
 
     private inner class YandexAdLoader : AdLoader {
-        private var banner: BannerAdView? = null
+        var banner: BannerAdView? = null
         private var isAdLoaded = false
 
         override fun load() {
             if (yandexAdUnitId.isNullOrEmpty()) {
-                handleAdFailed(null, "Yandex AdUnitId is empty", SdkType.YANDEX)
+                handleAdFailed("Yandex AdUnitId is empty", SdkType.YANDEX)
                 return
             }
 
             val size = adSize ?: run {
-                handleAdFailed(null, "Yandex adSize is null", SdkType.YANDEX)
+                handleAdFailed("Yandex adSize is null", SdkType.YANDEX)
                 return
             }
 
@@ -230,17 +279,17 @@ class MultiBannerLoader(
                     override fun onAdLoaded() {
                         if (!isAdLoaded) {
                             isAdLoaded = true
-                            handleAdLoaded(SdkType.YANDEX, this@apply)
                             SdkLogUtil.info("Yandex Ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX)
+                            handleAdLoaded(SdkType.YANDEX)
                         }
                     }
 
                     override fun onAdFailedToLoad(error: AdRequestError) {
-                        handleAdFailed(null, error.description, SdkType.YANDEX)
                         SdkLogUtil.info(
                             "Yandex Ad failed to load: ${error.description}", SdkAdStatus.FAILED,
                             AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
                         )
+                        handleAdFailed(error.description, SdkType.YANDEX)
                     }
 
                     override fun onAdClicked() {

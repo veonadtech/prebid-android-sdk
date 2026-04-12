@@ -8,7 +8,7 @@ import org.prebid.mobile.api.rendering.BannerView
 interface MultiBannerViewListener {
 
     fun onAdLoaded(adView: View, sdk: SdkType)
-    fun onAdFailed(bannerView: BannerView?, error: String?, sdk: SdkType?)
+    fun onAdFailed(error: String?, sdk: SdkType?)
     fun onAdClicked(bannerView: BannerView?, sdk: SdkType)
     fun onLeftApplication(sdk: SdkType)
     fun onReturnedToApplication(sdk: SdkType)
