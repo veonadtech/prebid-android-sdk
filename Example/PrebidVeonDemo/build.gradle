@@ -55,10 +55,12 @@ dependencies {
     implementation libs.google.play.services.base
     implementation libs.google.play.services.ads
     implementation libs.google.play.services.ads.identifier
-    implementation libs.applovin.sdk
+   // implementation libs.applovin.sdk
 
     // Yandex Mobile Ads SDK core lib
     implementation libs.mobileads
+
+    //implementation libs.facebook.audience
 
     // Image Downloader
     implementation libs.glide

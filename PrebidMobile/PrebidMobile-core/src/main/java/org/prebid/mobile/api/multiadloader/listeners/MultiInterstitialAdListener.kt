@@ -1,5 +1,6 @@
 package org.prebid.mobile.api.multiadloader.listeners
 
+import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.api.data.SdkType
 
 interface MultiInterstitialAdListener {
@@ -10,5 +11,6 @@ interface MultiInterstitialAdListener {
     fun onAdFailedToShow(error: String?, sdk: SdkType?)
     fun onAdClicked(sdk: SdkType)
     fun onAdClosed(sdk: SdkType)
+    fun onImpression(impressionData: ImpressionData?, sdk: SdkType)
 
 }
