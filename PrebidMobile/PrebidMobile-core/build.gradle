@@ -54,6 +54,8 @@ dependencies {
 
     implementation libs.androidx.localbroadcastmanager
 
+    // Yandex Mobile Ads SDK core lib
+    implementation libs.mobileads
 }
 
 configurations.all {

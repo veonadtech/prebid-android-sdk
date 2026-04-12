@@ -39,10 +39,10 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.0.7.7'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.0.7.7'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.0.7.7'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.0.7.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.3.0'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.3.0'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.3.0'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.3.0'
 
     // Standard libraries
     implementation libs.kotlin.stdlib
@@ -56,6 +56,9 @@ dependencies {
     implementation libs.google.play.services.ads
     implementation libs.google.play.services.ads.identifier
     implementation libs.applovin.sdk
+
+    // Yandex Mobile Ads SDK core lib
+    implementation libs.mobileads
 
     // Image Downloader
     implementation libs.glide
