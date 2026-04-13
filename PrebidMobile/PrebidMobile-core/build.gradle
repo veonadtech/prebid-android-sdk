@@ -31,6 +31,8 @@ android {
     testOptions {
         unitTests.all {
             jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+            //Resolves VerifyError: Stackmap frame issue with Mintegral/MBridge library in Robolectric tests
+            jvmArgs '-noverify'
             systemProperty 'robolectric.invokedynamic.enable', 'false'
         }
     }
