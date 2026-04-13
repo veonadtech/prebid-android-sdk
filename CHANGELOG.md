@@ -11,9 +11,6 @@
 # 0.2.1
 ## Fixed
 * Fixed null safety for configId in BannerView
-## Changed
-* The new version of SDK (without the Yandex partners' repositories) is renamed to Yandex SDK
-* Yandex SDK version bumped to 7.18.5
 
 # 0.2.0
 ## Added
