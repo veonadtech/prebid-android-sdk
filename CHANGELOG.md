@@ -11,16 +11,27 @@
 # 0.2.1
 ## Fixed
 * Fixed null safety for configId in BannerView
+## Changed
+* The new version of SDK (without the Yandex partners' repositories) is renamed to Yandex SDK
+* Yandex SDK version bumped to 7.18.5
 
 # 0.2.0
 ## Added
 * Added useExternalBrowser option (allows opening links in an external browser instead of WebView)
 
+# 0.1.2.2
+## Fixed
+* Set browser-like User-Agent for redirect request
+
+# 0.1.2.1
+## Fixed
+* Yango SDK version downgraded to 7.9
 
 # 0.1.2
 ## Fixed
 * Added necessary files for starting unit tests. Changed test of SDK initialization.
 *  Set browser-like User-Agent for redirect request
+* Yango SDK version downgraded
 
 # 0.1.1
 ## Changed
@@ -76,10 +87,6 @@
 # Added
 * Added MultiBanner and MultiInterstitial methods (waterfall)
 
-## 0.0.7-yango
-# Added
-* Synced all changes from open-source Prebid Mobile
-
 ## 0.0.7
 # Added
 * Synced all changes from open-source Prebid Mobile
@@ -87,13 +94,11 @@
 # Changed
 * Demo app optimized for better testing
 
-## 0.0.6-yango
-# Added
-* Yandex integration (waterfall with SDK priority list)
-
 ## 0.0.6
 # Changed
 * Track impression disabled for Auction Banner
+# Added
+* Yandex integration (waterfall with SDK priority list)
 
 # Added
 * Logging Prebid events
