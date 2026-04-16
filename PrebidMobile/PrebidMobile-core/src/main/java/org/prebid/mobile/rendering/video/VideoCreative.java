@@ -394,6 +394,9 @@ public class VideoCreative extends VideoCreativeProtocol
             videoCreativeView.showCallToAction(true);
         } else if (model.getAdConfiguration().isRewarded()) {
             videoCreativeView.showCallToAction(false);
+            if (Utils.isNotBlank(model.getVastClickthroughUrl())) {
+                videoCreativeView.enableVideoPlayerClick();
+            }
         }
     }
 
