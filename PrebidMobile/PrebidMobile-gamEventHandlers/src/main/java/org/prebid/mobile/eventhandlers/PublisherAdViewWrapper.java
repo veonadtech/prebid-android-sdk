@@ -105,7 +105,6 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
             LoadAdError loadAdError) {
         final AdEvent adEvent = AdEvent.FAILED;
         adEvent.setErrorCode(loadAdError.getCode());
-        SdkLogUtil.error("Ad failed to load " + loadAdError.getMessage(), AdFormat.BANNER, adUnitId, SdkType.GAM);
 
         listener.onEvent(adEvent);
     }
