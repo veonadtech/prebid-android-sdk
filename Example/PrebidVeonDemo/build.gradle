@@ -57,6 +57,8 @@ dependencies {
     implementation libs.google.play.services.ads.identifier
     implementation libs.applovin.sdk
 
+    implementation(libs.facebook)
+
     // Image Downloader
     implementation libs.glide
 
