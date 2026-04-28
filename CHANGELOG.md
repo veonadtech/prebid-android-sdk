@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.3.1
+## Changed
+* Enables video player click for rewarded ads with clickthrough URL
+
 # 0.3.0
 ## Fixed
 * Make NativeDataAsset len optional like iOS
