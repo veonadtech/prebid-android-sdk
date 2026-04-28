@@ -12,7 +12,7 @@ class MultiInterstitialAdActivity : BaseAdActivity() {
 
     companion object {
         const val CONFIG_ID = "prebid-demo-banner-320-50"
-        const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
+        const val AD_UNIT_ID = "/21775744923/example/interstitial"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
