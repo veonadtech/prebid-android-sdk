@@ -14,8 +14,8 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class MultiBannerActivity : BaseAdActivity() {
 
     companion object Companion {
-        const val CONFIG_ID = "prebid-demo-banner-320-50"
-        const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
+        const val CONFIG_ID = "_prebid-demo-banner-320-50"
+        const val AD_UNIT_ID = "/21775744923/example/fixed-size-banner"
         const val WIDTH = 320
         const val HEIGHT = 50
     }

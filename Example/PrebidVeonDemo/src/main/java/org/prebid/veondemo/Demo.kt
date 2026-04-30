@@ -18,6 +18,10 @@ package org.prebid.veondemo
 
 import android.app.Application
 import android.util.Log
+import com.google.android.gms.ads.MobileAds
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
@@ -32,6 +36,7 @@ class Demo : Application() {
     override fun onCreate() {
         super.onCreate()
         initTestPrebidSDK()
+        initGamSDK()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
     }
@@ -39,7 +44,7 @@ class Demo : Application() {
     private fun initTestPrebidSDK() {
         Log.d(TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("org.prebid.veondemo")
+        PrebidMobile.setPrebidServerAccountId("uz.beeline.odp")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
         PrebidMobile.setTimeoutMillis(3000)
         PrebidMobile.setShareGeoLocation(true)
@@ -49,14 +54,41 @@ class Demo : Application() {
         PrebidMobile.initializeSdk(
             applicationContext,
             "https://prebid.veonadx.com/openrtb2/auction",
-            "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
+   //         "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
         ) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
-                Log.d(TAG, "SDK initialized successfully!")
+                Log.d(TAG, "Prebid SDK initialized successfully!")
             } else {
-                Log.e(TAG, "SDK initialization error: $status\n${status.description}")
+                Log.e(TAG, "Prebid SDK initialization error: $status\n${status.description}")
             }
         }
     }
 
+    private fun initGamSDK() {
+        Log.d(TAG, "GAM SDK initialization started")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Initialize the Google Mobile Ads SDK on a background thread.
+                MobileAds.initialize(this@Demo) { initializationStatus ->
+                    Log.d(TAG, "GAM SDK initialization completed")
+                    Log.d(TAG, "GAM SDK Initialization status: $initializationStatus")
+
+                    // Log individual adapter statuses
+                    val adapterStatusMap = initializationStatus.adapterStatusMap
+                    if (adapterStatusMap.isNotEmpty()) {
+                        Log.d(TAG, "GAM SDK Adapter statuses:")
+                        adapterStatusMap.forEach { (adapterClass, status) ->
+                            Log.d(TAG, "  $adapterClass: ${status.initializationState} - ${status.description}")
+                        }
+                    } else {
+                        Log.d(TAG, "No adapter statuses available")
+                    }
+                }
+                Log.d(TAG, "GAM SDK initialized successfully on background thread")
+            } catch (e: Exception) {
+                Log.e(TAG, "GAM SDK initialization failed with error: ${e.message}", e)
+            }
+        }
+    }
 }

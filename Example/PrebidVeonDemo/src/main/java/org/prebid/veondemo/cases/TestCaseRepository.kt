@@ -1,6 +1,7 @@
 package org.prebid.veondemo.cases
 
 import org.prebid.veondemo.R
+import org.prebid.veondemo.activities.ads.gam.gamoriginal.GamOriginalBanner320x50
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner300x250Activity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner320x50Activity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBannerMultiSizeActivity
@@ -41,6 +42,13 @@ object TestCaseRepository {
     lateinit var lastTestCase: TestCase
 
     fun getList() = arrayListOf(
+        /* GAM Original API without Prebid */
+        TestCase(
+            R.string.gam_original_display_banner_320x50_without_prebid,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.GAM_ORIGINAL_WITHOUT_PREBID,
+            GamOriginalBanner320x50 ::class.java
+        ),
         /* GAM Original API */
         TestCase(
             R.string.gam_original_display_banner_320x50,
