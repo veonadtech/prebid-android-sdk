@@ -14,6 +14,7 @@ import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.LogUtil
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
@@ -73,7 +74,7 @@ class MultiBannerLoader(
             sdkStates[sdk] = SdkState.LOADING
         }
 
-        priorityOrder.forEach { sdk ->
+        priorityOrder.toList().forEach { sdk ->
             adLoaders[sdk]?.load()
         }
     }
@@ -139,6 +140,11 @@ class MultiBannerLoader(
         private var isAdLoaded = false
 
         override fun load() {
+            if (!PrebidMobile.isSdkInitialized()) {
+                handleAdFailed("Prebid SDK is not initialized!", SdkType.PREBID)
+                return
+            }
+
             if (configId.isNullOrEmpty()) {
                 handleAdFailed("ConfigId is empty", SdkType.PREBID)
                 return
