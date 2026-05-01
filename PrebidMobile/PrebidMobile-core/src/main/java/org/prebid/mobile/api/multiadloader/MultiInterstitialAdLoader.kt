@@ -7,6 +7,7 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
 import org.prebid.mobile.LogUtil
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.SdkType
@@ -171,6 +172,11 @@ class MultiInterstitialAdLoader(
         private var interstitial: InterstitialAdUnit? = null
 
         override fun load() {
+            if (!PrebidMobile.isSdkInitialized()) {
+                handleAdFailed( "Prebid SDK is not initialized!", SdkType.PREBID)
+                return
+            }
+
             if (configId.isNullOrEmpty()) {
                 handleAdFailed("ConfigId is empty", SdkType.PREBID)
                 return
