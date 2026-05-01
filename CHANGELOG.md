@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.3.1
+## Changed
+* Yandex and GAM ads are requested even if the Prebid SDK is not initialized
+
 # 0.3.0
 ## Fixed
 * Make NativeDataAsset len optional like iOS
