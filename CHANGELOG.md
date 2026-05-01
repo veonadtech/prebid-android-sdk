@@ -1,5 +1,11 @@
 # CHANGELOG
 
+# 0.3.2
+## Added
+* Unit tests for `MultiBannerLoader` and `MultiInterstitialAdLoader` (67 tests covering priority order, fallback, lazy Prebid, listener routing, single-fire guards, and lifecycle)
+## Changed
+* `MultiBannerLoader` opened for testability: class is now `open` and the Yandex banner-size resolution is exposed via a `protected open` helper (no behavior change for existing callers)
+
 # 0.3.1
 ## Changed
 * Yandex and GAM ads are requested even if the Prebid SDK is not initialized

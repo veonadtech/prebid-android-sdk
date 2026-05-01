@@ -25,7 +25,7 @@ import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 
-class MultiBannerLoader(
+open class MultiBannerLoader(
     private val context: Context,
     private val adSize: AdSize?,
     private val configId: String?,
@@ -33,6 +33,10 @@ class MultiBannerLoader(
     private val yandexAdUnitId: String?,
     private val autoRefreshDelay: Int = 30
 ) {
+
+    protected open fun yandexInlineBannerSize(context: Context, size: AdSize): BannerAdSize =
+        BannerAdSize.inlineSize(context, size.width, size.height)
+
 
     companion object {
         private val TAG = MultiBannerLoader::class.java.simpleName
@@ -279,7 +283,7 @@ class MultiBannerLoader(
             isAdLoaded = false
             banner = BannerAdView(context).apply {
                 setAdUnitId(yandexAdUnitId)
-                setAdSize(BannerAdSize.inlineSize(context, size.width, size.height))
+                setAdSize(yandexInlineBannerSize(context, size))
 
                 setBannerAdEventListener(object : BannerAdEventListener {
                     override fun onAdLoaded() {

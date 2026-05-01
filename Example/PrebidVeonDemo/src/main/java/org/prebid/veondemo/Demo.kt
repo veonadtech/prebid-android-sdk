@@ -18,6 +18,7 @@ package org.prebid.veondemo
 
 import android.app.Application
 import android.util.Log
+import com.google.android.gms.ads.MobileAds
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
@@ -39,24 +40,30 @@ class Demo : Application() {
     private fun initTestPrebidSDK() {
         Log.d(TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("org.prebid.veondemo")
+        PrebidMobile.setPrebidServerAccountId("uz.jahonov.prebid.ios.demo")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
-        PrebidMobile.setTimeoutMillis(3000)
-        PrebidMobile.setShareGeoLocation(true)
-        PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
-        PrebidMobile.useExternalBrowser = true
-
-        PrebidMobile.initializeSdk(
-            applicationContext,
-            "https://prebid.veonadx.com/openrtb2/auction",
-            "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
-        ) { status ->
+        PrebidMobile.initializeSdk(applicationContext, "https://ssp.veonadx.com/bid/prebid") { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")
             } else {
                 Log.e(TAG, "SDK initialization error: $status\n${status.description}")
             }
         }
+        PrebidMobile.setShareGeoLocation(true)
+
+        TargetingParams.setGlobalOrtbConfig(
+            """
+                {
+                  "displaymanager": "Google",
+                  "displaymanagerver": "${MobileAds.getVersion()}",
+                  "ext": {
+                    "myext": {
+                      "test": 1
+                    }
+                  }
+                }
+            """.trimIndent()
+        )
     }
 
 }
