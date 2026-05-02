@@ -21,7 +21,6 @@
 from the screen. So now the Prebid banner can be used in the RecyclerView and can be reused 
 many times to show the advertisement faster.)
 * minSdkVersion upgraded to 21
-* GAM SDK upgraded to 25.1.0
 * Media3 migrated to ExoPlayer
 
 # 0.2.1
