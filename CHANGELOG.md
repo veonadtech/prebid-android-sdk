@@ -2,7 +2,7 @@
 
 # 0.3.1
 ## Changed
-* Enables video player click for rewarded ads with clickthrough URL
+* GAM ad is requested even if the Prebid SDK is not initialized
 
 # 0.3.0
 ## Fixed
