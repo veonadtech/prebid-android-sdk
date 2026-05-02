@@ -8,6 +8,7 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.LogUtil
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
@@ -83,6 +84,11 @@ class MultiBannerLoader(
         private var isAdLoaded = false
 
         override fun load() {
+            if (!PrebidMobile.isSdkInitialized()) {
+                handleAdFailed(null, "Prebid SDK is not initialized!", SdkType.PREBID)
+                return
+            }
+
             if (configId.isNullOrEmpty()) {
                 handleAdFailed(null, "ConfigId is empty", SdkType.PREBID)
                 return
