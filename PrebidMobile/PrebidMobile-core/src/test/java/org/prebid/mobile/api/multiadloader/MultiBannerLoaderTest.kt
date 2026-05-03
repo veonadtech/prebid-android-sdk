@@ -17,6 +17,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mock
 import org.mockito.MockedConstruction
+import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
@@ -24,6 +25,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.MockitoAnnotations
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
@@ -49,12 +51,18 @@ class MultiBannerLoaderTest {
 
     private val configId = "test-config-id"
     private val gamAdUnitId = "/1234/test-gam-ad-unit"
+    private lateinit var mockedPrebidMobile: MockedStatic<PrebidMobile>
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         context = Robolectric.buildActivity(Activity::class.java).create().get()
         adSize = AdSize(300, 250)
+
+        mockedPrebidMobile = Mockito.mockStatic(PrebidMobile::class.java)
+        mockedPrebidMobile.`when`<Boolean> { PrebidMobile.isSdkInitialized() }.thenReturn(true)
+
+
         bannerConstruction = Mockito.mockConstruction(BannerView::class.java)
         gamViewConstruction = Mockito.mockConstruction(AdManagerAdView::class.java)
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM)
@@ -65,6 +73,7 @@ class MultiBannerLoaderTest {
         bannerConstruction.close()
         gamViewConstruction.close()
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM)
+        mockedPrebidMobile.close()
     }
 
     private fun createLoader(
