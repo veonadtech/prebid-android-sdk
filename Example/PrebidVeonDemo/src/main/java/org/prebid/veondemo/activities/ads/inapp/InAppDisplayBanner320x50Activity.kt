@@ -23,9 +23,9 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class InAppDisplayBanner320x50Activity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-demo-banner-320-50"
-        const val WIDTH = 320
-        const val HEIGHT = 50
+        const val CONFIG_ID = "mybl_android_slot2_content_home_300x250"
+        const val WIDTH = 300
+        const val HEIGHT = 250
     }
 
     private var adView: BannerView? = null

@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace "org.prebid.nextgendemo"
+    setCompileSdkVersion(34)
+    defaultConfig {
+        // The Next-Gen GMA SDK requires minSdk 24.
+        minSdk 24
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0.0"
+        applicationId "org.prebid.nextgendemo"
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+}
+
+dependencies {
+    implementation project(':PrebidMobile')
+
+    // The Next-Gen GMA SDK ships its own copy of the gms.ads mediation/nativead classes, which
+    // collide with the legacy play-services-ads artifacts pulled transitively via core. This demo
+    // never uses the legacy GAM/multiadloader path, so exclude the colliding legacy artifacts
+    // (play-services-ads 23.6.0 bundles them in -lite; newer versions bundle them in -api).
+    configurations.configureEach {
+        exclude group: "com.google.android.gms", module: "play-services-ads-lite"
+        exclude group: "com.google.android.gms", module: "play-services-ads-api"
+    }
+
+    // Next-Gen GMA SDK (the GAM racer in multiloadernextgen)
+    implementation libs.google.next.gen.sdk
+
+    // Standard libraries
+    implementation libs.kotlin.stdlib
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.multidex
+
+    // Yandex Mobile Ads SDK (the Yandex racer in multiloadernextgen)
+    implementation(libs.yandex.ads) {
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-applovin"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-appnext"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-chartboost"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-google"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-inmobi"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-mytarget"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-pangle"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-tapjoy"
+        exclude group: "com.yandex.ads.mediation", module: "mobileads-unityads"
+    }
+    implementation("com.yandex.android:mobileads") {
+        version {
+            strictly("7.9.0")
+        }
+    }
+    implementation("io.appmetrica.analytics:analytics") {
+        version {
+            strictly("7.9.0")
+        }
+    }
+}

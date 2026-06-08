@@ -4,7 +4,9 @@ include ':PrebidMobile',
         ':omsdk-android',
         ':test-utils',
         // Prebid Demo
-        ':PrebidVeonDemo'
+        ':PrebidVeonDemo',
+        // Legacy-free demo for the Next-Gen GMA SDK (multiloadernextgen)
+        ':PrebidNextGenDemo'
 // Other
 
 project(':PrebidMobile').projectDir = new File('PrebidMobile')
@@ -12,5 +14,6 @@ project(':PrebidMobile-core').projectDir = new File('PrebidMobile/PrebidMobile-c
 project(':PrebidMobile-gamEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-gamEventHandlers')
 project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
 project(':PrebidVeonDemo').projectDir = new File('Example/PrebidVeonDemo')
+project(':PrebidNextGenDemo').projectDir = new File('Example/PrebidNextGenDemo')
 project(':test-utils').projectDir = new File('PrebidMobile/test-utils')
 //project(':DrPrebid').projectDir = new File('tools/drprebid')

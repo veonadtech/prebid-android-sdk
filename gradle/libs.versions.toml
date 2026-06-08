@@ -21,6 +21,7 @@ glide = "4.14.2"
 google-play-services-ads = "23.6.0"
 google-play-services-ads-identifier = "18.0.1"
 google-play-services-base = "18.1.0"
+next-gen-sdk = "0.25.0-beta01"
 gradle = "8.7.3"
 gson = "2.8.6"
 guava = "31.1-android"
@@ -66,6 +67,7 @@ glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 google-play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "google-play-services-ads" }
 google-play-services-ads-identifier = { module = "com.google.android.gms:play-services-ads-identifier", version.ref = "google-play-services-ads-identifier" }
 google-play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "google-play-services-base" }
+google-next-gen-sdk = { module = "com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk", version.ref = "next-gen-sdk" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
