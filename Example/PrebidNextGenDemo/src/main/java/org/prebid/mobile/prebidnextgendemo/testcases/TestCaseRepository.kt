@@ -3,6 +3,8 @@ package org.prebid.mobile.prebidnextgendemo.testcases
 import android.os.Bundle
 import org.prebid.mobile.prebidnextgendemo.R
 import org.prebid.mobile.prebidnextgendemo.activities.BaseAdActivity
+import org.prebid.mobile.prebidnextgendemo.activities.ads.multiloadernextgen.MultiBannerNextGenActivity
+import org.prebid.mobile.prebidnextgendemo.activities.ads.multiloadernextgen.MultiInterstitialNextGenActivity
 import org.prebid.mobile.prebidnextgendemo.activities.ads.original.OriginalApiBanner320x50Activity
 import org.prebid.mobile.prebidnextgendemo.activities.ads.original.OriginalApiDisplayBannerMultiSizeActivity
 import org.prebid.mobile.prebidnextgendemo.activities.ads.original.OriginalApiDisplayInterstitialActivity
@@ -114,6 +116,18 @@ object TestCaseRepository {
             AdFormat.MULTIFORMAT,
             IntegrationKind.ORIGINAL,
             OriginalApiMultiformatBannerVideoNativeStylesActivity::class.java
+        ),
+        TestCase(
+            R.string.multiloader_nextgen_banner,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.MULTI,
+            MultiBannerNextGenActivity::class.java
+        ),
+        TestCase(
+            R.string.multiloader_nextgen_interstitial,
+            AdFormat.DISPLAY_INTERSTITIAL,
+            IntegrationKind.MULTI,
+            MultiInterstitialNextGenActivity::class.java
         ),
         TestCase(
             R.string.rendering_display_banner_320x50,

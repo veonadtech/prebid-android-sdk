@@ -49,6 +49,9 @@ dependencies {
     implementation libs.google.play.services.ads
     implementation libs.google.play.services.ads.identifier
 
+    // Next-Gen GMA SDK (used by api/multiloadernextgen GAM loaders)
+    implementation libs.google.next.gen.sdk
+
     implementation libs.exoplayer
     implementation libs.exoplayer.ui
 

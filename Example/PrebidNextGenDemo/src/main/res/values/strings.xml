@@ -39,6 +39,9 @@
     <string name="rendering_video_rewarded_no_bids">Rendering API - Video Rewarded [noBids, GAM Ad]</string>
     <string name="rendering_native_no_bids">Rendering API - Native [noBids, GAM Ad]</string>
 
+    <string name="multiloader_nextgen_banner">MultiLoader NextGen Banner 320x50</string>
+    <string name="multiloader_nextgen_interstitial">MultiLoader NextGen Interstitial</string>
+
     <string name="event_ad_loaded">onAdLoaded called</string>
     <string name="event_ad_displayed">onAdDisplayed called</string>
     <string name="event_ad_failed">onAdFailed called</string>

@@ -93,6 +93,12 @@
         <activity
             android:name="org.prebid.mobile.prebidnextgendemo.activities.ads.rendering.RenderingApiNativeActivity"
             android:exported="true" />
+        <activity
+            android:name="org.prebid.mobile.prebidnextgendemo.activities.ads.multiloadernextgen.MultiBannerNextGenActivity"
+            android:exported="true" />
+        <activity
+            android:name="org.prebid.mobile.prebidnextgendemo.activities.ads.multiloadernextgen.MultiInterstitialNextGenActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
