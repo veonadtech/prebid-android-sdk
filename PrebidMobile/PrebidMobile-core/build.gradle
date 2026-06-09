@@ -49,6 +49,14 @@ dependencies {
     implementation libs.google.play.services.ads
     implementation libs.google.play.services.ads.identifier
 
+    // Next-Gen GMA SDK (used by api/multiloadernextgen GAM loaders). Declared compileOnly so it
+    // is NOT forced onto consumers that use the legacy play-services-ads (the two SDKs ship
+    // overlapping com.google.android.gms.ads.* classes and cannot share an APK). Apps that want
+    // the multiloadernextgen loaders add the Next-Gen SDK themselves (see PrebidNextGenDemo) and
+    // must exclude play-services-ads-api. testImplementation makes it available to unit tests.
+    compileOnly libs.google.next.gen.sdk
+    testImplementation libs.google.next.gen.sdk
+
     implementation libs.exoplayer
     implementation libs.exoplayer.ui
 

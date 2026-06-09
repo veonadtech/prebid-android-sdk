@@ -10,6 +10,9 @@
     <string name="settings">Settings</string>
     <string name="settings_text">Demonstration of Prebid SDK customization in the Demo App will be introduced soon.</string>
 
+    <string name="multiloader_nextgen_banner">Multi SDK - Banner 320x50</string>
+    <string name="multiloader_nextgen_interstitial">Multi SDK - Interstitial</string>
+
     <string name="original_display_banner_320x50">Original API - Display Banner 320x50</string>
     <string name="original_display_banner_300x250">Original API - Display Banner 300x250</string>
     <string name="original_display_banner_multi_size">Original API - Display Banner Multi-size</string>

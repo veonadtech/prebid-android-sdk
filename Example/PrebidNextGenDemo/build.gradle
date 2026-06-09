@@ -56,6 +56,9 @@ dependencies {
     // Advertisement
     implementation(libs.google.next.gen.sdk)
 
+    // Yandex Mobile Ads SDK (the Yandex racer in multiloadernextgen)
+    implementation libs.mobileads
+
     // Image Downloader
     implementation libs.glide
 
