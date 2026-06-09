@@ -133,8 +133,11 @@ public class MraidInternalBrowserActionTest {
 
         Intent intentArgument = intentArgumentCaptor.getValue();
 
-        assertEquals(intentArgument.getAction(), Intent.ACTION_VIEW);
-        assertEquals(intentArgument.getFlags(), BuildConfig.DEBUG ? 0 : Intent.FLAG_ACTIVITY_NEW_TASK);
+        assertEquals(Intent.ACTION_VIEW, intentArgument.getAction());
+        // MraidInternalBrowserAction always adds FLAG_ACTIVITY_NEW_TASK because the intent is
+        // launched from the application (non-Activity) context, which requires the flag at runtime
+        // in both debug and release builds.
+        assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK, intentArgument.getFlags());
     }
 
     @Test
