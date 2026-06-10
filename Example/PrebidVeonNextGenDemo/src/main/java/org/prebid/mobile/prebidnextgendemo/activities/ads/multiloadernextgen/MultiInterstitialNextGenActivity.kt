@@ -18,7 +18,7 @@ package org.prebid.mobile.prebidnextgendemo.activities.ads.multiloadernextgen
 import android.os.Bundle
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGen
-import org.prebid.mobile.api.multiloadernextgen.listeners.MultiInterstitialAdListenerNextGen
+import org.prebid.mobile.api.multiloadercommon.MultiInterstitialAdListener
 import org.prebid.mobile.prebidnextgendemo.activities.BaseAdActivity
 
 class MultiInterstitialNextGenActivity : BaseAdActivity() {
@@ -41,7 +41,7 @@ class MultiInterstitialNextGenActivity : BaseAdActivity() {
             CONFIG_ID,
             GAM_AD_UNIT_ID
         ).apply {
-            setListener(object : MultiInterstitialAdListenerNextGen {
+            setListener(object : MultiInterstitialAdListener {
                 override fun onAdLoaded(sdk: SdkType) {
                     events.loaded(true)
                     showAd()

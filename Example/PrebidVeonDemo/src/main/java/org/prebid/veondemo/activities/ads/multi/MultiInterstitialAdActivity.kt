@@ -5,7 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
-import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
+import org.prebid.mobile.api.multiloadercommon.MultiInterstitialAdListener
 import org.prebid.veondemo.activities.BaseAdActivity
 
 class MultiInterstitialAdActivity : BaseAdActivity() {

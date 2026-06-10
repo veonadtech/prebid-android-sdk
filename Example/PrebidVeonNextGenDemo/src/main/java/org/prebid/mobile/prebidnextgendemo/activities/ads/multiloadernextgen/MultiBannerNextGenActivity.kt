@@ -22,7 +22,7 @@ import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.multiloadernextgen.MultiBannerLoaderNextGen
-import org.prebid.mobile.api.multiloadernextgen.listeners.MultiBannerViewListenerNextGen
+import org.prebid.mobile.api.multiloadercommon.MultiBannerViewListener
 import org.prebid.mobile.prebidnextgendemo.activities.BaseAdActivity
 
 class MultiBannerNextGenActivity : BaseAdActivity() {
@@ -49,7 +49,7 @@ class MultiBannerNextGenActivity : BaseAdActivity() {
             GAM_AD_UNIT_ID,
             refreshTimeSeconds
         ).apply {
-            setListener(object : MultiBannerViewListenerNextGen {
+            setListener(object : MultiBannerViewListener {
                 override fun onAdLoaded(adView: View, sdk: SdkType) {
                     events.loaded(true)
                     adWrapperView.removeAllViews()

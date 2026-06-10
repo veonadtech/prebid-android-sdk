@@ -1,7 +1,6 @@
 package org.prebid.mobile.api.multiloadernextgen
 
 import android.content.Context
-import android.view.View
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdEventCallback
@@ -10,147 +9,22 @@ import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.LogUtil
-import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.rendering.BannerView
-import org.prebid.mobile.api.rendering.listeners.BannerViewListener
-import org.prebid.mobile.configuration.SdkConfigHolder
-import org.prebid.mobile.api.multiloadernextgen.listeners.MultiBannerViewListenerNextGen
+import org.prebid.mobile.api.multiloadercommon.BaseMultiBannerLoader
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize as NextSize
 
 class MultiBannerLoaderNextGen(
-    private val context: Context,
-    private val adSize: AdSize?,
-    private val configId: String?,
-    private val gamAdUnitId: String?,
-    private val autoRefreshDelay: Int = 30
-) {
+    context: Context,
+    adSize: AdSize?,
+    configId: String?,
+    gamAdUnitId: String?,
+    autoRefreshDelay: Int = 30
+) : BaseMultiBannerLoader(context, adSize, configId, gamAdUnitId, autoRefreshDelay) {
 
-    companion object {
-        private val TAG = MultiBannerLoaderNextGen::class.java.simpleName
-    }
-
-    private var selectedSDK: SdkType? = null
-    private var listener: MultiBannerViewListenerNextGen? = null
-    private val priorityOrder: MutableList<SdkType> = SdkConfigHolder.priorityOrderSDK.toMutableList()
-
-    /** Views of SDKs that have already loaded, kept so a lower-priority SDK can still be selected
-     *  if a higher-priority one fails after it had already loaded. */
-    private val loadedViews = mutableMapOf<SdkType, View>()
-
-    private val adLoaders = mapOf(
-        SdkType.GAM to GamAdLoader(),
-        SdkType.PREBID to PrebidAdLoader()
-    )
-
-    fun setListener(listener: MultiBannerViewListenerNextGen) {
-        this.listener = listener
-    }
-
-    fun loadAd() {
-        destroy()
-        selectedSDK = null
-        val order = priorityOrder.toList()
-        order.forEach { sdk ->
-            adLoaders[sdk]?.load()
-        }
-    }
-
-    fun destroy() {
-        adLoaders.values.forEach { it.destroy() }
-        loadedViews.clear()
-    }
-
-    private fun handleAdLoaded(sdk: SdkType, view: View) {
-        loadedViews[sdk] = view
-        selectIfFirstPriorityLoaded()
-    }
-
-    private fun handleAdFailed(view: BannerView?, error: String?, sdk: SdkType) {
-        priorityOrder.remove(sdk)
-        loadedViews.remove(sdk)
-        listener?.onAdFailed(view, error, sdk)
-        LogUtil.debug(TAG, "Ad failed $sdk: $error")
-        // A higher-priority SDK failing may promote an already-loaded lower-priority SDK to head.
-        selectIfFirstPriorityLoaded()
-    }
-
-    /** Selects the priority head if it has already loaded. No-op once something is selected. */
-    private fun selectIfFirstPriorityLoaded() {
-        if (selectedSDK != null) return
-        val head = priorityOrder.firstOrNull() ?: return
-        val view = loadedViews[head] ?: return
-        selectedSDK = head
-        cancelOtherRequests(head)
-        listener?.onAdLoaded(view, head)
-    }
-
-    private fun cancelOtherRequests(successfulSdk: SdkType) {
-        adLoaders.keys
-            .filter { it != successfulSdk }
-            .forEach { sdk ->
-                adLoaders[sdk]?.destroy()
-            }
-    }
-
-    private inner class PrebidAdLoader : AdLoader {
-        private var banner: BannerView? = null
-        private var isAdLoaded = false
-
-        override fun load() {
-            if (!PrebidMobile.isSdkInitialized()) {
-                handleAdFailed(null, "Prebid SDK is not initialized!", SdkType.PREBID)
-                return
-            }
-
-            if (configId.isNullOrEmpty()) {
-                handleAdFailed(null, "ConfigId is empty", SdkType.PREBID)
-                return
-            }
-
-            isAdLoaded = false
-            banner = BannerView(context, configId, adSize).apply {
-                setBannerListener(object : BannerViewListener {
-                    override fun onAdLoaded(bannerView: BannerView?) {
-                        if (!isAdLoaded) {
-                            isAdLoaded = true
-                            bannerView?.let { handleAdLoaded(SdkType.PREBID, it) }
-                        }
-                    }
-
-                    override fun onAdDisplayed(bannerView: BannerView?) {
-                        if (selectedSDK != SdkType.PREBID) return
-                        listener?.onAdDisplayed(bannerView, SdkType.PREBID)
-                    }
-
-                    override fun onAdFailed(bannerView: BannerView?, exception: AdException?) {
-                        handleAdFailed(bannerView, exception?.message, SdkType.PREBID)
-                    }
-
-                    override fun onAdClicked(bannerView: BannerView?) {
-                        listener?.onAdClicked(bannerView, SdkType.PREBID)
-                    }
-
-                    override fun onAdClosed(bannerView: BannerView?) {
-                        listener?.onAdClosed(bannerView, SdkType.PREBID)
-                    }
-                })
-                setAutoRefreshDelay(autoRefreshDelay)
-                loadAd()
-            }
-        }
-
-        override fun destroy() {
-            banner?.destroy()
-            banner = null
-            isAdLoaded = false
-            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.PREBID}")
-        }
-    }
+    override fun createGamAdLoader(): AdLoader = GamAdLoader()
 
     private inner class GamAdLoader : AdLoader {
         private var adView: AdView? = null
@@ -181,19 +55,19 @@ class MultiBannerLoaderNextGen(
                         ad.adEventCallback = object : BannerAdEventCallback {
                             override fun onAdClicked() {
                                 super.onAdClicked()
-                                listener?.onAdClicked(null, SdkType.GAM)
+                                notifyAdClicked(null, SdkType.GAM)
                                 SdkLogUtil.info("GAM Ad clicked", SdkAdStatus.CLICKED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
                             }
 
                             override fun onAdImpression() {
                                 super.onAdImpression()
-                                listener?.onImpression(SdkType.GAM)
+                                notifyImpression(SdkType.GAM)
                                 SdkLogUtil.info("GAM Ad impression", SdkAdStatus.IMPRESSION, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
                             }
 
                             override fun onAdDismissedFullScreenContent() {
                                 super.onAdDismissedFullScreenContent()
-                                listener?.onAdClosed(null, SdkType.GAM)
+                                notifyAdClosed(null, SdkType.GAM)
                                 SdkLogUtil.info("GAM Ad closed", SdkAdStatus.CLOSED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
                             }
                         }
@@ -222,13 +96,8 @@ class MultiBannerLoaderNextGen(
             adView?.destroy()
             adView = null
             isAdLoaded = false
-            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.GAM}")
+            LogUtil.debug(logTag, "Ad destroyed: ${SdkType.GAM}")
         }
-    }
-
-    private interface AdLoader {
-        fun load()
-        fun destroy()
     }
 
 }

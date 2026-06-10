@@ -29,8 +29,8 @@ import org.mockito.MockitoAnnotations
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGen.SdkState
-import org.prebid.mobile.api.multiloadernextgen.listeners.MultiInterstitialAdListenerNextGen
+import org.prebid.mobile.api.multiloadercommon.BaseMultiInterstitialAdLoader.SdkState
+import org.prebid.mobile.api.multiloadercommon.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.configuration.SdkConfigHolder
@@ -44,7 +44,7 @@ import org.robolectric.annotation.Config
 class MultiInterstitialAdLoaderNextGenTest {
 
     @Mock
-    private lateinit var mockListener: MultiInterstitialAdListenerNextGen
+    private lateinit var mockListener: MultiInterstitialAdListener
 
     private lateinit var context: Context
 
@@ -440,7 +440,7 @@ class MultiInterstitialAdLoaderNextGenTest {
     @Test
     fun setListener_replacesPreviousListener() {
         val loader = createLoader()
-        val newListener = mock(MultiInterstitialAdListenerNextGen::class.java)
+        val newListener = mock(MultiInterstitialAdListener::class.java)
         loader.setListener(newListener)
 
         loader.loadAd()

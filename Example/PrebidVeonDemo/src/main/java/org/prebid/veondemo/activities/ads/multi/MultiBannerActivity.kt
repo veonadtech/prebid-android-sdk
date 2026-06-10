@@ -7,7 +7,7 @@ import android.widget.Toast
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.multiadloader.MultiBannerLoader
-import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
+import org.prebid.mobile.api.multiloadercommon.MultiBannerViewListener
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.veondemo.activities.BaseAdActivity
 

@@ -1,4 +1,4 @@
-package org.prebid.mobile.api.multiadloader.listeners
+package org.prebid.mobile.api.multiloadercommon
 
 import org.prebid.mobile.api.data.SdkType
 

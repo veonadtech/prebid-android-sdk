@@ -7,205 +7,19 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
 import org.prebid.mobile.LogUtil
-import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.AdFormat
-import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
-import org.prebid.mobile.api.rendering.InterstitialAdUnit
-import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import org.prebid.mobile.configuration.SdkConfigHolder
+import org.prebid.mobile.api.multiloadercommon.BaseMultiInterstitialAdLoader
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
-import java.util.EnumSet
 
 class MultiInterstitialAdLoader(
-    private val context: Context,
-    private val configId: String?,
-    private val gamAdUnitId: String?,
-) {
+    context: Context,
+    configId: String?,
+    gamAdUnitId: String?,
+) : BaseMultiInterstitialAdLoader(context, configId, gamAdUnitId) {
 
-    companion object {
-        private val TAG = MultiInterstitialAdLoader::class.java.simpleName
-    }
-
-    enum class SdkState {
-        NOT_STARTED,
-        LOADING,
-        LOADED,
-        FAILED
-    }
-
-    private var selectedSDK: SdkType? = null
-    private var listener: MultiInterstitialAdListener? = null
-    private val sdkStates = mutableMapOf<SdkType, SdkState>()
-    private val priorityOrder = SdkConfigHolder.priorityOrderSDK.toMutableList()
-
-    private val adLoaders = mapOf(
-        SdkType.PREBID to PrebidAdLoader(),
-        SdkType.GAM to GamAdLoader()
-    )
-
-    init {
-        SdkType.values().forEach { sdk ->
-            sdkStates[sdk] = SdkState.NOT_STARTED
-        }
-    }
-
-    fun setListener(listener: MultiInterstitialAdListener) {
-        this.listener = listener
-    }
-
-    fun loadAd() {
-        destroy()
-        selectedSDK = null
-
-        sdkStates.keys.forEach { sdk ->
-            sdkStates[sdk] = SdkState.NOT_STARTED
-        }
-
-        val order = priorityOrder.toList()
-        order.forEach { sdk ->
-            if (sdk != SdkType.PREBID) {
-                setSdkState(sdk, SdkState.LOADING)
-                adLoaders[sdk]?.load()
-            }
-        }
-
-        if (priorityOrder.firstOrNull() == SdkType.PREBID) {
-            setSdkState(SdkType.PREBID, SdkState.LOADING)
-            adLoaders[SdkType.PREBID]?.load()
-        }
-    }
-
-    fun showAd() {
-        selectedSDK?.let { sdk ->
-            adLoaders[sdk]?.show()
-        } ?: run {
-            listener?.onAdFailedToShow("No loaded interstitial ad to show", null)
-        }
-    }
-
-    fun destroy() {
-        adLoaders.values.forEach { it.destroy() }
-        sdkStates.keys.forEach { sdk ->
-            sdkStates[sdk] = SdkState.NOT_STARTED
-        }
-    }
-
-    private fun setSdkState(sdk: SdkType, state: SdkState) {
-        sdkStates[sdk] = state
-    }
-
-    private fun getSdkState(sdk: SdkType): SdkState {
-        return sdkStates[sdk] ?: SdkState.NOT_STARTED
-    }
-
-    private fun handleAdLoaded(sdk: SdkType) {
-        setSdkState(sdk, SdkState.LOADED)
-        selectSdkIfFirstPriority(sdk)
-    }
-
-    private fun handleAdFailed(error: String?, sdk: SdkType) {
-        LogUtil.debug(TAG, "Ad failed $sdk: $error")
-        setSdkState(sdk, SdkState.FAILED)
-        priorityOrder.remove(sdk)
-        selectSdkIfFirstPriority(sdk)
-        listener?.onAdFailed(error, sdk)
-    }
-
-    private fun selectSdkIfFirstPriority(sdk: SdkType) {
-        if (isFirstPriorityAndLoaded()) {
-            selectedSDK = getFirstLoadedSdk()
-            selectedSDK?.let {
-                cancelOtherRequests(it)
-                listener?.onAdLoaded(it)
-            }
-        } else {
-            maybeLoadPrebid(sdk)
-        }
-    }
-
-    private fun isFirstPriorityAndLoaded(): Boolean {
-        return priorityOrder.firstOrNull()?.let { firstPriority ->
-            getSdkState(firstPriority) == SdkState.LOADED
-        } ?: false
-    }
-
-    private fun getFirstLoadedSdk(): SdkType? {
-        return priorityOrder.firstOrNull { sdk ->
-            getSdkState(sdk) == SdkState.LOADED
-        }
-    }
-
-    private fun cancelOtherRequests(successfulSdk: SdkType) {
-        adLoaders.keys
-            .filter { it != successfulSdk }
-            .forEach { sdk ->
-                adLoaders[sdk]?.destroy()
-                setSdkState(sdk, SdkState.NOT_STARTED)
-            }
-    }
-
-    private fun maybeLoadPrebid(sdk: SdkType) {
-        if (sdk == SdkType.PREBID) return
-
-        if (getSdkState(SdkType.PREBID) == SdkState.NOT_STARTED && priorityOrder.contains(SdkType.PREBID)) {
-            val prebidIndex = priorityOrder.indexOf(SdkType.PREBID)
-            if (prebidIndex != -1) {
-                val highPrioritySDKs = priorityOrder.take(prebidIndex)
-
-                val allHighPriorityFailed = highPrioritySDKs.all { highPrioritySdk ->
-                    getSdkState(highPrioritySdk) == SdkState.FAILED
-                }
-
-                if (allHighPriorityFailed) {
-                    setSdkState(SdkType.PREBID, SdkState.LOADING)
-                    adLoaders[SdkType.PREBID]?.load()
-                }
-            }
-        }
-    }
-
-    private inner class PrebidAdLoader : AdLoader {
-        private var interstitial: InterstitialAdUnit? = null
-
-        override fun load() {
-            if (!PrebidMobile.isSdkInitialized()) {
-                handleAdFailed( "Prebid SDK is not initialized!", SdkType.PREBID)
-                return
-            }
-
-            if (configId.isNullOrEmpty()) {
-                handleAdFailed("ConfigId is empty", SdkType.PREBID)
-                return
-            }
-
-            interstitial = InterstitialAdUnit(context, configId, EnumSet.of(AdUnitFormat.BANNER)).apply {
-                setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-                    override fun onAdLoaded(unit: InterstitialAdUnit?) = handleAdLoaded(SdkType.PREBID)
-                    override fun onAdDisplayed(unit: InterstitialAdUnit?) = listener?.onAdDisplayed(SdkType.PREBID) ?: Unit
-                    override fun onAdFailed(unit: InterstitialAdUnit?, e: AdException?) =
-                        handleAdFailed(e?.message ?: "Unknown error", SdkType.PREBID)
-
-                    override fun onAdClicked(unit: InterstitialAdUnit?) = listener?.onAdClicked(SdkType.PREBID) ?: Unit
-                    override fun onAdClosed(unit: InterstitialAdUnit?) = listener?.onAdClosed(SdkType.PREBID) ?: Unit
-                })
-                loadAd()
-            }
-        }
-
-        override fun show() {
-            interstitial?.show()
-        }
-
-        override fun destroy() {
-            interstitial?.destroy()
-            interstitial = null
-            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.PREBID}")
-        }
-    }
+    override fun createGamAdLoader(): AdLoader = GamAdLoader()
 
     private inner class GamAdLoader : AdLoader {
         private var interstitial: AdManagerInterstitialAd? = null
@@ -240,14 +54,8 @@ class MultiInterstitialAdLoader(
 
         override fun destroy() {
             interstitial = null
-            LogUtil.debug(TAG, "Ad destroyed: ${SdkType.GAM}")
+            LogUtil.debug(logTag, "Ad destroyed: ${SdkType.GAM}")
         }
-    }
-
-    private interface AdLoader {
-        fun load()
-        fun show()
-        fun destroy()
     }
 
 }

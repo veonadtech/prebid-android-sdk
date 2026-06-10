@@ -30,8 +30,8 @@ import org.mockito.MockitoAnnotations
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader.SdkState
-import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
+import org.prebid.mobile.api.multiloadercommon.BaseMultiInterstitialAdLoader.SdkState
+import org.prebid.mobile.api.multiloadercommon.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.configuration.SdkConfigHolder

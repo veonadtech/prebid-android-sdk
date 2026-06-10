@@ -49,7 +49,7 @@ import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.configuration.SdkConfigHolder
-import org.prebid.mobile.api.multiloadernextgen.listeners.MultiBannerViewListenerNextGen
+import org.prebid.mobile.api.multiloadercommon.MultiBannerViewListener
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -59,7 +59,7 @@ import org.robolectric.annotation.Config
 class MultiBannerLoaderNextGenTest {
 
     @Mock
-    private lateinit var mockListener: MultiBannerViewListenerNextGen
+    private lateinit var mockListener: MultiBannerViewListener
 
     private lateinit var context: Context
     private lateinit var adSize: AdSize
@@ -434,7 +434,7 @@ class MultiBannerLoaderNextGenTest {
     @Test
     fun setListener_replacesPreviousListener() {
         val loader = createLoader()
-        val newListener = mock(MultiBannerViewListenerNextGen::class.java)
+        val newListener = mock(MultiBannerViewListener::class.java)
         loader.setListener(newListener)
         loader.loadAd()
 

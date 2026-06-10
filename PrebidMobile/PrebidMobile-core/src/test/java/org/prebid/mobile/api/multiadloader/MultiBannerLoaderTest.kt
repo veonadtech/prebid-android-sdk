@@ -28,7 +28,7 @@ import org.prebid.mobile.AdSize
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
+import org.prebid.mobile.api.multiloadercommon.MultiBannerViewListener
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
 import org.prebid.mobile.configuration.SdkConfigHolder
@@ -195,6 +195,26 @@ class MultiBannerLoaderTest {
         val gamView = gamViewConstruction.constructed()[0]
         val gamListener = captureGamListener()
         gamListener.onAdLoaded()
+
+        verify(mockListener).onAdLoaded(gamView, SdkType.GAM)
+    }
+
+    // 7b. GAM loads first while PREBID is still priority head (held back), then PREBID fails →
+    //     the already-loaded GAM is promoted to head and selected.
+    @Test
+    fun gamLoadedFirst_thenPrebidFails_gamSelectedAfterPriorityShift() {
+        val loader = createLoader()
+        loader.loadAd()
+
+        // GAM loads while PREBID is the priority head → held back, no notification yet.
+        val gamView = gamViewConstruction.constructed()[0]
+        val gamListener = captureGamListener()
+        gamListener.onAdLoaded()
+        verifyNoInteractions(mockListener)
+
+        // PREBID (priority head) fails → GAM should now be selected.
+        val prebidListener = capturePrebidListener()
+        prebidListener.onAdFailed(null, AdException(AdException.INTERNAL_ERROR, "prebid error"))
 
         verify(mockListener).onAdLoaded(gamView, SdkType.GAM)
     }
