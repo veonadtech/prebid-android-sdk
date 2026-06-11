@@ -1,4 +1,4 @@
-package org.prebid.nextgendemo
+package org.prebid.veonnextgendemo
 
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.multiloadernextgen.MultiBannerLoaderNextGen
+import org.prebid.mobile.api.multiloadernextgen.MultiBannerLoaderNextGenGam
 import org.prebid.mobile.api.multiloadernextgen.listeners.MultiBannerViewListenerNextGen
 import org.prebid.mobile.api.rendering.BannerView
 
@@ -24,7 +24,7 @@ class MultiBannerNextGenActivity : AppCompatActivity() {
     }
 
     private lateinit var adWrapper: ViewGroup
-    private var adLoader: MultiBannerLoaderNextGen? = null
+    private var adLoader: MultiBannerLoaderNextGenGam? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +34,7 @@ class MultiBannerNextGenActivity : AppCompatActivity() {
     }
 
     private fun createAd() {
-        val loader = MultiBannerLoaderNextGen(
+        val loader = MultiBannerLoaderNextGenGam(
             context = this,
             adSize = AdSize(WIDTH, HEIGHT),
             configId = CONFIG_ID,

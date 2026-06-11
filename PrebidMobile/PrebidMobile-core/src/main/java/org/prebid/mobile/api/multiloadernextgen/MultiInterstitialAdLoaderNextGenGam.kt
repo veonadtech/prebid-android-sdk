@@ -30,7 +30,7 @@ import org.prebid.mobile.logging.SdkLogUtil
 import java.util.EnumSet
 import com.yandex.mobile.ads.interstitial.InterstitialAd as YandexInterstitialAd
 
-class MultiInterstitialAdLoaderNextGen(
+class MultiInterstitialAdLoaderNextGenGam(
     private val context: Context,
     private val configId: String?,
     private val gamAdUnitId: String?,
@@ -45,7 +45,7 @@ class MultiInterstitialAdLoaderNextGen(
 ) {
 
     companion object {
-        private val TAG = MultiInterstitialAdLoaderNextGen::class.java.simpleName
+        private val TAG = MultiInterstitialAdLoaderNextGenGam::class.java.simpleName
     }
 
     enum class SdkState {

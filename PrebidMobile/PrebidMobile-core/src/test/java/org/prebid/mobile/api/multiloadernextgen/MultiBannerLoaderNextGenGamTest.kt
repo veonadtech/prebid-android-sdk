@@ -56,7 +56,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24])
-class MultiBannerLoaderNextGenTest {
+class MultiBannerLoaderNextGenGamTest {
 
     @Mock
     private lateinit var mockListener: MultiBannerViewListenerNextGen
@@ -100,8 +100,8 @@ class MultiBannerLoaderNextGenTest {
         cfg: String? = configId,
         gamId: String? = gamAdUnitId,
         yandexId: String? = yandexAdUnitId,
-    ): MultiBannerLoaderNextGen {
-        val loader = MultiBannerLoaderNextGen(context, size, cfg, gamId, yandexId)
+    ): MultiBannerLoaderNextGenGam {
+        val loader = MultiBannerLoaderNextGenGam(context, size, cfg, gamId, yandexId)
         loader.setListener(mockListener)
         return loader
     }

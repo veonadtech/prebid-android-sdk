@@ -29,7 +29,7 @@ import org.mockito.MockitoAnnotations
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGen.SdkState
+import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGenGam.SdkState
 import org.prebid.mobile.api.multiloadernextgen.listeners.MultiInterstitialAdListenerNextGen
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
@@ -41,7 +41,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24])
-class MultiInterstitialAdLoaderNextGenTest {
+class MultiInterstitialAdLoaderNextGenGamTest {
 
     @Mock
     private lateinit var mockListener: MultiInterstitialAdListenerNextGen
@@ -89,8 +89,8 @@ class MultiInterstitialAdLoaderNextGenTest {
         cfg: String? = configId,
         gamId: String? = gamAdUnitId,
         yandexId: String? = yandexAdUnitId,
-    ): MultiInterstitialAdLoaderNextGen {
-        val loader = MultiInterstitialAdLoaderNextGen(context, cfg, gamId, yandexId) { request, callback ->
+    ): MultiInterstitialAdLoaderNextGenGam {
+        val loader = MultiInterstitialAdLoaderNextGenGam(context, cfg, gamId, yandexId) { request, callback ->
             gamLoadCount++
             capturedGamRequest = request
             capturedGamCallback = callback
@@ -130,10 +130,10 @@ class MultiInterstitialAdLoaderNextGenTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun sdkStatesOf(loader: MultiInterstitialAdLoaderNextGen): Map<SdkType, SdkState> =
+    private fun sdkStatesOf(loader: MultiInterstitialAdLoaderNextGenGam): Map<SdkType, SdkState> =
         WhiteBox.getInternalState(loader, "sdkStates") as Map<SdkType, SdkState>
 
-    private fun selectedSdkOf(loader: MultiInterstitialAdLoaderNextGen): SdkType? =
+    private fun selectedSdkOf(loader: MultiInterstitialAdLoaderNextGenGam): SdkType? =
         WhiteBox.getInternalState(loader, "selectedSDK") as SdkType?
 
     // 1. On construction all SDK states are NOT_STARTED

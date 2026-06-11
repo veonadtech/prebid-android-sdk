@@ -36,7 +36,7 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.MockitoAnnotations
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader.SdkState
+import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoaderLegacyGam.SdkState
 import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
@@ -48,7 +48,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24])
-class MultiInterstitialAdLoaderTest {
+class MultiInterstitialAdLoaderLegacyGamTest {
 
     @Mock
     private lateinit var mockListener: MultiInterstitialAdListener
@@ -85,8 +85,8 @@ class MultiInterstitialAdLoaderTest {
         cfg: String? = configId,
         gamId: String? = gamAdUnitId,
         yandexId: String? = yandexAdUnitId,
-    ): MultiInterstitialAdLoader {
-        val loader = MultiInterstitialAdLoader(context, cfg, gamId, yandexId)
+    ): MultiInterstitialAdLoaderLegacyGam {
+        val loader = MultiInterstitialAdLoaderLegacyGam(context, cfg, gamId, yandexId)
         loader.setListener(mockListener)
         return loader
     }
@@ -130,10 +130,10 @@ class MultiInterstitialAdLoaderTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun sdkStatesOf(loader: MultiInterstitialAdLoader): Map<SdkType, SdkState> =
+    private fun sdkStatesOf(loader: MultiInterstitialAdLoaderLegacyGam): Map<SdkType, SdkState> =
         WhiteBox.getInternalState(loader, "sdkStates") as Map<SdkType, SdkState>
 
-    private fun selectedSdkOf(loader: MultiInterstitialAdLoader): SdkType? =
+    private fun selectedSdkOf(loader: MultiInterstitialAdLoaderLegacyGam): SdkType? =
         WhiteBox.getInternalState(loader, "selectedSDK") as SdkType?
 
     // 1. All SDK states bootstrap to NOT_STARTED

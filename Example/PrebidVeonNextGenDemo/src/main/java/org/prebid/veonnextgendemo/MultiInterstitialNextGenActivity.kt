@@ -1,4 +1,4 @@
-package org.prebid.nextgendemo
+package org.prebid.veonnextgendemo
 
 import android.os.Bundle
 import android.util.Log
@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.yandex.mobile.ads.common.ImpressionData
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGen
+import org.prebid.mobile.api.multiloadernextgen.MultiInterstitialAdLoaderNextGenGam
 import org.prebid.mobile.api.multiloadernextgen.listeners.MultiInterstitialAdListenerNextGen
 
 class MultiInterstitialNextGenActivity : AppCompatActivity() {
@@ -17,7 +17,7 @@ class MultiInterstitialNextGenActivity : AppCompatActivity() {
         const val YANDEX_AD_UNIT_ID = "demo-interstitial-yandex"
     }
 
-    private var interstitialLoader: MultiInterstitialAdLoaderNextGen? = null
+    private var interstitialLoader: MultiInterstitialAdLoaderNextGenGam? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class MultiInterstitialNextGenActivity : AppCompatActivity() {
     }
 
     private fun onCreateInterstitial() {
-        val loader = MultiInterstitialAdLoaderNextGen(
+        val loader = MultiInterstitialAdLoaderNextGenGam(
             context = this,
             configId = CONFIG_ID,
             gamAdUnitId = GAM_AD_UNIT_ID,

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace "org.prebid.nextgendemo"
+    namespace "org.prebid.veonnextgendemo"
     setCompileSdkVersion(34)
     defaultConfig {
         // The Next-Gen GMA SDK requires minSdk 24.
@@ -10,7 +10,7 @@ android {
         targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
-        applicationId "org.prebid.nextgendemo"
+        applicationId "org.prebid.veonnextgendemo"
         multiDexEnabled true
     }
     compileOptions {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Prebid Next-Gen Demo</string>
-    <string name="multi_nextgen_banner">Multi Ad (Next-Gen) Banner 320x50</string>
-    <string name="multi_nextgen_interstitial">Multi Ad (Next-Gen) Interstitial</string>
+    <string name="app_name">Prebid Veon Next-Gen Demo</string>
+    <string name="multi_nextgen_banner">Multi Ad (Next-Gen) GAM Banner 320x50</string>
+    <string name="multi_nextgen_interstitial">Multi Ad (Next-Gen) GAM Interstitial</string>
 </resources>

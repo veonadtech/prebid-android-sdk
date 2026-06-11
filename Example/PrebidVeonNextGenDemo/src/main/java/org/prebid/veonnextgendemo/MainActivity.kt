@@ -1,4 +1,4 @@
-package org.prebid.nextgendemo
+package org.prebid.veonnextgendemo
 
 import android.content.Intent
 import android.os.Bundle
