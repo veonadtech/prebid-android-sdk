@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoader
-import org.prebid.mobile.api.multiadloader.listeners.MultiInterstitialAdListener
+import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoaderLegacyGam
+import org.prebid.mobile.api.multiloadercommon.MultiInterstitialAdListener
 import org.prebid.veondemo.activities.BaseAdActivity
 
 class MultiInterstitialAdActivity : BaseAdActivity() {
@@ -22,7 +22,7 @@ class MultiInterstitialAdActivity : BaseAdActivity() {
     }
 
     private fun onCreateInterstitial() {
-        val interstitialLoader = MultiInterstitialAdLoader(
+        val interstitialLoader = MultiInterstitialAdLoaderLegacyGam(
             context = this,
             configId = CONFIG_ID,
             gamAdUnitId = AD_UNIT_ID
