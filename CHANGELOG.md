@@ -1,5 +1,19 @@
 # CHANGELOG
 
+# 0.4.0
+## Added
+* Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGAM` and
+`MultiInterstitialAdLoaderNextGenGAM` race Prebid and Google's Next-Gen GMA SDK by the configured
+priority order, mirroring the existing GAM/Prebid multi-loaders
+## Changed
+* Extracted shared, SDK-agnostic base classes for the multi-ad loaders
+(`BaseMultiBannerLoader`, `BaseMultiInterstitialAdLoader` in `api/multiloadercommon`) and unified
+the banner/interstitial multi-loader listeners to remove duplication between the legacy and
+Next-Gen implementations
+## Fixed
+* Banner multi-loader now promotes an already-loaded lower-priority SDK when a higher-priority
+one fails after it had loaded (previously the loaded ad could be silently dropped)
+
 # 0.3.2
 ## Changed
 * Enables video player click for rewarded ads with clickthrough URL
