@@ -1,5 +1,18 @@
 # CHANGELOG
 
+# 0.4.0
+## Added
+* Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGam` and
+`MultiInterstitialAdLoaderNextGenGam` race Prebid, GAM (Next-Gen GMA SDK) and Yandex by the
+configured priority order, mirroring the existing legacy GAM multi-loaders
+## Changed
+* Renamed the multi-ad loaders to specify the backing SDK: `MultiBannerLoader` →
+`MultiBannerLoaderLegacyGam`, `MultiInterstitialAdLoader` → `MultiInterstitialAdLoaderLegacyGam`,
+`MultiBannerLoaderNextGen` → `MultiBannerLoaderNextGenGam`, `MultiInterstitialAdLoaderNextGen` →
+`MultiInterstitialAdLoaderNextGenGam`
+* Renamed the Next-Gen demo app package to `org.prebid.mobile.prebidveonnextgendemo` and the app
+name to "Prebid Veon Next Gen SDK Demo"
+
 # 0.3.2
 ## Added
 * Unit tests for `MultiBannerLoader` and `MultiInterstitialAdLoader` (67 tests covering priority order, fallback, lazy Prebid, listener routing, single-fire guards, and lifecycle)
