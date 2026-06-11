@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import org.prebid.mobile.AdSize
 import org.prebid.mobile.api.data.SdkType
-import org.prebid.mobile.api.multiadloader.MultiBannerLoader
+import org.prebid.mobile.api.multiadloader.MultiBannerLoaderLegacyGam
 import org.prebid.mobile.api.multiloadercommon.MultiBannerViewListener
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.veondemo.activities.BaseAdActivity
@@ -27,7 +27,7 @@ class MultiBannerActivity : BaseAdActivity() {
     }
 
     private fun createAd() {
-        val adLoader = MultiBannerLoader(
+        val adLoader = MultiBannerLoaderLegacyGam(
             context = this,
             adSize = AdSize(WIDTH, HEIGHT),
             configId = CONFIG_ID,

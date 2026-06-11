@@ -52,7 +52,7 @@ dependencies {
     // Next-Gen GMA SDK (used by api/multiloadernextgen GAM loaders). compileOnly so it does NOT
     // land on core's unit-test classpath: it bundles a final com.google.android.gms.ads.AdError
     // that conflicts with legacy play-services-ads' AdError/LoadAdError used by the multiadloader
-    // tests. Consumers of multiloadernextgen add the Next-Gen SDK themselves (see PrebidNextGenDemo);
+    // tests. Consumers of multiloadernextgen add the Next-Gen SDK themselves (see PrebidVeonNextGenDemo);
     // its unit tests live in :PrebidMobile-nextGenEventHandlers where the SDK is on the classpath.
     compileOnly libs.google.next.gen.sdk
 
