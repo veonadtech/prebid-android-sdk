@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.4.1
+## Fixed
+* Update BannerView to log the specific exception message instead of a hardcoded string
+
 # 0.4.0
 ## Added
 * Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGAM` and
