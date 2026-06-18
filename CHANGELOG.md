@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.4.1
+## Fixed
+* Update BannerView to log the specific exception message instead of a hardcoded string
+
 # 0.4.0
 ## Added
 * Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGam` and
@@ -19,9 +23,22 @@ configured priority order, mirroring the existing legacy GAM multi-loaders
 
 # 0.3.0
 ## Fixed
-* Fixed Unit tests
+* Make NativeDataAsset len optional like iOS
+* hb_cache_id_local is not added to targetingKeywords if adObject is null
+* Fix bar layout params is null 
+* Fix Adm native wrapper parsing
+* Exception during looking for cache
+* Fix Unit tests
 ## Changed
 * minSdkVersion upgraded to 21
+* Send ifa_type for IFA 
+* Resume refreshing for Mediation banner 
+* Readable exceptions and useless logs
+* ORTB config for ad unit level (Aligns with iOS implementation)
+* Reusable rendering API banner (removes the destruction of Prebid WebView when it is detached 
+from the screen. So now the Prebid banner can be used in the RecyclerView and can be reused 
+many times to show the advertisement faster.)
+* minSdkVersion upgraded to 23
 * GAM SDK upgraded to 25.1.0
 * Media3 migrated to ExoPlayer
 

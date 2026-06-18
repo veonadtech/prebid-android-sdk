@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
@@ -375,7 +374,7 @@ public class VideoCreative extends VideoCreativeProtocol
     }
 
     protected void complete() {
-        LogUtil.debug(TAG, "track 'complete' event");
+        LogUtil.debug(TAG, "Track 'complete' event");
 
         model.trackVideoEvent(VideoAdEvent.Event.AD_COMPLETE);
 
@@ -395,6 +394,9 @@ public class VideoCreative extends VideoCreativeProtocol
             videoCreativeView.showCallToAction(true);
         } else if (model.getAdConfiguration().isRewarded()) {
             videoCreativeView.showCallToAction(false);
+            if (Utils.isNotBlank(model.getVastClickthroughUrl())) {
+                videoCreativeView.enableVideoPlayerClick();
+            }
         }
     }
 

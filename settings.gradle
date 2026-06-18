@@ -1,6 +1,8 @@
 include ':PrebidMobile',
         ':PrebidMobile-core',
         ':PrebidMobile-gamEventHandlers',
+        ':PrebidMobile-nextGenEventHandlers',
+        ':test-utils',
         ':omsdk-android',
         ':test-utils',
         // Prebid Demo
@@ -12,6 +14,7 @@ include ':PrebidMobile',
 project(':PrebidMobile').projectDir = new File('PrebidMobile')
 project(':PrebidMobile-core').projectDir = new File('PrebidMobile/PrebidMobile-core')
 project(':PrebidMobile-gamEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-gamEventHandlers')
+project(':PrebidMobile-nextGenEventHandlers').projectDir = new File('PrebidMobile/PrebidMobile-nextGenEventHandlers')
 project(':omsdk-android').projectDir = new File('PrebidMobile/omsdk-android')
 project(':PrebidVeonDemo').projectDir = new File('Example/PrebidVeonDemo')
 project(':PrebidVeonNextGenDemo').projectDir = new File('Example/PrebidVeonNextGenDemo')

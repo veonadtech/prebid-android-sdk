@@ -92,6 +92,11 @@ public class PrebidMobile {
      */
     public static final String TESTED_GOOGLE_SDK_VERSION = "23.6.0";
 
+    /**
+     * Tested Google Next-Gen SDK version.
+     */
+    public static final String TESTED_GOOGLE_NEXT_GEN_SDK_VERSION = "0.25.0";
+
     private static LogLevel logLevel = LogLevel.NONE;
     @Nullable
     private static PrebidLogger customLogger = null;
@@ -409,7 +414,7 @@ public class PrebidMobile {
         }
 
         if (!Patterns.WEB_URL.matcher(url).matches()) {
-            Log.e(TAG, "Can't set custom /status endpoint, it is not valid.");
+            LogUtil.error(TAG, "Can't set custom /status endpoint, it is not valid.");
             return;
         }
 

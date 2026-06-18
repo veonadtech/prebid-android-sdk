@@ -18,7 +18,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
         dataBinding true
@@ -42,10 +42,10 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.3.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.3.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.3.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.3.0-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.0.7.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.0.7.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.0.7.7'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.0.7.7'
 
     // Standard libraries
     implementation libs.kotlin.stdlib
