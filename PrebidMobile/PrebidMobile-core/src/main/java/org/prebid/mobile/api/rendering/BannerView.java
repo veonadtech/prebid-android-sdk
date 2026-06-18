@@ -198,7 +198,7 @@ public class BannerView extends FrameLayout {
                 notifyErrorListener(parsedException);
                 String config = adUnitConfig.getConfigId() != null ? adUnitConfig.getConfigId() : "";
                 SdkLogUtil.error(
-                        "WinnerBid is null when executing onPrebidSdkWin.",
+                        parsedException.getMessage(),
                         AdFormat.BANNER,
                         config,
                         SdkType.PREBID

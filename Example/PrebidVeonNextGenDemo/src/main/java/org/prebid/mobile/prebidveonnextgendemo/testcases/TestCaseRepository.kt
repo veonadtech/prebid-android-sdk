@@ -130,6 +130,18 @@ object TestCaseRepository {
             OriginalApiMultiformatBannerVideoNativeStylesActivity::class.java
         ),
         TestCase(
+            R.string.multiloader_nextgen_banner,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.MULTI,
+            MultiBannerNextGenActivity::class.java
+        ),
+        TestCase(
+            R.string.multiloader_nextgen_interstitial,
+            AdFormat.DISPLAY_INTERSTITIAL,
+            IntegrationKind.MULTI,
+            MultiInterstitialNextGenActivity::class.java
+        ),
+        TestCase(
             R.string.rendering_display_banner_320x50,
             AdFormat.DISPLAY_BANNER,
             IntegrationKind.RENDERING,
