@@ -196,6 +196,8 @@ public class BannerView extends FrameLayout {
             AdException parsedException = RenderingExceptionParser.getPrebidException(bidResponse, prebidException);
             if (parsedException != null) {
                 notifyErrorListener(parsedException);
+
+                String config = adUnitConfig.getConfigId() != null ? adUnitConfig.getConfigId() : "";
                 SdkLogUtil.error(
                         parsedException.getMessage(),
                         AdFormat.BANNER,

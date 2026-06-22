@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.core.BuildConfig;
 import org.prebid.mobile.rendering.listeners.OnBrowserActionResultListener;
 import org.prebid.mobile.rendering.listeners.OnBrowserActionResultListener.BrowserActionResult;

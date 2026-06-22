@@ -17,6 +17,7 @@
 package org.prebid.mobile;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Patterns;
 import android.webkit.URLUtil;
 

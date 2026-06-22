@@ -21,9 +21,9 @@ import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
 import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
-import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.veondemo.activities.BaseAdActivity
 
-class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
+class InAppDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
         const val AD_UNIT_ID = "/21808260008/prebid_oxb_html_interstitial"
