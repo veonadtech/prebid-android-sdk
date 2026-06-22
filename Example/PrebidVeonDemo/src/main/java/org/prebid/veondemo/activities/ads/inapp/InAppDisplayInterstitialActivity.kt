@@ -13,19 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.prebid.veondemo.activities.ads.inapp
+package org.prebid.mobile.prebidkotlindemo.activities.ads.gam.rendering
 
 import android.os.Bundle
-import org.prebid.mobile.api.data.AdUnitFormat
+import android.util.Log
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.rendering.InterstitialAdUnit
 import org.prebid.mobile.api.rendering.listeners.InterstitialAdUnitListener
-import org.prebid.veondemo.activities.BaseAdActivity
-import java.util.EnumSet
+import org.prebid.mobile.eventhandlers.GamInterstitialEventHandler
+import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
 
-class InAppDisplayInterstitialActivity : BaseAdActivity() {
+class GamRenderingApiDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
+        const val AD_UNIT_ID = "/21808260008/prebid_oxb_html_interstitial"
         const val CONFIG_ID = "prebid-demo-display-interstitial-320-480"
     }
 
@@ -39,17 +40,9 @@ class InAppDisplayInterstitialActivity : BaseAdActivity() {
     }
 
     private fun createAd() {
-        adUnit = InterstitialAdUnit(this, CONFIG_ID, EnumSet.of(AdUnitFormat.BANNER))
-        adUnit?.setInterstitialAdUnitListener(object : InterstitialAdUnitListener {
-            override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
-                adUnit?.show()
-            }
-
-            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {}
-            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, e: AdException?) {}
-            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {}
-            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {}
-        })
+        val eventHandler = GamInterstitialEventHandler(this, AD_UNIT_ID)
+        adUnit = InterstitialAdUnit(this, CONFIG_ID, eventHandler)
+        adUnit?.setInterstitialAdUnitListener(createListener(adUnit))
         adUnit?.loadAd()
     }
 
@@ -58,5 +51,21 @@ class InAppDisplayInterstitialActivity : BaseAdActivity() {
         super.onDestroy()
         adUnit?.destroy()
     }
+
+
+    private fun createListener(adUnit: InterstitialAdUnit?): InterstitialAdUnitListener =
+        object : InterstitialAdUnitListener {
+            override fun onAdLoaded(interstitialAdUnit: InterstitialAdUnit?) {
+                adUnit?.show()
+            }
+
+            override fun onAdFailed(interstitialAdUnit: InterstitialAdUnit?, exception: AdException?) {
+                Log.e(TAG, "Ad failed: $exception")
+            }
+
+            override fun onAdDisplayed(interstitialAdUnit: InterstitialAdUnit?) {}
+            override fun onAdClicked(interstitialAdUnit: InterstitialAdUnit?) {}
+            override fun onAdClosed(interstitialAdUnit: InterstitialAdUnit?) {}
+        }
 
 }

@@ -17,7 +17,6 @@
 package org.prebid.mobile;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.Patterns;
 import android.webkit.URLUtil;
 
@@ -294,8 +293,8 @@ public class PrebidMobile {
     }
 
     public static void addStoredBidResponse(
-            String bidder,
-            String responseId
+        String bidder,
+        String responseId
     ) {
         storedBidResponses.put(bidder, responseId);
     }
@@ -409,7 +408,7 @@ public class PrebidMobile {
         }
 
         if (!Patterns.WEB_URL.matcher(url).matches()) {
-            Log.e(TAG, "Can't set custom /status endpoint, it is not valid.");
+            LogUtil.error(TAG, "Can't set custom /status endpoint, it is not valid.");
             return;
         }
 
@@ -487,7 +486,6 @@ public class PrebidMobile {
 
     /**
      * Priority Policy: PBSConfig > SDKConfig > Default
-     *
      * @return creativeFactoryTimeoutPreRender in ms
      */
     public static int getCreativeFactoryTimeoutPreRenderContent() {

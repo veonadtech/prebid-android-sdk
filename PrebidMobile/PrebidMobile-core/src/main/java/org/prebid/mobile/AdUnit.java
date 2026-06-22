@@ -47,8 +47,6 @@ import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Base ad unit for the original API.
@@ -130,6 +128,7 @@ public abstract class AdUnit {
      * @param listener callback when operation is completed (success or fail)
      */
     public void fetchDemand(Object adObject, @NonNull OnCompleteListener listener) {
+        LogUtil.debug(TAG, "Fetch demand called");
         if (TextUtils.isEmpty(PrebidMobile.getPrebidServerAccountId())) {
             LogUtil.error("Empty account id.");
             listener.onComplete(ResultCode.INVALID_ACCOUNT_ID);
@@ -151,6 +150,7 @@ public abstract class AdUnit {
         HashSet<AdSize> sizes = configuration.getSizes();
         for (AdSize size : sizes) {
             if (size.getWidth() < 0 || size.getHeight() < 0) {
+                LogUtil.error("Invalid size: " + size);
                 listener.onComplete(ResultCode.INVALID_SIZE);
                 return;
             }
@@ -162,6 +162,7 @@ public abstract class AdUnit {
             if (conMgr != null && context.checkCallingOrSelfPermission("android.permission.ACCESS_NETWORK_STATE") == PackageManager.PERMISSION_GRANTED) {
                 NetworkInfo activeNetworkInfo = conMgr.getActiveNetworkInfo();
                 if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
+                    LogUtil.debug("No network connection available.");
                     listener.onComplete(ResultCode.NETWORK_ERROR);
                     return;
                 }
@@ -256,6 +257,20 @@ public abstract class AdUnit {
         configuration.setImpOrtbConfig(ortbConfig);
     }
 
+    @Nullable
+    public String getGlobalOrtbConfig() {
+        return configuration.getGlobalOrtbConfig();
+    }
+
+    /**
+     * Sets the global OpenRTB configuration string for the ad unit. It takes precedence over `TargetingParams.setGlobalOrtbConfig`.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig The global OpenRTB JSON configuration string to set. Can be `null` to clear the configuration.
+     */
+    public void setGlobalOrtbConfig(@Nullable String ortbConfig) {
+        configuration.setGlobalOrtbConfig(ortbConfig);
+    }
+
     protected BidRequesterListener createBidListener(OnCompleteListener originalListener) {
         return new BidRequesterListener() {
             @Override
@@ -263,6 +278,8 @@ public abstract class AdUnit {
                 bidResponse = response;
 
                 HashMap<String, String> keywords = response.getTargeting();
+                LogUtil.debug(TAG, "Bid response received successfully: " + keywords);
+
                 Util.apply(keywords, adObject);
                 originalListener.onComplete(ResultCode.SUCCESS);
 
@@ -271,6 +288,7 @@ public abstract class AdUnit {
 
             @Override
             public void onError(AdException exception) {
+                LogUtil.error(TAG, "Bid response error: " + exception);
                 bidResponse = null;
 
                 Util.apply(null, adObject);
