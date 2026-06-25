@@ -112,7 +112,7 @@ object SdkLogUtil {
         }
 
         if (level < logPriority) return
-//        if (!sdkLogState.sdkType.contains(sdkType)) return
+        if (!sdkLogState.sdkType.contains(sdkType)) return
 
         // Send to server
         LogServerSender.getInstance().sendLog(
