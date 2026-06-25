@@ -123,6 +123,7 @@ public class GamInterstitialEventHandler implements InterstitialEventHandler, Ga
             return;
         }
 
+        SdkLogUtil.gamRequested(AdFormat.INTERSTITIAL, gamAdUnitId);
         requestInterstitial.loadAd(bid);
     }
 

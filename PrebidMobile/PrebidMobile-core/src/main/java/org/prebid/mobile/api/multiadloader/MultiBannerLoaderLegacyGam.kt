@@ -248,6 +248,7 @@ class MultiBannerLoaderLegacyGam(
                     }
                 }
 
+                SdkLogUtil.gamRequested(AdFormat.BANNER, gamAdUnitId)
                 val request = AdManagerAdRequest.Builder().build()
                 loadAd(request)
             }
@@ -331,6 +332,7 @@ class MultiBannerLoaderLegacyGam(
                     }
                 })
 
+                SdkLogUtil.yandexRequested(AdFormat.BANNER, yandexAdUnitId)
                 loadAd(AdRequest.Builder().build())
             }
         }
