@@ -16,13 +16,7 @@
 
 package org.prebid.mobile.api.rendering;
 
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.LOADING;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_FOR_LOAD;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_GAM;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_PREBID;
-
 import android.content.Context;
-
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -47,6 +41,8 @@ import org.prebid.mobile.rendering.models.AdPosition;
 
 import java.lang.ref.WeakReference;
 
+import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.*;
+
 /**
  * Internal base interstitial ad unit for rendering API.
  */
@@ -62,6 +58,7 @@ public abstract class BaseInterstitialAdUnit {
 
     private BidLoader bidLoader;
     private BidResponse bidResponse;
+    protected AdException prebidException;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
     private final BidRequesterListener bidRequesterListener = createBidRequesterListener();
@@ -144,6 +141,20 @@ public abstract class BaseInterstitialAdUnit {
      */
     public void setImpOrtbConfig(@Nullable String ortbConfig) {
         config.setImpOrtbConfig(ortbConfig);
+    }
+
+    @Nullable
+    public String getGlobalOrtbConfig() {
+        return config.getGlobalOrtbConfig();
+    }
+
+    /**
+     * Sets the global OpenRTB configuration string for the ad unit. It takes precedence over `Targeting.setGlobalOrtbConfig`.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig The global OpenRTB JSON configuration string to set. Can be `null` to clear the configuration.
+     */
+    public void setGlobalOrtbConfig(@Nullable String ortbConfig) {
+        config.setGlobalOrtbConfig(ortbConfig);
     }
 
     @Nullable
@@ -246,10 +257,6 @@ public abstract class BaseInterstitialAdUnit {
         return weakContext.get();
     }
 
-    protected boolean isBidInvalid() {
-        return bidResponse == null || bidResponse.getWinningBid() == null;
-    }
-
     protected void changeInterstitialAdUnitState(InterstitialAdUnitState state) {
         interstitialAdUnitState = state;
     }
@@ -291,6 +298,7 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;
+                prebidException = null;
 
                 changeInterstitialAdUnitState(LOADING);
                 requestAdWithBid(getWinnerBid());
@@ -299,6 +307,8 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onError(AdException exception) {
                 bidResponse = null;
+                prebidException = exception;
+
                 requestAdWithBid(null);
             }
         };

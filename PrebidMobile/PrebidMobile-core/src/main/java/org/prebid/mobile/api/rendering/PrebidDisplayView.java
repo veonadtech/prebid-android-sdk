@@ -19,10 +19,8 @@ package org.prebid.mobile.api.rendering;
 import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
@@ -45,7 +43,7 @@ import org.prebid.mobile.rendering.views.video.VideoViewListener;
 /**
  * Internal view renderer for plugin renderer.
  */
-public class PrebidDisplayView extends FrameLayout {
+public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable {
 
     private final static String TAG = DisplayView.class.getSimpleName();
     private static final String CONTENT_DESCRIPTION_AD_VIEW = "adView";
@@ -212,12 +210,6 @@ public class PrebidDisplayView extends FrameLayout {
     }
 
     @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        destroy();
-    }
-
     public void destroy() {
         adUnitConfiguration = null;
         displayViewListener = null;

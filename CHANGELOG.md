@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 0.4.1
+* Fetch changes from prebid SDK
+
 # 0.3.2
 ## Changed
 * Enables video player click for rewarded ads with clickthrough URL

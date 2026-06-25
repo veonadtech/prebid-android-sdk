@@ -63,6 +63,7 @@ public final class AdViewUtils {
     private static final String GAM_VIEW_CLASS_2 = "com.google.android.gms.ads.admanager.AdManagerAdView";
     private static final String GAM_CUSTOM_TEMPLATE_AD_CLASS = "com.google.android.gms.ads.formats.NativeCustomTemplateAd";
     private static final String GAM_CUSTOM_TEMPLATE_AD_CLASS_2 = "com.google.android.gms.ads.nativead.NativeCustomFormatAd";
+    private static final String NEXT_CUSTOM_TEMPLATE_AD_CLASS = "com.google.android.libraries.ads.mobile.sdk.nativead.CustomNativeAd";
 
     private AdViewUtils() {
     }
@@ -121,7 +122,6 @@ public final class AdViewUtils {
                     //case: wait when webView.getContentHeight() >= expected height from HTML
                     //webView does not contain getContentWidth()
                     if (webViewContentHeight < expectedHeight) {
-                        LogUtil.debug("fixZoomIn" + " webViewContentHeight:" + webViewContentHeight);
                         contentHeightQueue.add(webViewContentHeight);
                         if (contentHeightQueue.isFull()) {
 
@@ -149,7 +149,7 @@ public final class AdViewUtils {
         //case: regulate scale because WebView.getSettings().setLoadWithOverviewMode() does not work
         int scale = (int) (webViewHeight / webViewContentHeight * 100 + 1);
 
-        LogUtil.debug("fixZoomIn WB Height:" + webViewHeight + " getContentHeight:" + webViewContentHeight + " scale:" + scale);
+        LogUtil.debug("Set WebView scale: " + scale + " (" + webViewHeight + ", " + webViewContentHeight + ")");
         webView.setInitialScale(scale);
     }
 
@@ -159,10 +159,8 @@ public final class AdViewUtils {
     }
 
     static void warnAndTriggerFailure(PbFindSizeError error, PbFindSizeListener handler) {
-
         String description = error.getDescription();
         LogUtil.print(error.getLogLevel(), description);
-
         handler.failure(error);
     }
 
@@ -190,8 +188,6 @@ public final class AdViewUtils {
         int necessaryAndroidApi = Build.VERSION_CODES.KITKAT;
 
         if (currentAndroidApi >= necessaryAndroidApi) {
-            LogUtil.debug("webViewList size:" + webViewList.size());
-
             int lastIndex = webViewList.size() - 1;
             iterateWebViewListAsync(webViewList, lastIndex, handler);
         } else {
@@ -388,6 +384,7 @@ public final class AdViewUtils {
 
     @Nullable
     static String findCacheId(String html) {
+        if (html == null) return null;
         Pattern pattern = Pattern.compile(CACHE_ID_REGEX);
         Matcher matcher = pattern.matcher(html);
 
@@ -446,7 +443,7 @@ public final class AdViewUtils {
         if (GAM_VIEW_CLASS.equals(objectClassName) || GAM_VIEW_CLASS_2.equals(objectClassName)) {
             View adView = (View) object;
             findNativeInGAMPublisherAdView(adView, listener);
-        } else if (implementsInterface(object, GAM_CUSTOM_TEMPLATE_AD_CLASS) || implementsInterface(object, GAM_CUSTOM_TEMPLATE_AD_CLASS_2)) {
+        } else if (implementsInterface(object, GAM_CUSTOM_TEMPLATE_AD_CLASS) || implementsInterface(object, GAM_CUSTOM_TEMPLATE_AD_CLASS_2) || implementsInterface(object, NEXT_CUSTOM_TEMPLATE_AD_CLASS)) {
             findNativeInGAMCustomTemplateAd(object, listener);
         } else {
             listener.onPrebidNativeNotFound();
@@ -558,15 +555,14 @@ final class PbFindSizeErrorFactory {
 
     static PbFindSizeError getCompositeFailureError(Set<Pair<WebView, PbFindSizeError>> resultSet) {
         StringBuilder result = new StringBuilder();
-        result.append("There is a set of errors:\n");
+        result.append("Detected issues: ");
 
         int logLevel = LogLevel.NONE.getValue();
         for (Pair<WebView, PbFindSizeError> webViewFindSizeError : resultSet) {
             logLevel = Integer.max(logLevel, webViewFindSizeError.second.getLogLevel());
-            result.append("    WebView:").append(webViewFindSizeError.first)
-                    .append(" errorCode:").append(webViewFindSizeError.second.getCode())
-                    .append(" errorDescription:").append(webViewFindSizeError.second.getDescription())
-                    .append("\n");
+            result.append(" Code:").append(webViewFindSizeError.second.getCode())
+                    .append(" Description:").append(webViewFindSizeError.second.getDescription())
+                    .append("; ");
         }
 
         return getError(COMPOSITE_FAILURE_CODE, result.toString(), logLevel);
@@ -586,7 +582,7 @@ final class PbFindSizeErrorFactory {
     }
 
     private static PbFindSizeError getNoSizeObjectError() {
-        return getError(NO_SIZE_OBJECT_CODE, "The HTML does not appear to be a Prebid Universal Creative, as it does not contain an hb_size snippet.", LogLevel.INFO.getValue());
+        return getError(NO_SIZE_OBJECT_CODE, "The HTML does not appear to be a Prebid Universal Creative, as it does not contain an hb_size snippet.", LogLevel.DEBUG.getValue());
     }
 
     private static PbFindSizeError getNoSizeValueError() {

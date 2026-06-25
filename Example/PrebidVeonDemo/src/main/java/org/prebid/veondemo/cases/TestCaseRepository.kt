@@ -1,5 +1,6 @@
 package org.prebid.veondemo.cases
 
+import org.prebid.mobile.prebidkotlindemo.activities.ads.gam.rendering.InAppDisplayInterstitialActivity
 import org.prebid.veondemo.R
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner300x250Activity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner320x50Activity
@@ -26,7 +27,6 @@ import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidExpandAct
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeWithErrorsActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMultiSizeActivity
-import org.prebid.veondemo.activities.ads.inapp.InAppDisplayInterstitialActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppNativeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoBannerActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialActivity

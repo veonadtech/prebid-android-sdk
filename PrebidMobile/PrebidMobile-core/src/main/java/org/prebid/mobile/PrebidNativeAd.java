@@ -21,12 +21,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +70,15 @@ public class PrebidNativeAd {
                 JSONObject details = new JSONObject(content);
                 String admStr = details.getString("adm");
                 JSONObject adm = new JSONObject(admStr);
-                JSONArray asset = adm.getJSONArray("assets");
+
+                JSONObject nativeObj;
+                if (adm.has("native")) {
+                    nativeObj = adm.getJSONObject("native");
+                } else {
+                    nativeObj = adm;
+                }
+
+                JSONArray asset = nativeObj.getJSONArray("assets");
                 final PrebidNativeAd ad = new PrebidNativeAd();
                 CacheManager.registerCacheExpiryListener(cacheId, new CacheExpireListenerImpl(ad));
                 for (int i = 0; i < asset.length(); i++) {
@@ -119,8 +124,8 @@ public class PrebidNativeAd {
                     }
                 }
 
-                if (adm.has("link")) {
-                    JSONObject link = adm.getJSONObject("link");
+                if (nativeObj.has("link")) {
+                    JSONObject link = nativeObj.getJSONObject("link");
                     if (link.has("url")) {
                         String url = link.getString("url");
                         if (url.contains("{AUCTION_PRICE}") && details.has("price")) {
@@ -144,8 +149,8 @@ public class PrebidNativeAd {
                     }
                 }
 
-                if (adm.has("eventtrackers")) {
-                    JSONArray eventtrackers = adm.getJSONArray("eventtrackers");
+                if (nativeObj.has("eventtrackers")) {
+                    JSONArray eventtrackers = nativeObj.getJSONArray("eventtrackers");
                     if (eventtrackers.length() > 0) {
                         ad.imp_trackers = new ArrayList<>();
                         for (int count = 0; count < eventtrackers.length(); count++) {
@@ -161,8 +166,8 @@ public class PrebidNativeAd {
                     }
                 }
 
-                if (adm.has("privacy")) {
-                    String url = adm.getString("privacy");
+                if (nativeObj.has("privacy")) {
+                    String url = nativeObj.getString("privacy");
                     ad.setPrivacyUrl(url);
                 }
                 parseEvents(details, ad);
@@ -437,7 +442,7 @@ public class PrebidNativeAd {
 
         @Override
         public void onCacheExpired() {
-            Log.e(TAG, "onCacheExpired");
+            LogUtil.error(TAG, "Cache expired");
             WeakReference<View> weakReference = ad.registeredView;
             if (weakReference == null) return;
 
