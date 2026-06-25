@@ -226,6 +226,7 @@ class MultiInterstitialAdLoaderLegacyGam(
                 return
             }
 
+            SdkLogUtil.gamRequested(AdFormat.INTERSTITIAL, gamAdUnitId)
             val request = AdManagerAdRequest.Builder().build()
             AdManagerInterstitialAd.load(context, gamAdUnitId, request, object : AdManagerInterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: AdManagerInterstitialAd) {
@@ -317,6 +318,7 @@ class MultiInterstitialAdLoaderLegacyGam(
                         handleAdFailed(error.description, SdkType.YANDEX)
                     }
                 })
+                SdkLogUtil.yandexRequested(AdFormat.INTERSTITIAL, yandexAdUnitId)
                 loadAd(AdRequestConfiguration.Builder(yandexAdUnitId).build())
             }
         }

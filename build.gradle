@@ -1,5 +1,5 @@
 ext {
-    prebidSdkVersionName = "0.4.0-yandex"
+    prebidSdkVersionName = "0.4.2-yandex"
     prebidSdkMinVersion = 23
     prebidSdkTargetVersion = 35
     prebidSdkCompileVersion = 35
