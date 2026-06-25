@@ -49,7 +49,7 @@ class Demo : Application() {
         PrebidMobile.initializeSdk(
             applicationContext,
             "https://prebid.veonadx.com/openrtb2/auction",
-            "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
+            "https://dcdn.veonadx.com/sdk/com.techlogix.mobilinkcustomer/config.json"
         ) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")

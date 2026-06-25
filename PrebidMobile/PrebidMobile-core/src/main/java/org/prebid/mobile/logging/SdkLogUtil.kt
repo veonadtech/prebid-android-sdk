@@ -73,6 +73,16 @@ object SdkLogUtil {
     }
 
     /**
+     * Logs an outgoing GAM ad request ([SdkAdStatus.REQUESTED]). No-ops when [adUnitId] is
+     * null or blank so a missing GAM ad unit id can never crash the ad-load path.
+     */
+    @JvmStatic
+    fun gamRequested(adFormat: AdFormat, adUnitId: String?) {
+        if (adUnitId.isNullOrBlank()) return
+        info("GAM Ad requested", SdkAdStatus.REQUESTED, adFormat, adUnitId, SdkType.GAM)
+    }
+
+    /**
      * Prints information with set priority. Every tag
      */
     private fun log(
@@ -102,7 +112,7 @@ object SdkLogUtil {
         }
 
         if (level < logPriority) return
-        if (!sdkLogState.sdkType.contains(sdkType)) return
+//        if (!sdkLogState.sdkType.contains(sdkType)) return
 
         // Send to server
         LogServerSender.getInstance().sendLog(

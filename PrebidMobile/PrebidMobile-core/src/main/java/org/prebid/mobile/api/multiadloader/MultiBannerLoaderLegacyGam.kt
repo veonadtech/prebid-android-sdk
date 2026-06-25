@@ -80,6 +80,7 @@ class MultiBannerLoaderLegacyGam(
                     }
                 }
 
+                SdkLogUtil.gamRequested(AdFormat.BANNER, gamAdUnitId)
                 val request = AdManagerAdRequest.Builder().build()
                 loadAd(request)
             }
