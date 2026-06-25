@@ -156,6 +156,7 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
             return;
         }
 
+        SdkLogUtil.gamRequested(AdFormat.BANNER, gamAdUnitId);
         requestBanner.loadAd(bid);
     }
 
