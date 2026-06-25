@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class AdUnitConfigurationTest {
 
     private AdUnitConfiguration adUnitConfig;

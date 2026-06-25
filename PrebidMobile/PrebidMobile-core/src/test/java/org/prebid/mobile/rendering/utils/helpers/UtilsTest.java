@@ -63,7 +63,7 @@ import static org.mockito.Mockito.*;
 import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, qualifiers = "w1920dp-h1080dp")
+@Config(sdk = 23, qualifiers = "w1920dp-h1080dp")
 @LooperMode(LEGACY)
 public class UtilsTest extends TestCase {
 

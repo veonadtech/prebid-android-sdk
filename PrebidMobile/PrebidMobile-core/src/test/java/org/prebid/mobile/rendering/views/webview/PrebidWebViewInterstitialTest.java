@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class PrebidWebViewInterstitialTest {
 
     private PrebidWebViewInterstitial prebidWebViewInterstitial;

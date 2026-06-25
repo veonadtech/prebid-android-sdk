@@ -31,7 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class LastKnownLocationInfoManagerTest {
 
     private LastKnownLocationInfoManager locationImpl;

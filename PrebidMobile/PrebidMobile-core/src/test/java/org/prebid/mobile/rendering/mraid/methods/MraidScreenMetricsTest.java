@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class MraidScreenMetricsTest {
 
     private MraidScreenMetrics mraidScreenMetrics;

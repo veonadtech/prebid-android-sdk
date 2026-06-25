@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
 import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 @LooperMode(LEGACY)
 public class AdInterstitialDialogTest {
 

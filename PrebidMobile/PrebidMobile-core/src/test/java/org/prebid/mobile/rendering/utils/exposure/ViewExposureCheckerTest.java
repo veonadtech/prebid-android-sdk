@@ -43,7 +43,7 @@ import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 @RunWith(RobolectricTestRunner.class)
 @LargeTest
-@Config(sdk = 21, qualifiers = "w800dp-h800dp-xhdpi")
+@Config(sdk = 23, qualifiers = "w800dp-h800dp-xhdpi")
 @LooperMode(LEGACY)
 public class ViewExposureCheckerTest {
 

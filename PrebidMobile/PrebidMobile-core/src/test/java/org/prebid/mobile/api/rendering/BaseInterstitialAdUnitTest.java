@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class BaseInterstitialAdUnitTest {
 
     private BaseInterstitialAdUnit baseInterstitialAdUnit;

@@ -62,3 +62,16 @@ android {
         exclude 'META-INF/LICENSE'
     }
 }
+
+// The Mintegral/MBridge mediation adapter (pulled transitively by the Yandex mediation SDK) ships
+// pre-stackmap bytecode (e.g. com.mbridge.msdk...NetWorkChangeReceiver) that JDK 17 rejects with
+// VerifyError when Robolectric loads its manifest-declared receivers. It is irrelevant to the unit
+// tests, so drop it (and its MBridge transitives) from the unit-test configurations of every module;
+// the shipped product keeps Mintegral.
+configurations.configureEach {
+    if (name.toLowerCase().contains('unittest')) {
+        exclude group: 'com.yandex.ads.mediation', module: 'mobileads-mintegral'
+        exclude group: 'com.mbridge.msdk.oversea'
+        exclude group: 'com.mbridge.msdk'
+    }
+}

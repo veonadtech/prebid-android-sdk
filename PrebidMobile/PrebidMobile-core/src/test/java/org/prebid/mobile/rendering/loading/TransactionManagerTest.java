@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class TransactionManagerTest {
     @Mock private TransactionManagerListener mockListener;
     @Mock private Transaction mockTransaction;

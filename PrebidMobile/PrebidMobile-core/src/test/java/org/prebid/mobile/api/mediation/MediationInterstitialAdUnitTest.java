@@ -38,7 +38,7 @@ import org.robolectric.annotation.Config;
 import java.util.EnumSet;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class MediationInterstitialAdUnitTest {
 
     private Context context;

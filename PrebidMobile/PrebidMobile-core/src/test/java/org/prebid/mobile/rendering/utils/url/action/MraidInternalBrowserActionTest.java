@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class MraidInternalBrowserActionTest {
     private static final Uri VALID_URI = Uri.parse("http://prebid.com");
     private static final String VALID_URL = VALID_URI.toString();

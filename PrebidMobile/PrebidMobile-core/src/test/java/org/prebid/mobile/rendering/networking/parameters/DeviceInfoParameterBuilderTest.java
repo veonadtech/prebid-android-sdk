@@ -37,7 +37,7 @@ import org.robolectric.annotation.Config;
 import java.util.Locale;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, qualifiers = "w1920dp-h1080dp")
+@Config(sdk = 23, qualifiers = "w1920dp-h1080dp")
 public class DeviceInfoParameterBuilderTest {
 
     private final int SCREEN_WIDTH = 1920;

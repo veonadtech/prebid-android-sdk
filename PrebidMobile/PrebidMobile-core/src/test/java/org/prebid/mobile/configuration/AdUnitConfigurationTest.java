@@ -16,7 +16,7 @@ import java.util.EnumSet;
 import java.util.UUID;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class AdUnitConfigurationTest {
 
     private AdUnitConfiguration subject;

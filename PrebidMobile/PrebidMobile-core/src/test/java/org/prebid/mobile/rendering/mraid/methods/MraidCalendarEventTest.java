@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class MraidCalendarEventTest {
 
     public final static String calendarFile = "calendar.txt";

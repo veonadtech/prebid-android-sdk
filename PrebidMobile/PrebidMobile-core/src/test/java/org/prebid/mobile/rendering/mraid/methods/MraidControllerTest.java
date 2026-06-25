@@ -60,7 +60,7 @@ import org.robolectric.shadows.ShadowLooper;
 import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class MraidControllerTest {
 
     @Mock private InterstitialManager mockInterstitialManager;
