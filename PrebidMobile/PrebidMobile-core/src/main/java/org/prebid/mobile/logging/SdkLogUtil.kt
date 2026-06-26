@@ -33,7 +33,7 @@ object SdkLogUtil {
      * Prints a message with INFO priority and default GAM_TAG
      */
     @JvmStatic
-    fun info(message: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun info(message: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String?, sdkType: SdkType) {
         info(GAM_TAG, message, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
@@ -49,7 +49,7 @@ object SdkLogUtil {
      * Prints a message with INFO priority.
      */
     @JvmStatic
-    fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String?, sdkType: SdkType) {
         log(Log.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
@@ -73,12 +73,11 @@ object SdkLogUtil {
     }
 
     /**
-     * Logs an outgoing GAM ad request ([SdkAdStatus.REQUESTED]). No-ops when [adUnitId] is
-     * null or blank so a missing GAM ad unit id can never crash the ad-load path.
+     * Logs an outgoing GAM ad request ([SdkAdStatus.REQUESTED]). A null or blank [adUnitId] is
+     * treated as a no-op by [log], so a missing GAM ad unit id can never crash the ad-load path.
      */
     @JvmStatic
     fun gamRequested(adFormat: AdFormat, adUnitId: String?) {
-        if (adUnitId.isNullOrBlank()) return
         info("GAM Ad requested", SdkAdStatus.REQUESTED, adFormat, adUnitId, SdkType.GAM)
     }
 
@@ -91,10 +90,11 @@ object SdkLogUtil {
         message: String?,
         status: SdkAdStatus,
         adFormat: AdFormat,
-        adUnitId: String,
+        adUnitId: String?,
         sdkType: SdkType
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
+        if (adUnitId.isNullOrBlank()) return
 
         val sdkLogState = PrebidMobile.getSdkLogState() ?: return
 
