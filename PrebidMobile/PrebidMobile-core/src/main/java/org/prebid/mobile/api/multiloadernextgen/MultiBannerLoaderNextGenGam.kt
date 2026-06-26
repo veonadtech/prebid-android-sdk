@@ -44,7 +44,7 @@ class MultiBannerLoaderNextGenGam(
             isAdLoaded = false
             val view = AdView(context)
             adView = view
-            SdkLogUtil.gamRequested(AdFormat.BANNER, gamAdUnitId)
+            SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
             try {
                 val request = BannerAdRequest.Builder(
                     gamAdUnitId, listOf(NextSize(size.width, size.height))

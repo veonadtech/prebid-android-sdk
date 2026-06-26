@@ -39,7 +39,7 @@ class MultiInterstitialAdLoaderNextGenGam(
                 return
             }
 
-            SdkLogUtil.gamRequested(AdFormat.INTERSTITIAL, gamAdUnitId)
+            SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM)
             try {
                 val request = AdRequest.Builder(gamAdUnitId).build()
                 gamLoad(request, object : AdLoadCallback<InterstitialAd> {

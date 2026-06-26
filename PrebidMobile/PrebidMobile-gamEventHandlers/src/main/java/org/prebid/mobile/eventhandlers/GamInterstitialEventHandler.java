@@ -27,6 +27,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
@@ -123,7 +124,7 @@ public class GamInterstitialEventHandler implements InterstitialEventHandler, Ga
             return;
         }
 
-        SdkLogUtil.gamRequested(AdFormat.INTERSTITIAL, gamAdUnitId);
+        SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM);
         requestInterstitial.loadAd(bid);
     }
 
