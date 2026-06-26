@@ -191,7 +191,7 @@ class MultiBannerLoader(
                     }
                 }
 
-                SdkLogUtil.gamRequested(AdFormat.BANNER, gamAdUnitId)
+                SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM)
                 val request = AdManagerAdRequest.Builder().build()
                 loadAd(request)
             }
