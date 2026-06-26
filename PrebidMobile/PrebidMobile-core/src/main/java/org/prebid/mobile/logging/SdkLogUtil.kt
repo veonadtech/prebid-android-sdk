@@ -73,24 +73,6 @@ object SdkLogUtil {
     }
 
     /**
-     * Logs an outgoing GAM ad request ([SdkAdStatus.REQUESTED]). A null or blank [adUnitId] is
-     * treated as a no-op by [log], so a missing GAM ad unit id can never crash the ad-load path.
-     */
-    @JvmStatic
-    fun gamRequested(adFormat: AdFormat, adUnitId: String?) {
-        info("GAM Ad requested", SdkAdStatus.REQUESTED, adFormat, adUnitId, SdkType.GAM)
-    }
-
-    /**
-     * Logs an outgoing Yandex ad request ([SdkAdStatus.REQUESTED]). A null or blank [adUnitId] is
-     * treated as a no-op by [log], so a missing Yandex ad unit id can never crash the ad-load path.
-     */
-    @JvmStatic
-    fun yandexRequested(adFormat: AdFormat, adUnitId: String?) {
-        info("Yandex Ad requested", SdkAdStatus.REQUESTED, adFormat, adUnitId, SdkType.YANDEX)
-    }
-
-    /**
      * Prints information with set priority. Every tag
      */
     private fun log(
