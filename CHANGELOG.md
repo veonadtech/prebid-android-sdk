@@ -7,9 +7,6 @@
 requests are logged from `BidLoader` (banner and interstitial, including auto-refresh; rewarded is
 excluded); GAM and Yandex requests are logged from the legacy and Next-Gen banner/interstitial
 multi-ad loaders, and GAM requests are also logged from the GAM banner/interstitial event handlers
-* `SdkLogUtil.gamRequested(...)` / `SdkLogUtil.yandexRequested(...)` helpers that centralize the
-request log and no-op on a null/blank ad unit id, so a missing ad unit id can never crash the
-ad-load path
 
 # 0.4.1
 ## Fixed
