@@ -29,6 +29,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.eventhandlers.global.Constants;
+import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
@@ -156,6 +157,7 @@ public class GamBannerEventHandler implements BannerEventHandler, GamAdEventList
             return;
         }
 
+        SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.BANNER, gamAdUnitId, SdkType.GAM);
         requestBanner.loadAd(bid);
     }
 

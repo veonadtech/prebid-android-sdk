@@ -24,8 +24,11 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidEventDelegate;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
+import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
+import org.prebid.mobile.logging.SdkAdStatus;
+import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.MobileSdkPassThrough;
@@ -141,7 +144,30 @@ public class BidLoader {
             return;
         }
 
+        logRequested(adConfiguration);
         sendBidRequest(adConfiguration);
+    }
+
+    /**
+     * Logs the outgoing Prebid auction request (initial and auto-refresh, since refresh
+     * re-enters {@link #load()} directly). Limited to banner and interstitial formats.
+     */
+    private void logRequested(AdUnitConfiguration adConfiguration) {
+        String configId = adConfiguration.getConfigId();
+        if (configId == null || adConfiguration.isRewarded()) {
+            // Rewarded carries EnumSet.of(INTERSTITIAL, VAST); excluded so it isn't mislabeled.
+            return;
+        }
+        AdFormat logFormat = null;
+        if (adConfiguration.isAdType(AdFormat.BANNER)) {
+            logFormat = AdFormat.BANNER;
+        } else if (adConfiguration.isAdType(AdFormat.INTERSTITIAL)) {
+            logFormat = AdFormat.INTERSTITIAL;
+        }
+        if (logFormat != null) {
+            SdkLogUtil.info("Prebid Ad requested", SdkAdStatus.REQUESTED, logFormat,
+                    configId, SdkType.PREBID);
+        }
     }
 
     public void setupRefreshTimer() {

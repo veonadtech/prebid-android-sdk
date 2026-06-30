@@ -216,6 +216,7 @@ class MultiInterstitialAdLoader(
                 return
             }
 
+            SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM)
             val request = AdManagerAdRequest.Builder().build()
             AdManagerInterstitialAd.load(context, gamAdUnitId, request, object : AdManagerInterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: AdManagerInterstitialAd) {

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+# 0.4.2
+## Added
+* Ad-request telemetry: GAM and Prebid ad requests now emit a `REQUESTED` (`SdkAdStatus.REQUESTED`)
+log event, complementing the existing post-response events. Prebid auction requests are logged from
+`BidLoader` (banner and interstitial, including auto-refresh; rewarded is excluded); GAM requests are
+logged from the banner/interstitial multi-ad loaders and the GAM banner/interstitial event handlers
+
 # 0.3.2
 ## Changed
 * Enables video player click for rewarded ads with clickthrough URL
