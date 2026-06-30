@@ -33,7 +33,7 @@ object SdkLogUtil {
      * Prints a message with INFO priority and default GAM_TAG
      */
     @JvmStatic
-    fun info(message: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun info(message: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String?, sdkType: SdkType) {
         info(GAM_TAG, message, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
@@ -49,7 +49,7 @@ object SdkLogUtil {
      * Prints a message with INFO priority.
      */
     @JvmStatic
-    fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String, sdkType: SdkType) {
+    fun info(@Size(max = 23) tag: String, msg: String, sdkAdStatus: SdkAdStatus, adFormat: AdFormat, adUnitId: String?, sdkType: SdkType) {
         log(Log.INFO, tag, msg, sdkAdStatus, adFormat, adUnitId, sdkType)
     }
 
@@ -81,10 +81,11 @@ object SdkLogUtil {
         message: String?,
         status: SdkAdStatus,
         adFormat: AdFormat,
-        adUnitId: String,
+        adUnitId: String?,
         sdkType: SdkType
     ) {
         if (tag.isNullOrBlank() || message.isNullOrBlank()) return
+        if (adUnitId.isNullOrBlank()) return
 
         val sdkLogState = PrebidMobile.getSdkLogState() ?: return
 

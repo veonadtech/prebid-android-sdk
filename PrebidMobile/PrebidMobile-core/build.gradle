@@ -75,6 +75,20 @@ configurations.all {
     }
 }
 
+// The Next-Gen GMA SDK (testImplementation, for the multiloadernextgen loader tests) bundles its own
+// final com.google.android.gms.ads.* classes (e.g. a final AdError) that shadow the legacy
+// play-services-ads ones. On the shared unit-test classpath that makes legacy LoadAdError (which
+// extends the non-final AdError) fail to load with IncompatibleClassChangeError, breaking the legacy
+// GAM loader tests. Move the Next-Gen SDK to the end of each Test classpath so the legacy
+// com.google.android.gms.ads.* classes win; the Next-Gen tests only need its unique
+// com.google.android.libraries.ads.mobile.sdk.* classes, so ordering does not affect them.
+tasks.withType(Test).configureEach {
+    doFirst {
+        classpath = classpath.filter { !it.path.contains('ads-mobile-sdk') } +
+                classpath.filter { it.path.contains('ads-mobile-sdk') }
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {

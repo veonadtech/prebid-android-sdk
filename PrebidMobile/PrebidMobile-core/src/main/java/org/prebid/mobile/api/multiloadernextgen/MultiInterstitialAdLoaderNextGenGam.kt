@@ -235,6 +235,7 @@ class MultiInterstitialAdLoaderNextGenGam(
                 return
             }
 
+            SdkLogUtil.info("GAM Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, gamAdUnitId, SdkType.GAM)
             try {
                 val request = AdRequest.Builder(gamAdUnitId).build()
                 gamLoad(request, object : AdLoadCallback<InterstitialAd> {
@@ -353,6 +354,7 @@ class MultiInterstitialAdLoaderNextGenGam(
                         handleAdFailed(error.description, SdkType.YANDEX)
                     }
                 })
+                SdkLogUtil.info("Yandex Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX)
                 loadAd(AdRequestConfiguration.Builder(yandexAdUnitId).build())
             }
         }
