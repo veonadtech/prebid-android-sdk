@@ -28,7 +28,7 @@ import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 import java.util.EnumSet
 
-class MultiInterstitialAdLoaderLegacyGam(
+class MultiInterstitialAdLoader(
     private val context: Context,
     private val configId: String?,
     private val gamAdUnitId: String?,
@@ -36,7 +36,7 @@ class MultiInterstitialAdLoaderLegacyGam(
 ) {
 
     companion object {
-        private val TAG = MultiInterstitialAdLoaderLegacyGam::class.java.simpleName
+        private val TAG = MultiInterstitialAdLoader::class.java.simpleName
     }
 
     enum class SdkState {

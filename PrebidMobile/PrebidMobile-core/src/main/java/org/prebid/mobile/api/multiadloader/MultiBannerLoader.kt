@@ -25,7 +25,7 @@ import org.prebid.mobile.configuration.SdkConfigHolder
 import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 
-class MultiBannerLoaderLegacyGam(
+class MultiBannerLoader(
     private val context: Context,
     private val adSize: AdSize?,
     private val configId: String?,
@@ -35,7 +35,7 @@ class MultiBannerLoaderLegacyGam(
 ) {
 
     companion object {
-        private val TAG = MultiBannerLoaderLegacyGam::class.java.simpleName
+        private val TAG = MultiBannerLoader::class.java.simpleName
     }
 
     enum class SdkState {

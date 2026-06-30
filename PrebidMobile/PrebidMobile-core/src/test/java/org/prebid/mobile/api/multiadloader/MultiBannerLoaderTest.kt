@@ -33,7 +33,7 @@ import org.prebid.mobile.AdSize
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
-import org.prebid.mobile.api.multiadloader.MultiBannerLoaderLegacyGam.SdkState
+import org.prebid.mobile.api.multiadloader.MultiBannerLoader.SdkState
 import org.prebid.mobile.api.multiadloader.listeners.MultiBannerViewListener
 import org.prebid.mobile.api.rendering.BannerView
 import org.prebid.mobile.api.rendering.listeners.BannerViewListener
@@ -45,7 +45,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24])
-class MultiBannerLoaderLegacyGamTest {
+class MultiBannerLoaderTest {
 
     @Mock
     private lateinit var mockListener: MultiBannerViewListener
@@ -94,8 +94,8 @@ class MultiBannerLoaderLegacyGamTest {
         cfg: String? = configId,
         gamId: String? = gamAdUnitId,
         yandexId: String? = yandexAdUnitId,
-    ): MultiBannerLoaderLegacyGam {
-        val loader = MultiBannerLoaderLegacyGam(context, size, cfg, gamId, yandexId)
+    ): MultiBannerLoader {
+        val loader = MultiBannerLoader(context, size, cfg, gamId, yandexId)
         loader.setListener(mockListener)
         return loader
     }
@@ -122,10 +122,10 @@ class MultiBannerLoaderLegacyGamTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun sdkStatesOf(loader: MultiBannerLoaderLegacyGam): Map<SdkType, SdkState> =
+    private fun sdkStatesOf(loader: MultiBannerLoader): Map<SdkType, SdkState> =
         WhiteBox.getInternalState(loader, "sdkStates") as Map<SdkType, SdkState>
 
-    private fun selectedSdkOf(loader: MultiBannerLoaderLegacyGam): SdkType? =
+    private fun selectedSdkOf(loader: MultiBannerLoader): SdkType? =
         WhiteBox.getInternalState(loader, "selectedSDK") as SdkType?
 
     // 1. SdkState bootstraps to NOT_STARTED for all three SDKs
