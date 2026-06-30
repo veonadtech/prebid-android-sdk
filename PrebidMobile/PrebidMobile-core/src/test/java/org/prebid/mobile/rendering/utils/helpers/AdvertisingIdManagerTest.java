@@ -36,13 +36,17 @@ public class AdvertisingIdManagerTest {
     private AdvertisingIdClient.Info mockGoogleAdInfo = mock(AdvertisingIdClient.Info.class);
     private UserConsentManager mockConsentManager = mock(UserConsentManager.class);
     private GoogleApiAvailability mockGoogleAvailability = mock(GoogleApiAvailability.class);
+    // Held as a strong field reference on purpose: PrebidContextHolder stores the context in a
+    // WeakReference, so an inline mock(Context.class) could be GC'd before FetchTask runs, making
+    // doInBackground() bail out early and skip the GoogleApiAvailability call (flaky test).
+    private Context mockContext = mock(Context.class);
 
     @Before
     public void setup() {
         staticMockGoogleApi = mockStatic(GoogleApiAvailability.class);
         staticMockIdClient = mockStatic(AdvertisingIdClient.class);
 
-        PrebidContextHolder.setContext(mock(Context.class));
+        PrebidContextHolder.setContext(mockContext);
 
         AdvertisingIdManagerReflections.setAdvertisingId(null);
         AdvertisingIdManagerReflections.resetLastStartTime();
