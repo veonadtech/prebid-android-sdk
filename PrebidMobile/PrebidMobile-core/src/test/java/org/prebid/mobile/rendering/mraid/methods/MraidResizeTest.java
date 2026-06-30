@@ -51,7 +51,7 @@ import java.lang.reflect.Method;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class MraidResizeTest {
 
     private MraidResize mraidResize;

@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class InterstitialLayoutConfiguratorTest {
 
     private InterstitialDisplayPropertiesInternal displayProperties = new InterstitialDisplayPropertiesInternal();

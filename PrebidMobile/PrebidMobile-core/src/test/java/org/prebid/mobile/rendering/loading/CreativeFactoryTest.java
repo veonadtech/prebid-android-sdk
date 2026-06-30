@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 import static org.prebid.mobile.rendering.models.CreativeModelsMakerVast.HTML_CREATIVE_TAG;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class CreativeFactoryTest {
 
     private Context mockContext;

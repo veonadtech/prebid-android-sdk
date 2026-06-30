@@ -47,7 +47,7 @@ import static org.mockito.Mockito.*;
 import static org.prebid.mobile.api.rendering.VideoView.State.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class VideoViewTest {
 
     private static final VisibilityTrackerResult VISIBLE_RESULT = new VisibilityTrackerResult(

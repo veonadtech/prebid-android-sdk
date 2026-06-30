@@ -39,7 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class UrlHandlerTest {
     private static final String VALID_URL = "http://prebid.com";
 

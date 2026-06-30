@@ -78,7 +78,7 @@ import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class HTMLCreativeTest {
 
     private Context context;

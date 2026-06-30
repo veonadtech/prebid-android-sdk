@@ -51,7 +51,7 @@ import static org.robolectric.Shadows.shadowOf;
  */
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, qualifiers = "w1dp-h1dp")
+@Config(sdk = 21, qualifiers = "w1dp-h1dp")
 public class AutoDetectedOpenRtbTest {
 
     private ArrayList<ParameterBuilder> paramBuilderArray;

@@ -53,7 +53,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class AdBaseDialogTest {
 
     private AdBaseDialog adBaseDialog;

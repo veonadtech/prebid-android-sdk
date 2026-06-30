@@ -22,7 +22,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class OmAdSessionManagerTest {
     // TODO: 03.12.2020 How to test without Powermock static mock
     @Test

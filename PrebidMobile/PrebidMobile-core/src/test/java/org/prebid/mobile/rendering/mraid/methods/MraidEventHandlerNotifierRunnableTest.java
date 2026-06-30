@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class MraidEventHandlerNotifierRunnableTest {
     private MraidEventHandlerNotifierRunnable mraidEventHandlerNotifierRunnable;
 

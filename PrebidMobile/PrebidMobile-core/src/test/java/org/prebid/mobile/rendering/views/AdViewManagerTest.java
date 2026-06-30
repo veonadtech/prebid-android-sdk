@@ -53,7 +53,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class AdViewManagerTest {
     private Context context;
     private AdViewManager adViewManager;

@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class ViewPoolTest {
 
     private ViewPool viewPool;

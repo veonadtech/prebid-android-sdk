@@ -39,7 +39,7 @@ import static org.prebid.mobile.api.exceptions.AdException.INTERNAL_ERROR;
 import static org.prebid.mobile.rendering.video.vast.VASTErrorCodes.WRAPPER_LIMIT_REACH_ERROR;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23)
+@Config(sdk = 21)
 public class VastParserExtractorTest {
 
     private VastParserExtractor vastParserExtractor;
