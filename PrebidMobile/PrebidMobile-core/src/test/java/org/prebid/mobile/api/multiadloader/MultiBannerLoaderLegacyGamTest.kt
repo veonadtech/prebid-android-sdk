@@ -21,6 +21,7 @@ import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.MockedConstruction
+import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
@@ -29,6 +30,7 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.MockitoAnnotations
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.multiadloader.MultiBannerLoaderLegacyGam.SdkState
@@ -54,6 +56,7 @@ class MultiBannerLoaderLegacyGamTest {
     private lateinit var bannerConstruction: MockedConstruction<BannerView>
     private lateinit var gamViewConstruction: MockedConstruction<AdManagerAdView>
     private lateinit var yandexViewConstruction: MockedConstruction<BannerAdView>
+    private lateinit var prebidMobileStatic: MockedStatic<PrebidMobile>
 
     private val configId = "test-config-id"
     private val gamAdUnitId = "/1234/test-gam-ad-unit"
@@ -62,6 +65,8 @@ class MultiBannerLoaderLegacyGamTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
+        prebidMobileStatic = Mockito.mockStatic(PrebidMobile::class.java)
+        prebidMobileStatic.`when`<Boolean> { PrebidMobile.isSdkInitialized() }.thenReturn(true)
         context = Robolectric.buildActivity(Activity::class.java).create().get()
         adSize = AdSize(300, 250)
         bannerConstruction = Mockito.mockConstruction(BannerView::class.java)
@@ -80,6 +85,7 @@ class MultiBannerLoaderLegacyGamTest {
         bannerConstruction.close()
         gamViewConstruction.close()
         yandexViewConstruction.close()
+        prebidMobileStatic.close()
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM, SdkType.YANDEX)
     }
 
