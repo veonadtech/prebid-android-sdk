@@ -34,6 +34,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.MockitoAnnotations
+import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.api.data.SdkType
 import org.prebid.mobile.api.exceptions.AdException
 import org.prebid.mobile.api.multiadloader.MultiInterstitialAdLoaderLegacyGam.SdkState
@@ -58,6 +59,7 @@ class MultiInterstitialAdLoaderLegacyGamTest {
     private lateinit var prebidConstruction: MockedConstruction<InterstitialAdUnit>
     private lateinit var gamInterstitialStatic: MockedStatic<AdManagerInterstitialAd>
     private lateinit var yandexLoaderConstruction: MockedConstruction<InterstitialAdLoader>
+    private lateinit var prebidMobileStatic: MockedStatic<PrebidMobile>
 
     private val configId = "test-config-id"
     private val gamAdUnitId = "/1234/test-gam-ad-unit"
@@ -66,6 +68,8 @@ class MultiInterstitialAdLoaderLegacyGamTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
+        prebidMobileStatic = Mockito.mockStatic(PrebidMobile::class.java)
+        prebidMobileStatic.`when`<Boolean> { PrebidMobile.isSdkInitialized() }.thenReturn(true)
         context = Robolectric.buildActivity(Activity::class.java).create().get()
         prebidConstruction = Mockito.mockConstruction(InterstitialAdUnit::class.java)
         gamInterstitialStatic = Mockito.mockStatic(AdManagerInterstitialAd::class.java)
@@ -78,6 +82,7 @@ class MultiInterstitialAdLoaderLegacyGamTest {
         prebidConstruction.close()
         gamInterstitialStatic.close()
         yandexLoaderConstruction.close()
+        prebidMobileStatic.close()
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM, SdkType.YANDEX)
     }
 

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+# 0.4.2
+## Added
+* Ad-request telemetry: GAM, Yandex and Prebid ad requests now emit a `REQUESTED`
+(`SdkAdStatus.REQUESTED`) log event, complementing the existing post-response events. Prebid auction
+requests are logged from `BidLoader` (banner and interstitial, including auto-refresh; rewarded is
+excluded); GAM and Yandex requests are logged from the legacy and Next-Gen banner/interstitial
+multi-ad loaders, and GAM requests are also logged from the GAM banner/interstitial event handlers
+
 # 0.4.1
 ## Fixed
 * Update BannerView to log the specific exception message instead of a hardcoded string
