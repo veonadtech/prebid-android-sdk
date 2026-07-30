@@ -256,7 +256,7 @@ public abstract class AdBaseDialog extends Dialog {
 
         int screenWidthPx = displayMetrics.widthPixels;
 
-        if (adWidthPx <= 0 || adHeightPx <= 0 || adWidthPx >= screenWidthPx) {
+        if (adWidthPx <= 0 || adHeightPx <= 0) {
             params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         } else {
             // Like on iOS: clamp each axis independently, without a single uniform scale factor.
