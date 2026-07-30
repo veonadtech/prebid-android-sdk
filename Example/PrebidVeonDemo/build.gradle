@@ -42,10 +42,10 @@ dependencies {
     implementation project(':PrebidMobile')
     implementation project(':PrebidMobile-gamEventHandlers')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.3.0-yandex'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.3.0-yandex'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.3.0-yandex'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.3.0-yandex'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.4.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.4.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.4.3-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.4.3-yango'
 
     // Standard libraries
     implementation libs.kotlin.stdlib

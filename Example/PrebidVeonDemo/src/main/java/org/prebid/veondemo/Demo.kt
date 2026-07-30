@@ -40,9 +40,18 @@ class Demo : Application() {
     private fun initTestPrebidSDK() {
         Log.d(TAG, "SDK start initialization")
 
-        PrebidMobile.setPrebidServerAccountId("uz.jahonov.prebid.ios.demo")
+        PrebidMobile.setPrebidServerAccountId("uz.beeline.odp")
         PrebidMobile.setCustomStatusEndpoint("https://prebid.veonadx.com/status")
-        PrebidMobile.initializeSdk(applicationContext, "https://ssp.veonadx.com/bid/prebid") { status ->
+        PrebidMobile.setTimeoutMillis(3000)
+        PrebidMobile.setShareGeoLocation(true)
+        PrebidMobile.setLogLevel(PrebidMobile.LogLevel.DEBUG)
+        PrebidMobile.useExternalBrowser = false
+
+        PrebidMobile.initializeSdk(
+            applicationContext,
+            "https://prebid.veonadx.com/openrtb2/auction",
+            "https://dcdn.veonadx.com/sdk/uz.beeline.odp/config.json"
+        ) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")
             } else {
