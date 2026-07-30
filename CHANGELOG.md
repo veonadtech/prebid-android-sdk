@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 0.4.3
+## Changed
+* Interstitial container size is now derived from the bid response (`bid.w`/`bid.h`) instead of 
+* always filling the screen, capped so it never exceeds the display's size
+
 # 0.4.2
 ## Added
 * Ad-request telemetry: GAM and Prebid ad requests now emit a `REQUESTED` (`SdkAdStatus.REQUESTED`)
