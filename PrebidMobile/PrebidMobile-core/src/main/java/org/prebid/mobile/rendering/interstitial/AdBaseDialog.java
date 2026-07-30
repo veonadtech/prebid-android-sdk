@@ -21,16 +21,19 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
 import org.json.JSONObject;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
@@ -213,16 +216,10 @@ public abstract class AdBaseDialog extends Dialog {
 
         Activity activity = getActivity();
         if (activity != null) {
-            initialOrientation = getActivity().getRequestedOrientation();
+            initialOrientation = activity.getRequestedOrientation();
         }
 
-        RelativeLayout.LayoutParams params =
-            new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                                            LayoutParams.MATCH_PARENT);
-
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-
-        webViewBase.setLayoutParams(params);
+        webViewBase.setLayoutParams(calculateWebViewLayoutParams());
 
         if (webViewBase.isMRAID()) {
             MraidContinue();
@@ -242,6 +239,35 @@ public abstract class AdBaseDialog extends Dialog {
             ));
         }
         adViewContainer.addView(webViewBase, adViewContainer.getChildCount());
+    }
+
+    /**
+     * Calculates LayoutParams for webViewBase based on the sizes from the bid response
+     * (webViewBase.getAdWidth()/getAdHeight())
+     */
+    private FrameLayout.LayoutParams calculateWebViewLayoutParams() {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        float density = displayMetrics.density;
+
+        int adWidthPx = Math.round(webViewBase.getAdWidth() * density);
+        int adHeightPx = Math.round(webViewBase.getAdHeight() * density);
+
+        FrameLayout.LayoutParams params;
+
+        int screenWidthPx = displayMetrics.widthPixels;
+
+        if (adWidthPx <= 0 || adHeightPx <= 0 || adWidthPx >= screenWidthPx) {
+            params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        } else {
+            // Like on iOS: clamp each axis independently, without a single uniform scale factor.
+            int fittedWidthPx = Math.min(adWidthPx, screenWidthPx);
+            int fittedHeightPx = Math.min(adHeightPx, displayMetrics.heightPixels);
+
+            params = new FrameLayout.LayoutParams(fittedWidthPx, fittedHeightPx);
+        }
+
+        params.gravity = Gravity.CENTER;
+        return params;
     }
 
     protected void init() {
