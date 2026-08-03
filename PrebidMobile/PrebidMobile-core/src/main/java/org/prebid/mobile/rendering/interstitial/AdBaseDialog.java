@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -45,6 +46,7 @@ import org.prebid.mobile.rendering.mraid.methods.others.OrientationManager;
 import org.prebid.mobile.rendering.sdk.ManagersResolver;
 import org.prebid.mobile.rendering.sdk.deviceData.managers.DeviceInfoManager;
 import org.prebid.mobile.rendering.utils.broadcast.OrientationBroadcastReceiver;
+import org.prebid.mobile.rendering.utils.helpers.Dips;
 import org.prebid.mobile.rendering.utils.helpers.Utils;
 import org.prebid.mobile.rendering.views.interstitial.InterstitialManager;
 import org.prebid.mobile.rendering.views.interstitial.InterstitialVideo;
@@ -246,27 +248,13 @@ public abstract class AdBaseDialog extends Dialog {
      * (webViewBase.getAdWidth()/getAdHeight())
      */
     private FrameLayout.LayoutParams calculateWebViewLayoutParams() {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        float density = displayMetrics.density;
-
-        int adWidthPx = Math.round(webViewBase.getAdWidth() * density);
-        int adHeightPx = Math.round(webViewBase.getAdHeight() * density);
-
-        FrameLayout.LayoutParams params;
-
-        int screenWidthPx = displayMetrics.widthPixels;
-
-        if (adWidthPx <= 0 || adHeightPx <= 0) {
-            params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        } else {
-            // Like on iOS: clamp each axis independently, without a single uniform scale factor.
-            int fittedWidthPx = Math.min(adWidthPx, screenWidthPx);
-            int fittedHeightPx = Math.min(adHeightPx, displayMetrics.heightPixels);
-
-            params = new FrameLayout.LayoutParams(fittedWidthPx, fittedHeightPx);
-        }
-
+        Point adSizePx = Dips.dipsToIntPixels(webViewBase.getAdWidth(), webViewBase.getAdHeight(), getContext());
+        FrameLayout.LayoutParams params = (adSizePx.x <= 0 || adSizePx.y <= 0)
+                ? new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                // Like on iOS: clamp each axis independently, without a single uniform scale factor.
+                : Utils.fitToScreen(adSizePx, getContext().getResources().getDisplayMetrics());
         params.gravity = Gravity.CENTER;
+
         return params;
     }
 
