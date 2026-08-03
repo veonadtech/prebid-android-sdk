@@ -17,10 +17,19 @@
 package org.prebid.mobile.rendering.utils.helpers;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 public class Dips {
+
+    public static Point dipsToIntPixels(final float widthDips, final float heightDips, final Context context) {
+        return new Point(
+                dipsToIntPixels(widthDips, context),
+                dipsToIntPixels(heightDips, context)
+        );
+    }
+
     public static float pixelsToFloatDips(final float pixels, final Context context) {
         return pixels / getDensity(context);
     }
