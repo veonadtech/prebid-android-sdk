@@ -513,6 +513,16 @@ public final class Utils {
         return new FrameLayout.LayoutParams(buttonSize, buttonSize);
     }
 
+    /**
+     * Clamps each axis of the given size independently to the screen size,
+     * without a single uniform scale factor.
+     */
+    public static FrameLayout.LayoutParams fitToScreen(Point sizePx, DisplayMetrics displayMetrics) {
+        int fittedWidthPx = Math.min(sizePx.x, displayMetrics.widthPixels);
+        int fittedHeightPx = Math.min(sizePx.y, displayMetrics.heightPixels);
+        return new FrameLayout.LayoutParams(fittedWidthPx, fittedHeightPx);
+    }
+
     public static View createSoundView(Context context) {
         if (context == null) {
             LogUtil.error(TAG, "Unable to create view. Context is null");
