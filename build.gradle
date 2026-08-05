@@ -1,5 +1,5 @@
 ext {
-    prebidSdkVersionName = "0.4.2-yango"
+    prebidSdkVersionName = "0.4.3-yango"
     prebidSdkMinVersion = 21
     prebidSdkTargetVersion = 35
     prebidSdkCompileVersion = 35
