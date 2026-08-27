@@ -57,8 +57,8 @@ dependencies {
     compileOnly libs.google.next.gen.sdk
     testImplementation libs.google.next.gen.sdk
 
-    implementation libs.exoplayer
-    implementation libs.exoplayer.ui
+    implementation libs.media3.exoplayer
+    implementation libs.media3.ui
 
     implementation libs.androidx.localbroadcastmanager
 
