@@ -21,20 +21,12 @@ import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSource
-import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ima.ImaAdsLoader
-import androidx.media3.exoplayer.source.MediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.exoplayer.source.ads.AdsMediaSource
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
-import org.prebid.mobile.AdSize
-import org.prebid.mobile.InStreamVideoAdUnit
-import org.prebid.mobile.Signals
-import org.prebid.mobile.Util
-import org.prebid.mobile.VideoParameters
+import org.prebid.mobile.*
 import org.prebid.veondemo.activities.BaseAdActivity
 
 
@@ -118,23 +110,24 @@ class GamOriginalApiInStreamActivity : BaseAdActivity() {
     private fun initializePlayer() {
         adsLoader = ImaAdsLoader.Builder(this).build()
 
-        val playerBuilder = ExoPlayer.Builder(this)
-        player = playerBuilder.build()
+        val dataSourceFactory = DefaultDataSource.Factory(this)
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+            .setLocalAdInsertionComponents({ adsLoader!! }, playerView!!)
+
+        player = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build()
         playerView!!.player = player
         adsLoader!!.setPlayer(player)
 
-        val uri = Uri.parse(VIDEO_URL)
+        val mediaItem = MediaItem.Builder()
+            .setUri(Uri.parse(VIDEO_URL))
+            .setAdsConfiguration(
+                MediaItem.AdsConfiguration.Builder(adsUri!!).build()
+            )
+            .build()
 
-        val mediaItem = MediaItem.fromUri(uri)
-        val dataSourceFactory: DataSource.Factory = DefaultDataSource.Factory(this)
-        val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
-        val mediaSource: MediaSource = mediaSourceFactory.createMediaSource(mediaItem)
-        val dataSpec = DataSpec(adsUri!!)
-        val adsMediaSource = AdsMediaSource(
-            mediaSource, dataSpec, "ad", mediaSourceFactory,
-            adsLoader!!, playerView!!
-        )
-        player?.setMediaSource(adsMediaSource)
+        player?.setMediaItem(mediaItem)
         player?.playWhenReady = true
         player?.prepare()
     }
