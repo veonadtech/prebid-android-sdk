@@ -56,8 +56,8 @@ dependencies {
     // its unit tests live in :PrebidMobile-nextGenEventHandlers where the SDK is on the classpath.
     compileOnly libs.google.next.gen.sdk
 
-    implementation libs.exoplayer
-    implementation libs.exoplayer.ui
+    implementation libs.media3.exoplayer
+    implementation libs.media3.ui
 
     implementation libs.androidx.localbroadcastmanager
 
