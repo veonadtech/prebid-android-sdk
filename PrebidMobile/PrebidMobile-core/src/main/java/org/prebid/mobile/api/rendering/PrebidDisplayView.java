@@ -69,6 +69,8 @@ public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable 
     @Nullable
     private VideoView videoView;
 
+    private boolean isAdLoadedNotificationPending;
+
     @Nullable
     private EventForwardingLocalBroadcastReceiver eventForwardingReceiver;
     private final EventForwardingLocalBroadcastReceiver.EventForwardingBroadcastListener broadcastListener = this::handleBroadcastAction;
@@ -77,7 +79,7 @@ public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable 
         @Override
         public void adLoaded(AdDetails adDetails) {
             // for banner adViewManager.show() will be called automatically
-            notifyListenerLoaded();
+            isAdLoadedNotificationPending = true;
         }
 
         @Override
@@ -85,6 +87,7 @@ public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable 
             removeAllViews();
             creative.setContentDescription(CONTENT_DESCRIPTION_AD_VIEW);
             addView(creative);
+            notifyListenerLoadedIfNeeded();
             notifyListenerDisplayed();
         }
 
@@ -209,6 +212,7 @@ public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable 
         adUnitConfiguration = null;
         displayViewListener = null;
         interstitialManager = null;
+        isAdLoadedNotificationPending = false;
         if (videoView != null) {
             videoView.destroy();
         }
@@ -278,6 +282,15 @@ public class PrebidDisplayView extends FrameLayout implements PrebidDestroyable 
         if (displayViewListener != null) {
             displayViewListener.onAdLoaded();
         }
+    }
+
+    private void notifyListenerLoadedIfNeeded() {
+        if (!isAdLoadedNotificationPending) {
+            return;
+        }
+
+        isAdLoadedNotificationPending = false;
+        notifyListenerLoaded();
     }
 
     private void notifyVideoPaused() {
