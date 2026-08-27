@@ -80,7 +80,8 @@ public class ExoPlayerViewTest {
     @Test
     public void isPlaying() {
         exoPlayerView.isPlaying();
-        verify(mockExoPlayer).getPlayWhenReady();
+  //      verify(mockExoPlayer).getPlayWhenReady();
+        verify(mockExoPlayer).isPlaying();
         when(exoPlayerView.isPlaying()).thenReturn(false);
         boolean playing = exoPlayerView.isPlaying();
         assertFalse(playing);
