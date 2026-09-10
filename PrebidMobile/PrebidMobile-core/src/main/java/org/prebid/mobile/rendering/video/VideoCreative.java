@@ -392,7 +392,6 @@ public class VideoCreative extends VideoCreativeProtocol
         ) {
             videoCreativeView.showCallToAction(true);
         }
-
     }
 
     private void notifyCreativeViewListener(VideoAdEvent.Event trackingEvent) {
