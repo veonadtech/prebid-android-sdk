@@ -29,7 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.BannerParameters;
-import org.prebid.mobile.DataObject;
 import org.prebid.mobile.ExternalUserId;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
@@ -42,6 +41,7 @@ import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.Prebid;
 import org.prebid.mobile.rendering.models.PlacementType;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
+import org.prebid.mobile.rendering.models.openrtb.bidRequests.Ext;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.Imp;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.User;
 import org.prebid.mobile.rendering.models.openrtb.bidRequests.devices.Geo;
@@ -71,7 +71,6 @@ public class BasicParameterBuilder extends ParameterBuilder {
     static final String DISPLAY_MANAGER_VALUE = "prebid-mobile";
     static final String KEY_OM_PARTNER_NAME = "omidpn";
     static final String KEY_OM_PARTNER_VERSION = "omidpv";
-    static final String KEY_DEEPLINK_PLUS = "dlp";
 
     // 2 - VAST 2.0
     // 5 - VAST 2.0 Wrapper
@@ -181,7 +180,12 @@ public class BasicParameterBuilder extends ParameterBuilder {
         final User user = bidRequest.getUser();
 
         user.keywords = TargetingParams.getUserKeywords();
-        user.ext = TargetingParams.getUserExt();
+        // A copy, so request-only keys such as "eids" never end up in the publisher's shared Ext.
+        final Ext publisherUserExt = TargetingParams.getUserExt();
+        user.ext = new Ext();
+        if (publisherUserExt != null) {
+            user.ext.put(publisherUserExt.getJsonObject());
+        }
 
         List<ExternalUserId> extendedIds = TargetingParams.getExternalUserIds();
         if (TargetingParams.getSendSharedId()) {
