@@ -22,10 +22,10 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import org.prebid.mobile.LogUtil;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
+import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.bidding.display.PluginRendererFactory;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayVideoListener;
 import org.prebid.mobile.rendering.bidding.listeners.DisplayViewListener;
 import org.prebid.mobile.rendering.networking.WinNotifier;
@@ -79,11 +79,20 @@ public class DisplayView extends FrameLayout {
     ) {
         WinNotifier winNotifier = new WinNotifier();
         winNotifier.notifyWin(bidResponse, () -> {
-            PrebidMobilePluginRenderer plugin = PrebidMobilePluginRegister.getInstance().getPluginForPreferredRenderer(bidResponse);
-            if (plugin != null) {
-                adUnitConfiguration.modifyUsingBidResponse(bidResponse);
-                adView = plugin.createBannerAdView(context, displayViewListener, displayVideoListener, adUnitConfiguration, bidResponse);
+            adView = PluginRendererFactory.createBannerAdView(
+                    context,
+                    displayViewListener,
+                    displayVideoListener,
+                    adUnitConfiguration,
+                    bidResponse
+            );
+            if (adView != null) {
                 addView(adView);
+            } else {
+                displayViewListener.onAdFailed(new AdException(
+                        AdException.INTERNAL_ERROR,
+                        "Renderer returned null banner view"
+                ));
             }
         });
     }
