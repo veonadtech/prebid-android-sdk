@@ -39,9 +39,11 @@ import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.sdk.ManagersResolver;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = 21)
 public class NetworkParameterBuilderTest {
 
     private final String NETWORK_CARRIER = "carrier";

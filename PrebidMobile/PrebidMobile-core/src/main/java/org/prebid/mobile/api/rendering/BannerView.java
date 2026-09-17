@@ -16,19 +16,18 @@
 
 package org.prebid.mobile.api.rendering;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
@@ -57,11 +56,13 @@ import org.prebid.mobile.rendering.models.PlacementType;
 import org.prebid.mobile.rendering.models.internal.VisibilityTrackerOption;
 import org.prebid.mobile.rendering.models.ntv.NativeEventTracker;
 import org.prebid.mobile.rendering.utils.broadcast.ScreenStateReceiver;
+import org.prebid.mobile.rendering.utils.helpers.RenderingExceptionParser;
 import org.prebid.mobile.rendering.utils.helpers.VisibilityChecker;
 import org.prebid.mobile.rendering.views.webview.mraid.Views;
 
-import java.util.Map;
 import java.util.Set;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
  * Ad view for banner ad with rendering API.
@@ -78,11 +79,20 @@ public class BannerView extends FrameLayout {
     private DisplayView displayView;
     private BidLoader bidLoader;
     private BidResponse bidResponse;
+    private AdException prebidException;
+    private final Handler expirationHandler = new Handler(Looper.getMainLooper());
+    private Runnable expirationRunnable;
+    private long bidExpirationUptimeMillis;
+    private boolean isBidAdLoaded;
+    private boolean expired;
+    private boolean isRefreshStopped;
 
     private final ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
 
-    @Nullable private BannerViewListener bannerViewListener;
-    @Nullable private BannerVideoListener bannerVideoListener;
+    @Nullable
+    private BannerViewListener bannerViewListener;
+    @Nullable
+    private BannerVideoListener bannerVideoListener;
 
     private int refreshIntervalSec = 0;
 
@@ -95,13 +105,18 @@ public class BannerView extends FrameLayout {
     private final DisplayViewListener displayViewListener = new DisplayViewListener() {
         @Override
         public void onAdLoaded() {
+            isBidAdLoaded = true;
             if (bannerViewListener != null) {
                 bannerViewListener.onAdLoaded(BannerView.this);
             }
+            // The bid may have expired while the creative was loading.
+            expireAdIfNeeded();
         }
 
         @Override
         public void onAdDisplayed() {
+            // Once the impression is tracked, the bid can no longer expire.
+            cancelExpiration();
             if (bannerViewListener != null) {
                 bannerViewListener.onAdDisplayed(BannerView.this);
                 eventHandler.trackImpression();
@@ -172,6 +187,9 @@ public class BannerView extends FrameLayout {
         @Override
         public void onFetchCompleted(BidResponse response) {
             bidResponse = response;
+            prebidException = null;
+            // bid.exp counts from the auction, so the countdown starts as soon as the bid arrives.
+            scheduleExpirationIfNeeded();
 
             isPrimaryAdServerRequestInProgress = true;
             eventHandler.requestAdWithBid(getWinnerBid());
@@ -180,6 +198,8 @@ public class BannerView extends FrameLayout {
         @Override
         public void onError(AdException exception) {
             bidResponse = null;
+            prebidException = exception;
+
             eventHandler.requestAdWithBid(null);
         }
     };
@@ -189,14 +209,12 @@ public class BannerView extends FrameLayout {
         public void onPrebidSdkWin() {
             markPrimaryAdRequestFinished();
 
-            if (isBidInvalid()) {
-                notifyErrorListener(new AdException(
-                        AdException.INTERNAL_ERROR,
-                        "WinnerBid is null when executing onPrebidSdkWin."
-                ));
+            AdException parsedException = RenderingExceptionParser.getPrebidException(bidResponse, prebidException);
+            if (parsedException != null) {
+                notifyErrorListener(parsedException);
                 String config = adUnitConfig.getConfigId() != null ? adUnitConfig.getConfigId() : "";
                 SdkLogUtil.error(
-                        "WinnerBid is null when executing onPrebidSdkWin.",
+                        parsedException.getMessage(),
                         AdFormat.BANNER,
                         config,
                         SdkType.PREBID
@@ -215,12 +233,18 @@ public class BannerView extends FrameLayout {
             displayAdServerView(view);
         }
 
+        /**
+         * Called only when third-party SDK (GAM) failed to load ad.
+         */
         @Override
-        public void onAdFailed(AdException exception) {
+        public void onAdFailed(AdException gamException) {
             markPrimaryAdRequestFinished();
 
-            if (isBidInvalid()) {
-                notifyErrorListener(exception);
+            boolean prebidAlsoWithoutAd = RenderingExceptionParser.isBidInvalid(bidResponse);
+            if (prebidAlsoWithoutAd) {
+                AdException parsedException = RenderingExceptionParser.getPrebidException(bidResponse, prebidException);
+                String prebidStatus = parsedException != null ? parsedException.getMessage() : "Unknown";
+                notifyErrorListener(new AdException(AdException.NO_BIDS, "GAM status: \"" + gamException.getMessage() + "\". Prebid status: \"" + prebidStatus + "\""));
                 return;
             }
 
@@ -310,6 +334,8 @@ public class BannerView extends FrameLayout {
             return;
         }
 
+        // A successful load re-arms the BidLoader refresh timer.
+        isRefreshStopped = false;
         bidLoader.load();
     }
 
@@ -317,6 +343,7 @@ public class BannerView extends FrameLayout {
      * Cancels BidLoader refresh timer.
      */
     public void stopRefresh() {
+        isRefreshStopped = true;
         if (bidLoader != null) {
             bidLoader.cancelRefresh();
         }
@@ -335,6 +362,7 @@ public class BannerView extends FrameLayout {
         if (displayView != null) {
             displayView.destroy();
         }
+        cancelExpiration();
         bidRequesterListener = null;
 
         PrebidMobilePluginRegister.getInstance().unregisterEventListener(adUnitConfig.getFingerprint());
@@ -496,6 +524,8 @@ public class BannerView extends FrameLayout {
     }
 
     private void displayAdServerView(View view) {
+        // The ad server's own creative is not the Prebid bid, so it never expires.
+        resetExpiration();
         removeAllViews();
 
         if (view == null) {
@@ -526,13 +556,70 @@ public class BannerView extends FrameLayout {
 
     private void notifyErrorListener(AdException exception) {
         adFailed = true;
+        LogUtil.debug(TAG, "Ad failed listener: " + exception);
         if (bannerViewListener != null) {
             bannerViewListener.onAdFailed(BannerView.this, exception);
         }
     }
 
-    private boolean isBidInvalid() {
-        return bidResponse == null || bidResponse.getWinningBid() == null;
+    private void scheduleExpirationIfNeeded() {
+        // The new bid replaces the previous ad, so a bid without exp must not inherit its timer.
+        resetExpiration();
+
+        Integer expirationTimeSeconds = bidResponse != null ? bidResponse.getExpirationTimeSeconds() : null;
+        // BidResponse normalizes absent, zero, and negative exp values to null.
+        if (expirationTimeSeconds == null) {
+            return;
+        }
+
+        bidExpirationUptimeMillis = SystemClock.uptimeMillis() + expirationTimeSeconds * 1000L;
+        expirationRunnable = this::expireAdIfNeeded;
+        expirationHandler.postAtTime(expirationRunnable, bidExpirationUptimeMillis);
+    }
+
+    private void cancelExpiration() {
+        if (expirationRunnable != null) {
+            expirationHandler.removeCallbacks(expirationRunnable);
+            expirationRunnable = null;
+        }
+        bidExpirationUptimeMillis = 0;
+    }
+
+    private void resetExpiration() {
+        cancelExpiration();
+        isBidAdLoaded = false;
+        expired = false;
+    }
+
+    private boolean hasBidExpired() {
+        return bidExpirationUptimeMillis > 0 && SystemClock.uptimeMillis() >= bidExpirationUptimeMillis;
+    }
+
+    private void expireAdIfNeeded() {
+        // Only the current bid's loaded Prebid ad can expire. While its creative loads,
+        // onAdLoaded() re-checks, so onAdExpired never precedes onAdLoaded.
+        if (expired || !isBidAdLoaded || !hasBidExpired()) {
+            return;
+        }
+
+        expired = true;
+        // A non-refreshable banner keeps showing the expired creative; the app is only notified.
+        boolean isRefreshable = adUnitConfig.getAutoRefreshDelay() > 0 && !isRefreshStopped;
+        if (isRefreshable) {
+            if (displayView != null) {
+                displayView.destroy();
+                displayView = null;
+            }
+            removeAllViews();
+        }
+
+        if (bannerViewListener != null) {
+            bannerViewListener.onAdExpired(BannerView.this);
+        }
+
+        if (isRefreshable) {
+            loadAd();
+        }
     }
 
     public BidResponse getBidResponse() {
@@ -553,6 +640,20 @@ public class BannerView extends FrameLayout {
         adUnitConfig.setImpOrtbConfig(ortbConfig);
     }
 
+    @Nullable
+    public String getGlobalOrtbConfig() {
+        return adUnitConfig.getGlobalOrtbConfig();
+    }
+
+    /**
+     * Sets the global OpenRTB configuration string for the ad unit. It takes precedence over `Targeting.setGlobalOrtbConfig`.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig The global OpenRTB JSON configuration string to set. Can be `null` to clear the configuration.
+     */
+    public void setGlobalOrtbConfig(@Nullable String ortbConfig) {
+        adUnitConfig.setGlobalOrtbConfig(ortbConfig);
+    }
+
     //region ==================== HelperMethods for Unit Tests. Should be used only in tests
     @VisibleForTesting
     final void setBidResponse(BidResponse response) {
@@ -567,6 +668,11 @@ public class BannerView extends FrameLayout {
     @VisibleForTesting
     final boolean isPrimaryAdServerRequestInProgress() {
         return isPrimaryAdServerRequestInProgress;
+    }
+
+    @VisibleForTesting
+    final boolean isExpired() {
+        return expired;
     }
     //endregion ==================== HelperMethods for Unit Tests
 }

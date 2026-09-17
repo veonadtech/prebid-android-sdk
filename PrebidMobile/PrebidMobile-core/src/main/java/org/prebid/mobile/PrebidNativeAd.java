@@ -439,10 +439,8 @@ public class PrebidNativeAd {
         public void onCacheExpired() {
             Log.e(TAG, "onCacheExpired");
             WeakReference<View> weakReference = ad.registeredView;
-            if (weakReference == null) return;
-
-            View view = weakReference.get();
-            if (view != null) return;
+            // Only a live registered view keeps the ad; never-registered ads expire too.
+            if (weakReference != null && weakReference.get() != null) return;
 
             if (ad.listener != null) {
                 ad.listener.onAdExpired();
