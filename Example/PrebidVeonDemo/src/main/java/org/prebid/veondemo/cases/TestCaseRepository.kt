@@ -5,6 +5,7 @@ import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBann
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner320x50Activity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBannerMultiSizeActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayInterstitialActivity
+import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiFilterUncachedBidsBannerActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiInStreamActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiMultiformatBannerActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiMultiformatBannerVideoNativeInAppActivity
@@ -47,6 +48,12 @@ object TestCaseRepository {
             AdFormat.DISPLAY_BANNER,
             IntegrationKind.GAM_ORIGINAL,
             GamOriginalApiDisplayBanner320x50Activity::class.java,
+        ),
+        TestCase(
+            R.string.gam_original_display_banner_320x50_filter_uncached_bids,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.GAM_ORIGINAL,
+            GamOriginalApiFilterUncachedBidsBannerActivity::class.java,
         ),
         TestCase(
             R.string.gam_original_display_banner_300x250,
