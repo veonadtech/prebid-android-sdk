@@ -28,6 +28,7 @@ import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeAct
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeWithErrorsActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMultiSizeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayInterstitialActivity
+import org.prebid.veondemo.activities.ads.inapp.InAppMultiformatBannerActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppNativeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoBannerActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialActivity
@@ -208,6 +209,12 @@ object TestCaseRepository {
             AdFormat.VIDEO_BANNER,
             IntegrationKind.NO_AD_SERVER,
             InAppVideoBannerActivity::class.java,
+        ),
+        TestCase(
+            R.string.in_app_multiformat_banner,
+            AdFormat.MULTIFORMAT,
+            IntegrationKind.NO_AD_SERVER,
+            InAppMultiformatBannerActivity::class.java,
         ),
         TestCase(
             R.string.in_app_display_interstitial,
