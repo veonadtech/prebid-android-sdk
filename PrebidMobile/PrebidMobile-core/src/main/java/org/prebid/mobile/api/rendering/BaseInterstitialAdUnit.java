@@ -421,8 +421,8 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onInterstitialClosed() {
                 SdkLogUtil.info("interstitial closed", SdkAdStatus.CLOSED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
+                // Closing does not grant the reward: the controller reports it via onUserEarnedReward().
                 notifyAdEventListener(AdListenerEvent.AD_CLOSE);
-                notifyUserReward();
             }
 
             @Override
