@@ -10,7 +10,6 @@
 * Multiformat banner ad unit in the rendering and mediation APIs
 
 ## Changed
-* Next Gen compatibility
 * Send ext.prebid.targeting flags as booleans, not strings
 * Mute/unmute audio flow for video creative
 * Enables video player click
@@ -30,7 +29,6 @@
 * Release the MRAID command queue on interstitial expand()
 * Dispatch MRAID JS bridge calls to the main thread
 * Fix controls misplaced in rewarded ads
-* Bumps version to 3.4.0 by @mdanylov-sigma
 * Remove legacy Travis CI setup
 * fit the corrective WebView scale inside both axes and retry on layout
 
@@ -50,19 +48,6 @@ multi-ad loaders, and GAM requests are also logged from the GAM banner/interstit
 # 0.4.1
 ## Fixed
 * Update BannerView to log the specific exception message instead of a hardcoded string
-
-# 0.4.0
-## Added
-* Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGam` and
-`MultiInterstitialAdLoaderNextGenGam` race Prebid, GAM (Next-Gen GMA SDK) and Yandex by the
-configured priority order, mirroring the existing legacy GAM multi-loaders
-## Changed
-* Renamed the multi-ad loaders to specify the backing SDK: `MultiBannerLoader` →
-`MultiBannerLoaderLegacyGam`, `MultiInterstitialAdLoader` → `MultiInterstitialAdLoaderLegacyGam`,
-`MultiBannerLoaderNextGen` → `MultiBannerLoaderNextGenGam`, `MultiInterstitialAdLoaderNextGen` →
-`MultiInterstitialAdLoaderNextGenGam`
-* Renamed the Next-Gen demo app package to `org.prebid.veonnextgendemo` and the app name to
-"Prebid Veon Next-Gen Demo"
 
 # 0.3.1
 ## Changed
