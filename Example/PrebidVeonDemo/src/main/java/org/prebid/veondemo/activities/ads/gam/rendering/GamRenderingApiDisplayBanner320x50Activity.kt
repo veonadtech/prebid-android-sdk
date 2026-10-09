@@ -27,8 +27,8 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class GamRenderingApiDisplayBanner320x50Activity : BaseAdActivity() {
 
     companion object {
-        const val AD_UNIT_ID = "/21775744923/example/fixed-size-banner"
-        const val CONFIG_ID = "prebid-demo-banner-320-50"
+        const val AD_UNIT_ID = "_/21775744923/example/fixed-size-banner"
+        const val CONFIG_ID = "beeline_uz_android_universal_320x50_test2"
         const val WIDTH = 320
         const val HEIGHT = 50
     }
