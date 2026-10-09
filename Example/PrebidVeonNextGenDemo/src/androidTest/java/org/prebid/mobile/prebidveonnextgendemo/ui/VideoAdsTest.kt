@@ -24,9 +24,9 @@ class VideoAdsTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{1}")
         fun arguments() = listOf(
-            arrayOf(R.string.original_video_rewarded, "Original API Video Rewarded"),
-            arrayOf(R.string.rendering_video_banner, "Video Banner"),
-            arrayOf(R.string.rendering_video_rewarded, "Rendering API Video Rewarded")
+            arrayOf<Any>(R.string.original_video_rewarded, "Original API Video Rewarded"),
+            arrayOf<Any>(R.string.rendering_video_banner, "Video Banner"),
+            arrayOf<Any>(R.string.rendering_video_rewarded, "Rendering API Video Rewarded")
         )
     }
 

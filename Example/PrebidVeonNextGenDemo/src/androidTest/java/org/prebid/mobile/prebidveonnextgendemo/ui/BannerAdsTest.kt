@@ -20,8 +20,8 @@ class BannerAdsTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{1}")
         fun arguments() = listOf(
-            arrayOf(R.string.original_display_banner_320x50, "Original API Display Banner 320x50"),
-            arrayOf(R.string.rendering_display_banner_320x50, "Rendering API Display Banner 320x50")
+            arrayOf<Any>(R.string.original_display_banner_320x50, "Original API Display Banner 320x50"),
+            arrayOf<Any>(R.string.rendering_display_banner_320x50, "Rendering API Display Banner 320x50")
         )
     }
 
