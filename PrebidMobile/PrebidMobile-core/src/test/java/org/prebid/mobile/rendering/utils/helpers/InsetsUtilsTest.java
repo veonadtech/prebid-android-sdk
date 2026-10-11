@@ -29,6 +29,7 @@ import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -262,7 +263,7 @@ public class InsetsUtilsTest {
     }
 
     @Test
-    @Config(sdk = 19)
+    @Config(sdk = 23)
     public void applyInsetsToMargins_OnLegacyApi_DoesNotCrash() {
         // Regression: isLayoutDirectionResolved() on View requires API 19 and was previously
         // guarded at API 17, which crashed with NoSuchMethodError on API 17/18 (minSdk is 16).
@@ -274,13 +275,13 @@ public class InsetsUtilsTest {
 
         boolean applied = InsetsUtils.applyInsetsToMargins(view, NONE, PORTRAIT);
 
-        assertEquals(true, applied);
+        assertTrue(applied);
         FrameLayout.LayoutParams result = (FrameLayout.LayoutParams) view.getLayoutParams();
         assertEquals(20, result.rightMargin);
     }
 
     @Test
-    @Config(sdk = 19)
+    @Config(sdk = 23)
     public void applyInsetsToMargins_RelativeLayoutOnLegacyApi_DoesNotCrash() {
         // Regression: RelativeLayout.LayoutParams#getRule(int) requires API 23 and was
         // previously called directly, which crashed with NoSuchMethodError on API 16-22
@@ -294,7 +295,7 @@ public class InsetsUtilsTest {
         CustomInsets base = new CustomInsets(0, 0, 25, 25);
         boolean applied = InsetsUtils.applyInsetsToMargins(view, base, PORTRAIT);
 
-        assertEquals(true, applied);
+        assertTrue(applied);
         RelativeLayout.LayoutParams result = (RelativeLayout.LayoutParams) view.getLayoutParams();
         assertEquals(55, result.bottomMargin);
         assertEquals(65, result.leftMargin);
