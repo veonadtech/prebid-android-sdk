@@ -21,10 +21,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.telephony.TelephonyManager;
 
 import org.json.JSONException;
@@ -36,41 +39,62 @@ import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.sdk.ManagersResolver;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
 @RunWith(RobolectricTestRunner.class)
 public class NetworkParameterBuilderTest {
 
-    private String NETWORK_CARRIER = "carrier";
+    private final String NETWORK_CARRIER = "carrier";
 
-    private ShadowTelephonyManager shadowTelephonyManager;
-    private ShadowConnectivityManager shadowConnectivityManager;
+    private ConnectivityManager connectivityManager;
 
     @Before
     public void setUp() throws Exception {
         Activity robolectricActivity = Robolectric.buildActivity(Activity.class).create().get();
-        ShadowActivity shadowActivity = shadowOf(robolectricActivity);
-        shadowActivity.grantPermissions("android.permission.ACCESS_NETWORK_STATE");
-        shadowConnectivityManager = shadowOf((ConnectivityManager) robolectricActivity.getSystemService(Context.CONNECTIVITY_SERVICE));
-        shadowTelephonyManager = shadowOf((TelephonyManager) robolectricActivity.getSystemService(Context.TELEPHONY_SERVICE));
+        shadowOf(robolectricActivity).grantPermissions(Manifest.permission.ACCESS_NETWORK_STATE);
+        ShadowTelephonyManager shadowTelephonyManager = shadowOf(
+                (TelephonyManager) robolectricActivity.getSystemService(Context.TELEPHONY_SERVICE));
 
         shadowTelephonyManager.setNetworkOperatorName(NETWORK_CARRIER);
         shadowTelephonyManager.setNetworkOperator(NETWORK_CARRIER);
 
+        connectivityManager = mock(ConnectivityManager.class);
+
+        Context contextWithMockedConnectivity = new ContextWrapper(robolectricActivity) {
+            @Override
+            public Object getSystemService(String name) {
+                if (Context.CONNECTIVITY_SERVICE.equals(name)) {
+                    return connectivityManager;
+                }
+                return super.getSystemService(name);
+            }
+
+            @Override
+            public Context getApplicationContext() {
+                return this;
+            }
+        };
 
         ManagersResolver resolver = ManagersResolver.getInstance();
         ManagersResolverReflection.resetManagers(resolver);
-        resolver.prepare(robolectricActivity);
+        resolver.prepare(contextWithMockedConnectivity);
+    }
+
+    private NetworkCapabilities givenActiveNetwork() {
+        Network network = mock(Network.class);
+        NetworkCapabilities capabilities = mock(NetworkCapabilities.class);
+
+        when(connectivityManager.getActiveNetwork()).thenReturn(network);
+        when(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities);
+        when(capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
+
+        return capabilities;
     }
 
     @Test
     public void whenTestAppendBuilderParametersAndWifi_WiFiType() throws JSONException {
-        NetworkInfo mockInfo = mock(NetworkInfo.class);
-        when(mockInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(mockInfo.isConnected()).thenReturn(true);
-        shadowConnectivityManager.setActiveNetworkInfo(mockInfo);
+        NetworkCapabilities capabilities = givenActiveNetwork();
+        when(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)).thenReturn(false);
 
         BidRequest expectedBidRequest = new BidRequest();
         expectedBidRequest.getDevice().mccmnc = "car-rier";
@@ -81,15 +105,13 @@ public class NetworkParameterBuilderTest {
         AdRequestInput adRequestInput = new AdRequestInput();
         builder.appendBuilderParameters(adRequestInput);
         assertEquals(expectedBidRequest.getJsonObject().toString(),
-                     adRequestInput.getBidRequest().getJsonObject().toString());
+                adRequestInput.getBidRequest().getJsonObject().toString());
     }
 
     @Test
     public void whenTestAppendBuilderParametersAndCell_CellType() throws JSONException {
-        NetworkInfo mockInfo = mock(NetworkInfo.class);
-        when(mockInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        when(mockInfo.isConnected()).thenReturn(true);
-        shadowConnectivityManager.setActiveNetworkInfo(mockInfo);
+        NetworkCapabilities capabilities = givenActiveNetwork();
+        when(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)).thenReturn(true);
 
         BidRequest expectedBidRequest = new BidRequest();
         expectedBidRequest.getDevice().mccmnc = "car-rier";
@@ -100,6 +122,6 @@ public class NetworkParameterBuilderTest {
         AdRequestInput adRequestInput = new AdRequestInput();
         builder.appendBuilderParameters(adRequestInput);
         assertEquals(expectedBidRequest.getJsonObject().toString(),
-                     adRequestInput.getBidRequest().getJsonObject().toString());
+                adRequestInput.getBidRequest().getJsonObject().toString());
     }
 }
