@@ -44,8 +44,6 @@ import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Internal wrapper of rewarded ad from GAM SDK.
@@ -148,15 +146,9 @@ public class RewardedAdWrapper extends FullScreenContentCallback implements OnUs
 
     //endregion ==================== GAM FullScreenContentCallback Implementation
 
-    public void loadAd(Bid bid) {
+    public void loadAd(Bid bid, @Nullable AdManagerRequestConfiguration requestConfiguration) {
         try {
-            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
-
-            if (bid != null) {
-                Map<String, String> targetingMap = new HashMap<>(bid.getPrebid().getTargeting());
-                GamUtils.handleGamCustomTargetingUpdate(adRequest, targetingMap);
-            }
-
+            AdManagerAdRequest adRequest = GamUtils.buildAdManagerRequest(bid, requestConfiguration);
             RewardedAd.load(contextWeakReference.get(), adUnitId, adRequest, rewardedAdLoadCallback);
         } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));
