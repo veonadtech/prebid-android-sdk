@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,15 +57,13 @@ public class NetworkConnectionInfoManagerTest {
 
     @Test
     public void getConnectionTypeTest() {
-        Network network = mock(Network.class);
-        NetworkCapabilities capabilities = mock(NetworkCapabilities.class);
+        NetworkInfo mockInfo = mock(NetworkInfo.class);
 
-        when(mockContext.checkCallingOrSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(connectivityManager.getActiveNetwork()).thenReturn(network);
-        when(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities);
-        when(capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
-        when(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)).thenReturn(true);
+        when(mockContext.checkCallingOrSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE)).thenReturn(
+                PackageManager.PERMISSION_GRANTED);
+        when(mockInfo.isConnected()).thenReturn(true);
+        when(mockInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(connectivityManager.getActiveNetworkInfo()).thenReturn(mockInfo);
 
         assertEquals(UserParameters.ConnectionType.CELL, networkConnectionManager.getConnectionType());
     }
