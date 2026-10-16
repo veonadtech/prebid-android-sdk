@@ -43,6 +43,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Main class for managing Prebid SDK. It allows to initialize, set log level
@@ -90,12 +91,12 @@ public class PrebidMobile {
     /**
      * Tested Google SDK version.
      */
-    public static final String TESTED_GOOGLE_SDK_VERSION = "25.1.0";
+    public static final String TESTED_GOOGLE_SDK_VERSION = "25.4.0";
 
     /**
      * Tested Google Next-Gen SDK version.
      */
-    public static final String TESTED_GOOGLE_NEXT_GEN_SDK_VERSION = "0.25.0";
+    public static final String TESTED_GOOGLE_NEXT_GEN_SDK_VERSION = "1.2.1";
 
     private static LogLevel logLevel = LogLevel.NONE;
     @Nullable
@@ -111,6 +112,17 @@ public class PrebidMobile {
      * the impression event respectively to the legacy analytic setup.
      */
     private static boolean useCacheForReportingWithRenderingApi = false;
+
+    /**
+     * Indicates whether the SDK filters out bids that don't have a successful server-side Prebid Cache
+     * entry (bid.ext.prebid.cache) before passing their targeting to the ad server.
+     * Applies to the Original API only: the Rendering API renders the creative from the bid markup
+     * and never fetches it from Prebid Cache.
+     * <p>
+     * This setting only filters the response. It never requests caching: the Original API already
+     * asks Prebid Server to cache bids.
+     */
+    private static boolean filterOutUncachedBids = false;
 
     private static int timeoutMillis = 2_000;
     private static boolean isTimeoutModified = false;
@@ -140,11 +152,12 @@ public class PrebidMobile {
     @NonNull
     private static WeakReference<PrebidEventDelegate> eventDelegateReference = new WeakReference<>(null);
     private static boolean disableStatusCheck = false;
+    @NonNull
+    private static EidsPlacement eidsPlacement = EidsPlacement.COMPATIBLE;
     private static String AAID = "";
     private static String deviceIP = null;
 
     private static SdkConfig sdkConfig;
-
     private PrebidMobile() {
     }
 
@@ -163,6 +176,27 @@ public class PrebidMobile {
      */
     public static void setUseCacheForReportingWithRenderingApi(boolean useCacheForReportingWithRenderingApi) {
         PrebidMobile.useCacheForReportingWithRenderingApi = useCacheForReportingWithRenderingApi;
+    }
+
+    /**
+     * {@link #filterOutUncachedBids}
+     */
+    public static boolean isFilterOutUncachedBids() {
+        return filterOutUncachedBids;
+    }
+
+    /**
+     * Enables filtering of bids without a successful server-side Prebid Cache entry. Original API only.
+     * <p>
+     * Filtered bids never reach the ad server targeting. If the bid Prebid Server designated as the
+     * winner is filtered, the highest-priced cached bid is promoted and
+     * {@link org.prebid.mobile.api.data.BidInfo#isTopBidFiltered()} is {@code true}. If every bid is
+     * filtered, the fetch demand result is {@link ResultCode#NO_CACHED_BIDS}.
+     * <p>
+     * Default is {@code false}.
+     */
+    public static void setFilterOutUncachedBids(boolean filterOutUncachedBids) {
+        PrebidMobile.filterOutUncachedBids = filterOutUncachedBids;
     }
 
     /**
@@ -254,7 +288,6 @@ public class PrebidMobile {
      *
      * @param context  any context (must be not null)
      * @param serverURL the Prebid Server URL
-     * @param configURL the list of SDK's priority
      * @param listener initialization listener (can be null).
      * <p>
      */
@@ -267,6 +300,14 @@ public class PrebidMobile {
         initializeSdk(context, serverURL, null, listener);
     }
 
+    /**
+     * Initializes the main SDK classes and makes request to Prebid server to check its status.
+     * @param context  any context (must be not null)
+     * @param serverURL the Prebid Server URL
+     * @param configURL the URL of the SDK configuration file (can be null)
+     * @param listener initialization listener (can be null).
+     * <p>
+     */
     @MainThread
     public static void initializeSdk(
             @Nullable Context context,
@@ -299,8 +340,8 @@ public class PrebidMobile {
     }
 
     public static void addStoredBidResponse(
-            String bidder,
-            String responseId
+        String bidder,
+        String responseId
     ) {
         storedBidResponses.put(bidder, responseId);
     }
@@ -380,8 +421,26 @@ public class PrebidMobile {
      * @param googleAdsVersion - MobileAds.getVersion().toString()
      */
     public static void checkGoogleMobileAdsCompatibility(@NonNull String googleAdsVersion) {
-        int[] prebidVersion = parseVersion(PrebidMobile.TESTED_GOOGLE_SDK_VERSION);
-        int[] publisherVersion = parseVersion(googleAdsVersion);
+        checkGoogleMobileAdsCompatibility(googleAdsVersion, PrebidMobile.TESTED_GOOGLE_SDK_VERSION, "GMA SDK");
+    }
+
+    /**
+     * Check Google Mobile Ads Next-Gen SDK compatibility.
+     * Show logs if version is not compatible.
+     *
+     * @param googleAdsNextGenVersion - MobileAds.getVersion().toString() from the Next-Gen SDK
+     */
+    public static void checkGoogleMobileAdsNextGenCompatibility(@NonNull String googleAdsNextGenVersion) {
+        checkGoogleMobileAdsCompatibility(googleAdsNextGenVersion, PrebidMobile.TESTED_GOOGLE_NEXT_GEN_SDK_VERSION, "GMA Next-Gen SDK");
+    }
+
+    private static void checkGoogleMobileAdsCompatibility(
+            @NonNull String publisherVersionString,
+            @NonNull String testedVersionString,
+            @NonNull String sdkName
+    ) {
+        int[] prebidVersion = parseVersion(testedVersionString);
+        int[] publisherVersion = parseVersion(publisherVersionString);
 
         boolean prebidVersionBigger = false;
         boolean publisherVersionBigger = false;
@@ -396,9 +455,9 @@ public class PrebidMobile {
         }
 
         if (prebidVersionBigger) {
-            LogUtil.error("You should update GMA SDK version to " + PrebidMobile.TESTED_GOOGLE_SDK_VERSION + " version that was tested with Prebid SDK (current version " + googleAdsVersion + ")");
+            LogUtil.error("You should update " + sdkName + " version to " + testedVersionString + " version that was tested with Prebid SDK (current version " + publisherVersionString + ")");
         } else if (publisherVersionBigger) {
-            LogUtil.error("The current version of Prebid SDK is not validated with your version of GMA SDK " + googleAdsVersion + " (Prebid SDK tested on " + PrebidMobile.TESTED_GOOGLE_SDK_VERSION + "). Please update the Prebid SDK or post a ticket on the github.");
+            LogUtil.error("The current version of Prebid SDK is not validated with your version of " + sdkName + " " + publisherVersionString + " (Prebid SDK tested on " + testedVersionString + "). Please update the Prebid SDK or post a ticket on the github.");
         }
     }
 
@@ -492,7 +551,6 @@ public class PrebidMobile {
 
     /**
      * Priority Policy: PBSConfig > SDKConfig > Default
-     *
      * @return creativeFactoryTimeoutPreRender in ms
      */
     public static int getCreativeFactoryTimeoutPreRenderContent() {
@@ -590,6 +648,26 @@ public class PrebidMobile {
 
     public static SdkConfig getSdkLogState(){
         return PrebidMobile.sdkConfig;
+    }
+
+    /**
+     * Controls where Extended Identifiers (EIDs) are placed in the bid request.
+     * Default is {@link EidsPlacement#COMPATIBLE} (both {@code user.eids} and {@code user.ext.eids}).
+     * <p>
+     * Allows publishers to choose EID placement during migration from OpenRTB 2.5 to 2.6.
+     *
+     * @see EidsPlacement
+     */
+    public static void setEidsPlacement(@NonNull EidsPlacement placement) {
+        PrebidMobile.eidsPlacement = Objects.requireNonNull(placement);
+    }
+
+    /**
+     * @see #setEidsPlacement(EidsPlacement)
+     */
+    @NonNull
+    public static EidsPlacement getEidsPlacement() {
+        return eidsPlacement;
     }
 
     /**

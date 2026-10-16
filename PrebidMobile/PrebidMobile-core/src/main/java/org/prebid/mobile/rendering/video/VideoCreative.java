@@ -198,14 +198,14 @@ public class VideoCreative extends VideoCreativeProtocol
 
     @Override
     public void mute() {
-        if (videoCreativeView != null && videoCreativeView.getVolume() != 0) {
+        if (videoCreativeView != null) {
             videoCreativeView.mute();
         }
     }
 
     @Override
     public void unmute() {
-        if (videoCreativeView != null && videoCreativeView.getVolume() == 0) {
+        if (videoCreativeView != null) {
             videoCreativeView.unMute();
         }
     }
@@ -389,14 +389,8 @@ public class VideoCreative extends VideoCreativeProtocol
     protected void showCallToAction() {
         if (!model.getAdConfiguration().isBuiltInVideo()
                 && Utils.isNotBlank(model.getVastClickthroughUrl())
-                && !model.getAdConfiguration().isRewarded()
         ) {
             videoCreativeView.showCallToAction(true);
-        } else if (model.getAdConfiguration().isRewarded()) {
-            videoCreativeView.showCallToAction(false);
-            if (Utils.isNotBlank(model.getVastClickthroughUrl())) {
-                videoCreativeView.enableVideoPlayerClick();
-            }
         }
     }
 

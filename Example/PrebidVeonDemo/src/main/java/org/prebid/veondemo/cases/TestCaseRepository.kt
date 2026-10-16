@@ -5,6 +5,7 @@ import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBann
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBanner320x50Activity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayBannerMultiSizeActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiDisplayInterstitialActivity
+import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiFilterUncachedBidsBannerActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiInStreamActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiMultiformatBannerActivity
 import org.prebid.veondemo.activities.ads.gam.original.GamOriginalApiMultiformatBannerVideoNativeInAppActivity
@@ -27,6 +28,7 @@ import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeAct
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMraidResizeWithErrorsActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayBannerMultiSizeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppDisplayInterstitialActivity
+import org.prebid.veondemo.activities.ads.inapp.InAppMultiformatBannerActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppNativeActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoBannerActivity
 import org.prebid.veondemo.activities.ads.inapp.InAppVideoInterstitialActivity
@@ -47,6 +49,12 @@ object TestCaseRepository {
             AdFormat.DISPLAY_BANNER,
             IntegrationKind.GAM_ORIGINAL,
             GamOriginalApiDisplayBanner320x50Activity::class.java,
+        ),
+        TestCase(
+            R.string.gam_original_display_banner_320x50_filter_uncached_bids,
+            AdFormat.DISPLAY_BANNER,
+            IntegrationKind.GAM_ORIGINAL,
+            GamOriginalApiFilterUncachedBidsBannerActivity::class.java,
         ),
         TestCase(
             R.string.gam_original_display_banner_300x250,
@@ -201,6 +209,12 @@ object TestCaseRepository {
             AdFormat.VIDEO_BANNER,
             IntegrationKind.NO_AD_SERVER,
             InAppVideoBannerActivity::class.java,
+        ),
+        TestCase(
+            R.string.in_app_multiformat_banner,
+            AdFormat.MULTIFORMAT,
+            IntegrationKind.NO_AD_SERVER,
+            InAppMultiformatBannerActivity::class.java,
         ),
         TestCase(
             R.string.in_app_display_interstitial,
