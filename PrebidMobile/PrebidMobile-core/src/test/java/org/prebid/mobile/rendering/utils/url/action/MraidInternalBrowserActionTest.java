@@ -106,7 +106,7 @@ public class MraidInternalBrowserActionTest {
 
     @Test
     public void performActionWithValidJsInterface_FollowToOriginalUrl()
-    throws ActionNotResolvedException {
+            throws ActionNotResolvedException {
         String url = VALID_URI.toString();
 
         mraidInternalBrowserAction.performAction(mockContext, mockUrlHandler, VALID_URI);
@@ -133,8 +133,8 @@ public class MraidInternalBrowserActionTest {
 
         Intent intentArgument = intentArgumentCaptor.getValue();
 
-        assertEquals(intentArgument.getAction(), Intent.ACTION_VIEW);
-        assertEquals(intentArgument.getFlags(), BuildConfig.DEBUG ? 0 : Intent.FLAG_ACTIVITY_NEW_TASK);
+        assertEquals(Intent.ACTION_VIEW, intentArgument.getAction());
+        assertEquals(Intent.FLAG_ACTIVITY_NEW_TASK, intentArgument.getFlags());
     }
 
     @Test

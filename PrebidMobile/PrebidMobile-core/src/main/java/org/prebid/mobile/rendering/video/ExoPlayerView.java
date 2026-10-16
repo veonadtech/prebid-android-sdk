@@ -20,12 +20,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import com.google.android.exoplayer2.*;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.PlayerView;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
@@ -34,10 +38,10 @@ import org.prebid.mobile.rendering.video.vast.VASTErrorCodes;
 
 public class ExoPlayerView extends PlayerView implements VideoPlayerView {
 
-    private static final String TAG = "ExoPlayerView";
     public static final float DEFAULT_INITIAL_VIDEO_VOLUME = 1.0f;
-
-    @NonNull private final VideoCreativeViewListener videoCreativeViewListener;
+    private static final String TAG = "ExoPlayerView";
+    @NonNull
+    private final VideoCreativeViewListener videoCreativeViewListener;
     private AdViewProgressUpdateTask adViewProgressUpdateTask;
     private AdUnitConfiguration config;
     private ExoPlayer player;
@@ -45,15 +49,6 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
     private Uri videoUri;
 
     private long vastVideoDuration = -1;
-
-    public ExoPlayerView(
-            Context context,
-            @NonNull VideoCreativeViewListener videoCreativeViewListener
-    ) {
-        super(context);
-        this.videoCreativeViewListener = videoCreativeViewListener;
-    }
-
     private final Player.Listener eventListener = new Player.Listener() {
 
         @Override
@@ -82,6 +77,14 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
         }
     };
 
+    public ExoPlayerView(
+            Context context,
+            @NonNull VideoCreativeViewListener videoCreativeViewListener
+    ) {
+        super(context);
+        this.videoCreativeViewListener = videoCreativeViewListener;
+    }
+
     @Override
     public void mute() {
         setVolume(0);
@@ -89,7 +92,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
 
     @Override
     public boolean isPlaying() {
-        return player != null && player.getPlayWhenReady();
+        return player != null && player.isPlaying();
     }
 
     @Override
@@ -201,7 +204,7 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
             LogUtil.debug(TAG, "Skipping initPlayer(): Player is already initialized.");
             return;
         }
-        player = new SimpleExoPlayer.Builder(getContext()).build();
+        player = new ExoPlayer.Builder(getContext()).build();
         player.addListener(eventListener);
         setPlayer(this.player);
         setUseController(false);
@@ -228,24 +231,26 @@ public class ExoPlayerView extends PlayerView implements VideoPlayerView {
         }
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     @VisibleForTesting
     void preparePlayer(boolean resetPosition) {
         ProgressiveMediaSource extractorMediaSource = buildMediaSource(videoUri);
         if (extractorMediaSource == null || player == null) {
-            LogUtil.debug(TAG, "preparePlayer(): ExtractorMediaSource or SimpleExoPlayer is null. Skipping prepare.");
+            LogUtil.debug(TAG, "preparePlayer(): ProgressiveMediaSource or ExoPlayer is null. Skipping prepare.");
             return;
         }
         player.setMediaSource(extractorMediaSource, resetPosition);
         player.prepare();
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private ProgressiveMediaSource buildMediaSource(Uri uri) {
         if (uri == null) {
             return null;
         }
         MediaItem mediaItem = new MediaItem.Builder().setUri(uri).build();
         return new ProgressiveMediaSource.Factory(
-                new DefaultDataSourceFactory(getContext(), Util.getUserAgent(getContext(), "PrebidRenderingSDK")))
+                new DefaultDataSource.Factory(getContext()))
                 .createMediaSource(mediaItem);
     }
 

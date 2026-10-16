@@ -39,9 +39,6 @@ import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Internal wrapper of PublisherAdView from GAM SDK.
  * To achieve safe integration between various GAM SDK versions we have to wrap all PublisherAdView method execution in try / catch.
@@ -134,15 +131,9 @@ public class PublisherAdViewWrapper extends AdListener implements AppEventListen
 
     //endregion ==================== GAM AdEventListener Implementation
 
-    public void loadAd(Bid bid) {
+    public void loadAd(Bid bid, @Nullable AdManagerRequestConfiguration requestConfiguration) {
         try {
-            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
-
-            if (bid != null) {
-                Map<String, String> targetingMap = new HashMap<>(bid.getPrebid().getTargeting());
-                GamUtils.handleGamCustomTargetingUpdate(adRequest, targetingMap);
-            }
-
+            AdManagerAdRequest adRequest = GamUtils.buildAdManagerRequest(bid, requestConfiguration);
             adView.loadAd(adRequest);
         } catch (Throwable throwable) {
             LogUtil.error(TAG, Log.getStackTraceString(throwable));

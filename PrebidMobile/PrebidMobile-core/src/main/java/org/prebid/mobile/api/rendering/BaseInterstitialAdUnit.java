@@ -16,13 +16,10 @@
 
 package org.prebid.mobile.api.rendering;
 
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.LOADING;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_FOR_LOAD;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_GAM;
-import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.READY_TO_DISPLAY_PREBID;
-
 import android.content.Context;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -32,14 +29,13 @@ import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
 import org.prebid.mobile.api.data.Position;
 import org.prebid.mobile.api.exceptions.AdException;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRegister;
-import org.prebid.mobile.api.rendering.pluginrenderer.PrebidMobilePluginRenderer;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.logging.SdkAdStatus;
 import org.prebid.mobile.logging.SdkLogUtil;
 import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.bidding.display.PluginRendererFactory;
 import org.prebid.mobile.rendering.bidding.interfaces.InterstitialControllerListener;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
@@ -47,14 +43,14 @@ import org.prebid.mobile.rendering.models.AdPosition;
 
 import java.lang.ref.WeakReference;
 
+import static org.prebid.mobile.api.rendering.BaseInterstitialAdUnit.InterstitialAdUnitState.*;
+
 /**
  * Internal base interstitial ad unit for rendering API.
  */
 public abstract class BaseInterstitialAdUnit {
 
     private static final String TAG = BaseInterstitialAdUnit.class.getSimpleName();
-    private final WeakReference<Context> weakContext;
-    protected AdUnitConfiguration adUnitConfig;
 
     protected boolean userHasNotEarnedRewardYet = true;
 
@@ -62,8 +58,15 @@ public abstract class BaseInterstitialAdUnit {
 
     private BidLoader bidLoader;
     private BidResponse bidResponse;
+    protected AdException prebidException;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
+    private final Handler expirationHandler = new Handler(Looper.getMainLooper());
+    private Runnable expirationRunnable;
+    private long bidExpirationUptimeMillis;
+    private boolean expired;
+
+    private final WeakReference<Context> weakContext;
     private final BidRequesterListener bidRequesterListener = createBidRequesterListener();
     protected final InterstitialControllerListener controllerListener = createInterstitialControllerListener();
 
@@ -79,6 +82,8 @@ public abstract class BaseInterstitialAdUnit {
     abstract void notifyAdEventListener(AdListenerEvent adListenerEvent);
 
     abstract void notifyErrorListener(AdException exception);
+
+    abstract void notifyAdExpiredListener();
 
 
     /**
@@ -97,6 +102,11 @@ public abstract class BaseInterstitialAdUnit {
             return;
         }
 
+        if (expired) {
+            releaseExpiredAd();
+        }
+        cancelExpiration();
+        expired = false;
         bidLoader.load();
     }
 
@@ -139,11 +149,24 @@ public abstract class BaseInterstitialAdUnit {
     /**
      * Sets imp level OpenRTB config JSON string that will be merged with the original imp object in the bid request.
      * Expected format: {@code "{"new_field": "value"}"}.
-     *
      * @param ortbConfig JSON config string.
      */
     public void setImpOrtbConfig(@Nullable String ortbConfig) {
         config.setImpOrtbConfig(ortbConfig);
+    }
+
+    @Nullable
+    public String getGlobalOrtbConfig() {
+        return config.getGlobalOrtbConfig();
+    }
+
+    /**
+     * Sets the global OpenRTB configuration string for the ad unit. It takes precedence over `Targeting.setGlobalOrtbConfig`.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig The global OpenRTB JSON configuration string to set. Can be `null` to clear the configuration.
+     */
+    public void setGlobalOrtbConfig(@Nullable String ortbConfig) {
+        config.setGlobalOrtbConfig(ortbConfig);
     }
 
     @Nullable
@@ -216,6 +239,7 @@ public abstract class BaseInterstitialAdUnit {
         if (interstitialController != null) {
             interstitialController.destroy();
         }
+        cancelExpiration();
     }
 
     protected void init(AdUnitConfiguration adUnitConfiguration) {
@@ -227,10 +251,13 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     protected void loadPrebidAd() {
-        PrebidMobilePluginRenderer plugin = PrebidMobilePluginRegister.getInstance().getPluginForPreferredRenderer(bidResponse);
-        if (plugin != null) {
-            interstitialController = plugin.createInterstitialController(getContext(), controllerListener, config, bidResponse);
-        }
+        // The factory sends the win notice when a plugin renderer's controller draws the ad.
+        interstitialController = PluginRendererFactory.createInterstitialController(
+                getContext(),
+                controllerListener,
+                config,
+                bidResponse
+        );
         if (interstitialController == null) {
             notifyErrorListener(new AdException(
                     AdException.INTERNAL_ERROR,
@@ -246,12 +273,26 @@ public abstract class BaseInterstitialAdUnit {
         return weakContext.get();
     }
 
-    protected boolean isBidInvalid() {
-        return bidResponse == null || bidResponse.getWinningBid() == null;
-    }
-
     protected void changeInterstitialAdUnitState(InterstitialAdUnitState state) {
         interstitialAdUnitState = state;
+    }
+
+    private void scheduleExpirationIfNeeded() {
+        cancelExpiration();
+
+        Integer expirationTimeSeconds = bidResponse != null ? bidResponse.getExpirationTimeSeconds() : null;
+        // BidResponse normalizes absent, zero, and negative exp values to null.
+        if (expirationTimeSeconds == null) {
+            return;
+        }
+
+        bidExpirationUptimeMillis = SystemClock.uptimeMillis() + expirationTimeSeconds * 1000L;
+        expirationRunnable = this::expireAdIfNeeded;
+        expirationHandler.postAtTime(expirationRunnable, bidExpirationUptimeMillis);
+    }
+
+    protected void markAdDisplayed() {
+        cancelExpiration();
     }
 
     private void initPrebidRenderingSdk() {
@@ -278,7 +319,8 @@ public abstract class BaseInterstitialAdUnit {
     }
 
     private boolean isAdLoadAllowed() {
-        return interstitialAdUnitState == READY_FOR_LOAD;
+        // An expired ad stays showable, but the app may replace it with a new one.
+        return interstitialAdUnitState == READY_FOR_LOAD || (expired && isAuctionWinnerReadyToDisplay());
     }
 
     @VisibleForTesting
@@ -286,11 +328,51 @@ public abstract class BaseInterstitialAdUnit {
         return interstitialAdUnitState;
     }
 
+    @VisibleForTesting
+    final boolean isExpired() {
+        return expired;
+    }
+
+    private void cancelExpiration() {
+        if (expirationRunnable != null) {
+            expirationHandler.removeCallbacks(expirationRunnable);
+            expirationRunnable = null;
+        }
+        bidExpirationUptimeMillis = 0;
+    }
+
+    private boolean hasBidExpired() {
+        return bidExpirationUptimeMillis > 0 && SystemClock.uptimeMillis() >= bidExpirationUptimeMillis;
+    }
+
+    private void expireAdIfNeeded() {
+        // Only a loaded Prebid ad that is not shown yet can expire. While its creative loads,
+        // onInterstitialReadyForDisplay() re-checks, so onAdExpired never precedes onAdLoaded.
+        if (expired || interstitialAdUnitState != READY_TO_DISPLAY_PREBID || !hasBidExpired()) {
+            return;
+        }
+
+        // Only inform the app: the ad stays loaded and can still be shown.
+        expired = true;
+        notifyAdExpiredListener();
+    }
+
+    private void releaseExpiredAd() {
+        if (interstitialController != null) {
+            interstitialController.destroy();
+            interstitialController = null;
+        }
+        changeInterstitialAdUnitState(READY_FOR_LOAD);
+    }
+
     private BidRequesterListener createBidRequesterListener() {
         return new BidRequesterListener() {
             @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;
+                prebidException = null;
+                // bid.exp counts from the auction, so the countdown starts as soon as the bid arrives.
+                scheduleExpirationIfNeeded();
 
                 changeInterstitialAdUnitState(LOADING);
                 requestAdWithBid(getWinnerBid());
@@ -299,6 +381,8 @@ public abstract class BaseInterstitialAdUnit {
             @Override
             public void onError(AdException exception) {
                 bidResponse = null;
+                prebidException = exception;
+
                 requestAdWithBid(null);
             }
         };
@@ -311,6 +395,8 @@ public abstract class BaseInterstitialAdUnit {
                 SdkLogUtil.info("interstitial loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_TO_DISPLAY_PREBID);
                 notifyAdEventListener(AdListenerEvent.AD_LOADED);
+                // The bid may have expired while the creative was loading.
+                expireAdIfNeeded();
             }
 
             @Override
@@ -328,6 +414,7 @@ public abstract class BaseInterstitialAdUnit {
 
             @Override
             public void onInterstitialDisplayed() {
+                markAdDisplayed();
                 SdkLogUtil.info("interstitial displayed", SdkAdStatus.DISPLAYED, AdFormat.INTERSTITIAL, config.getConfigId(), SdkType.PREBID);
                 changeInterstitialAdUnitState(READY_FOR_LOAD);
                 notifyAdEventListener(AdListenerEvent.AD_DISPLAYED);

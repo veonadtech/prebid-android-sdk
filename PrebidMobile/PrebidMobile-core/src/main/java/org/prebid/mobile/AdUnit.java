@@ -256,6 +256,20 @@ public abstract class AdUnit {
         configuration.setImpOrtbConfig(ortbConfig);
     }
 
+    @Nullable
+    public String getGlobalOrtbConfig() {
+        return configuration.getGlobalOrtbConfig();
+    }
+
+    /**
+     * Sets the global OpenRTB configuration string for the ad unit. It takes precedence over `Targeting.setGlobalOrtbConfig`.
+     * Expected format: {@code "{"new_field": "value"}"}.
+     * @param ortbConfig The global OpenRTB JSON configuration string to set. Can be `null` to clear the configuration.
+     */
+    public void setGlobalOrtbConfig(@Nullable String ortbConfig) {
+        configuration.setGlobalOrtbConfig(ortbConfig);
+    }
+
     protected BidRequesterListener createBidListener(OnCompleteListener originalListener) {
         return new BidRequesterListener() {
             @Override
@@ -301,6 +315,8 @@ public abstract class AdUnit {
                 return ResultCode.TIMEOUT;
             case NO_BIDS:
                 return ResultCode.NO_BIDS;
+            case NO_CACHED_BIDS:
+                return ResultCode.NO_CACHED_BIDS;
             default:
                 return ResultCode.PREBID_SERVER_ERROR;
         }
