@@ -1,5 +1,37 @@
 # CHANGELOG
 
+# 0.5.0
+## Added
+* Handle Prebid Server bid caching failures gracefully
+* Expire ads respectively to the seatbid.bid.exp
+* Custom targeting for GAM rendering API
+* Support OpenRTB 2.6 EIDs in user.eids
+* Third-party plugin renderers in adapters
+* Multiformat banner ad unit in the rendering and mediation APIs
+
+## Changed
+* Send ext.prebid.targeting flags as booleans, not strings
+* Mute/unmute audio flow for video creative
+* Enables video player click
+* Auto interstitial dismissal
+* Detect connection type through NetworkCapabilities on API 23+
+* Read screen size from WindowMetrics on API 30+
+* Fix COPPA flag sent as regs.ext.coppa instead of regs.coppa
+* Fix banner load callbacks firing before creative attachment
+* Fix interstitial controls misplaced after orientation changes
+* Exoplayer examples
+* Checks nullable bids for next gen custom targeting
+
+## Fixed
+* Fix close button missing on rewarded end card
+* Fix CTA button missing in rewarded ads
+* Stop installing the removed SDK tools package in CI
+* Release the MRAID command queue on interstitial expand()
+* Dispatch MRAID JS bridge calls to the main thread
+* Fix controls misplaced in rewarded ads
+* Remove legacy Travis CI setup
+* fit the corrective WebView scale inside both axes and retry on layout
+
 # 0.4.3
 ## Changed
 * Interstitial container size is now derived from the bid response (`bid.w`/`bid.h`) instead of 
@@ -16,19 +48,6 @@ multi-ad loaders, and GAM requests are also logged from the GAM banner/interstit
 # 0.4.1
 ## Fixed
 * Update BannerView to log the specific exception message instead of a hardcoded string
-
-# 0.4.0
-## Added
-* Multi-loader support for the Next-Gen GMA SDK: `MultiBannerLoaderNextGenGam` and
-`MultiInterstitialAdLoaderNextGenGam` race Prebid, GAM (Next-Gen GMA SDK) and Yandex by the
-configured priority order, mirroring the existing legacy GAM multi-loaders
-## Changed
-* Renamed the multi-ad loaders to specify the backing SDK: `MultiBannerLoader` →
-`MultiBannerLoaderLegacyGam`, `MultiInterstitialAdLoader` → `MultiInterstitialAdLoaderLegacyGam`,
-`MultiBannerLoaderNextGen` → `MultiBannerLoaderNextGenGam`, `MultiInterstitialAdLoaderNextGen` →
-`MultiInterstitialAdLoaderNextGenGam`
-* Renamed the Next-Gen demo app package to `org.prebid.veonnextgendemo` and the app name to
-"Prebid Veon Next-Gen Demo"
 
 # 0.3.1
 ## Changed
