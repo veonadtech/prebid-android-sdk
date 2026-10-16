@@ -132,7 +132,7 @@ class MultiBannerLoaderLegacyGamTest {
         yandexAdUnitId: String?,
         autoRefreshDelay: Int
     ) : MultiBannerLoaderLegacyGam(context, adSize, configId, gamAdUnitId, yandexAdUnitId, autoRefreshDelay) {
-        public override fun yandexInlineBannerSize(context: Context, size: AdSize): BannerAdSize =
+        public override fun yandexFixedBannerSize(context: Context, size: AdSize): BannerAdSize =
             Mockito.mock(BannerAdSize::class.java)
     }
 
@@ -585,13 +585,9 @@ class MultiBannerLoaderLegacyGamTest {
         val impressionData = Mockito.mock(ImpressionData::class.java)
 
         capturedYandexListener.get().onAdClicked()
-        capturedYandexListener.get().onLeftApplication()
-        capturedYandexListener.get().onReturnedToApplication()
         capturedYandexListener.get().onImpression(impressionData)
 
         verify(listener).onAdClicked(null, SdkType.YANDEX)
-        verify(listener).onLeftApplication(SdkType.YANDEX)
-        verify(listener).onReturnedToApplication(SdkType.YANDEX)
         verify(listener).onImpression(impressionData, SdkType.YANDEX)
     }
 
