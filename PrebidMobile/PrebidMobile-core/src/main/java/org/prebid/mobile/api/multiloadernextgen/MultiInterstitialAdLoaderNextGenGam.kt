@@ -74,6 +74,7 @@ class MultiInterstitialAdLoaderNextGenGam(
     fun loadAd() {
         destroy()
         selectedSDK = null
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
 
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
@@ -102,6 +103,7 @@ class MultiInterstitialAdLoaderNextGenGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
@@ -130,6 +132,7 @@ class MultiInterstitialAdLoaderNextGenGam(
     }
 
     private fun selectSdkIfFirstPriority(sdk: SdkType) {
+        if (selectedSDK != null) return
         if (isFirstPriorityAndLoaded()) {
             selectedSDK = getFirstLoadedSdk()
             selectedSDK?.let {

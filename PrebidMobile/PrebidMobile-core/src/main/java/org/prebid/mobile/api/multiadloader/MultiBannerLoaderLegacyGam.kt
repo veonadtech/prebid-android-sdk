@@ -73,6 +73,7 @@ open class MultiBannerLoaderLegacyGam(
     fun loadAd() {
         destroy()
         selectedSDK = null
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
 
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.LOADING
@@ -84,6 +85,7 @@ open class MultiBannerLoaderLegacyGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED

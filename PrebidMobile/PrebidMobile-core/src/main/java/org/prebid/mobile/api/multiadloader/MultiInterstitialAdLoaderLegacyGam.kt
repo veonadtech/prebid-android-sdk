@@ -74,6 +74,7 @@ class MultiInterstitialAdLoaderLegacyGam(
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
         }
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
 
         val order = priorityOrder.toList()
         order.forEach { sdk ->
@@ -98,6 +99,7 @@ class MultiInterstitialAdLoaderLegacyGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
@@ -126,6 +128,8 @@ class MultiInterstitialAdLoaderLegacyGam(
     }
 
     private fun selectSdkIfFirstPriority(sdk: SdkType) {
+        if (selectedSDK != null) return
+
         if (isFirstPriorityAndLoaded()) {
             selectedSDK = getFirstLoadedSdk()
             selectedSDK?.let {

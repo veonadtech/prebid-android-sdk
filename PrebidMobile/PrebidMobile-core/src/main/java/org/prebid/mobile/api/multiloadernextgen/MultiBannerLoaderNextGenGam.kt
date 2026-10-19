@@ -28,7 +28,7 @@ import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize as NextSize
 
-class MultiBannerLoaderNextGenGam(
+open class MultiBannerLoaderNextGenGam(
     private val context: Context,
     private val adSize: AdSize?,
     private val configId: String?,
@@ -36,6 +36,9 @@ class MultiBannerLoaderNextGenGam(
     private val yandexAdUnitId: String?,
     private val autoRefreshDelay: Int = 30
 ) {
+
+    protected open fun yandexFixedBannerSize(context: Context, size: AdSize): BannerAdSize =
+        BannerAdSize.fixed(context, size.width, size.height)
 
     companion object {
         private val TAG = MultiBannerLoaderNextGenGam::class.java.simpleName
@@ -62,6 +65,8 @@ class MultiBannerLoaderNextGenGam(
     fun loadAd() {
         destroy()
         selectedSDK = null
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
+
         val order = priorityOrder.toList()
         order.forEach { sdk ->
             adLoaders[sdk]?.load()
@@ -69,6 +74,7 @@ class MultiBannerLoaderNextGenGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         loadedViews.clear()
     }

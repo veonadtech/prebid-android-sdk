@@ -6,9 +6,18 @@ import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
+import com.yandex.mobile.ads.common.AdError
+import com.yandex.mobile.ads.common.AdRequest as YandexAdRequest
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
+import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,9 +47,11 @@ import org.prebid.mobile.test.utils.WhiteBox
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.concurrent.atomic.AtomicReference
+import com.yandex.mobile.ads.interstitial.InterstitialAd as YandexInterstitialAd
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [24])
+@Config(sdk = [23])
 class MultiInterstitialAdLoaderNextGenGamTest {
 
     @Mock
@@ -49,6 +60,7 @@ class MultiInterstitialAdLoaderNextGenGamTest {
     private lateinit var context: Context
 
     private lateinit var interstitialConstruction: MockedConstruction<InterstitialAdUnit>
+    private lateinit var yandexLoaderMC: MockedConstruction<InterstitialAdLoader>
     private lateinit var mockedPrebidMobile: MockedStatic<PrebidMobile>
 
     // Injected GAM-load seam capture (the Next-Gen SDK's InterstitialAd.load is a Kotlin
@@ -56,6 +68,8 @@ class MultiInterstitialAdLoaderNextGenGamTest {
     private var gamLoadCount = 0
     private var capturedGamRequest: AdRequest? = null
     private var capturedGamCallback: AdLoadCallback<InterstitialAd>? = null
+
+    private val capturedYandexLoadListener = AtomicReference<InterstitialAdLoadListener>()
 
     private val configId = "test-config-id"
     private val gamAdUnitId = "/1234/test-gam-ad-unit"
@@ -66,6 +80,15 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         MockitoAnnotations.openMocks(this)
         context = Robolectric.buildActivity(Activity::class.java).create().get()
         interstitialConstruction = Mockito.mockConstruction(InterstitialAdUnit::class.java)
+        yandexLoaderMC = Mockito.mockConstruction(InterstitialAdLoader::class.java) { mock, _ ->
+            Mockito.doAnswer { inv ->
+                capturedYandexLoadListener.set(inv.getArgument(1))
+                null
+            }.`when`(mock).loadAd(
+                anyNonNull(YandexAdRequest::class.java),
+                anyNonNull(InterstitialAdLoadListener::class.java)
+            )
+        }
 
         gamLoadCount = 0
         capturedGamRequest = null
@@ -74,12 +97,13 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         mockedPrebidMobile = Mockito.mockStatic(PrebidMobile::class.java)
         mockedPrebidMobile.`when`<Boolean> { PrebidMobile.isSdkInitialized() }.thenReturn(true)
 
-        // Race only PREBID vs GAM; YANDEX uses its own SDK and is exercised in instrumentation/demo.
+        // Default: race PREBID vs GAM. Yandex tests set their own priority.
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM)
     }
 
     @After
     fun tearDown() {
+        yandexLoaderMC.close()
         interstitialConstruction.close()
         mockedPrebidMobile.close()
         SdkConfigHolder.priorityOrderSDK = listOf(SdkType.PREBID, SdkType.GAM, SdkType.YANDEX)
@@ -129,12 +153,41 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         return capturedGamCallback!!
     }
 
+    private fun gamError(message: String = "gam error") =
+        LoadAdError(LoadAdError.ErrorCode.INTERNAL_ERROR, message, null)
+
+    /**
+     * Fires Yandex's load callback. The event listener is installed on the ad only in show(),
+     * so it is exposed lazily via the returned reference.
+     */
+    private fun fireYandexLoaded(): Pair<YandexInterstitialAd, AtomicReference<InterstitialAdEventListener>> {
+        val mockYandexAd = mock(YandexInterstitialAd::class.java)
+        val captured = AtomicReference<InterstitialAdEventListener>()
+        Mockito.doAnswer { inv ->
+            captured.set(inv.getArgument(0))
+            null
+        }.`when`(mockYandexAd).setAdEventListener(any(InterstitialAdEventListener::class.java))
+
+        capturedYandexLoadListener.get().onAdLoaded(mockYandexAd)
+        return mockYandexAd to captured
+    }
+
+    private fun fireYandexFailed(description: String = "Yandex no fill") {
+        val err = mock(AdRequestError::class.java)
+        Mockito.`when`(err.description).thenReturn(description)
+        capturedYandexLoadListener.get().onAdFailedToLoad(err)
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun sdkStatesOf(loader: MultiInterstitialAdLoaderNextGenGam): Map<SdkType, SdkState> =
         WhiteBox.getInternalState(loader, "sdkStates") as Map<SdkType, SdkState>
 
     private fun selectedSdkOf(loader: MultiInterstitialAdLoaderNextGenGam): SdkType? =
         WhiteBox.getInternalState(loader, "selectedSDK") as SdkType?
+
+    @Suppress("UNCHECKED_CAST")
+    private fun priorityOrderOf(loader: MultiInterstitialAdLoaderNextGenGam): MutableList<SdkType> =
+        WhiteBox.getInternalState(loader, "priorityOrder") as MutableList<SdkType>
 
     // 1. On construction all SDK states are NOT_STARTED
     @Test
@@ -154,9 +207,7 @@ class MultiInterstitialAdLoaderNextGenGamTest {
 
         loader.loadAd()
 
-        // GAM load was called
         assertEquals(1, gamLoadCount)
-        // PREBID was constructed and loadAd invoked
         assertEquals(1, interstitialConstruction.constructed().size)
         verify(interstitialConstruction.constructed()[0]).loadAd()
 
@@ -200,7 +251,6 @@ class MultiInterstitialAdLoaderNextGenGamTest {
 
         loader.loadAd()
 
-        // GAM.load was not called (null path returns before the load seam)
         assertEquals(0, gamLoadCount)
         verify(mockListener).onAdFailed(eq("GAM AdUnitId is empty"), eq(SdkType.GAM))
         assertEquals(SdkState.FAILED, sdkStatesOf(loader)[SdkType.GAM])
@@ -286,9 +336,8 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         val prebidException = AdException(AdException.INTERNAL_ERROR, "prebid error")
         prebidListener.onAdFailed(interstitialConstruction.constructed()[0], prebidException)
 
-        val gamLoadAdError = LoadAdError(LoadAdError.ErrorCode.INTERNAL_ERROR, "gam error", null)
         val gamCallback = captureGamCallback()
-        gamCallback.onAdFailedToLoad(gamLoadAdError)
+        gamCallback.onAdFailedToLoad(gamError())
 
         verify(mockListener, never()).onAdLoaded(SdkType.PREBID)
         verify(mockListener, never()).onAdLoaded(SdkType.GAM)
@@ -362,15 +411,11 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         val loader = createLoader()
         loader.loadAd()
 
-        // Initially Prebid is not loaded
         assertEquals(0, interstitialConstruction.constructed().size)
 
-        // GAM fails
-        val gamLoadAdError = LoadAdError(LoadAdError.ErrorCode.INTERNAL_ERROR, "gam error", null)
         val gamCallback = captureGamCallback()
-        gamCallback.onAdFailedToLoad(gamLoadAdError)
+        gamCallback.onAdFailedToLoad(gamError())
 
-        // Now Prebid should have been constructed lazily via maybeLoadPrebid
         assertEquals(1, interstitialConstruction.constructed().size)
         verify(interstitialConstruction.constructed()[0]).loadAd()
         assertEquals(SdkState.LOADING, sdkStatesOf(loader)[SdkType.PREBID])
@@ -384,9 +429,8 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         val loader = createLoader()
         loader.loadAd()
 
-        val gamLoadAdError = LoadAdError(LoadAdError.ErrorCode.INTERNAL_ERROR, "gam error", null)
         val gamCallback = captureGamCallback()
-        gamCallback.onAdFailedToLoad(gamLoadAdError)
+        gamCallback.onAdFailedToLoad(gamError())
 
         assertEquals(0, interstitialConstruction.constructed().size)
     }
@@ -415,14 +459,12 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         val loader = createLoader()
         loader.loadAd()
 
-        val gamLoadAdError =
-            LoadAdError(LoadAdError.ErrorCode.INTERNAL_ERROR, "gam specific error", null)
-
         val gamCallback = captureGamCallback()
-        gamCallback.onAdFailedToLoad(gamLoadAdError)
+        gamCallback.onAdFailedToLoad(gamError("gam specific error"))
 
         verify(mockListener).onAdFailed(eq("gam specific error"), eq(SdkType.GAM))
         assertEquals(SdkState.FAILED, sdkStatesOf(loader)[SdkType.GAM])
+        assertFalse(priorityOrderOf(loader).contains(SdkType.GAM))
     }
 
     // Bonus: loadAd called twice -> previous resources destroyed first, states reset
@@ -466,4 +508,188 @@ class MultiInterstitialAdLoaderNextGenGamTest {
         verify(mockListener).onAdFailed(eq("Unknown error"), eq(SdkType.PREBID))
         assertEquals(SdkState.FAILED, sdkStatesOf(loader)[SdkType.PREBID])
     }
+
+    // region loadAd rebuilds priorityOrder
+
+    @Test
+    fun loadAd_afterFailure_retriesPreviouslyFailedSdk() {
+        val loader = createLoader()
+        loader.loadAd()
+        capturePrebidListener().onAdFailed(
+            interstitialConstruction.constructed()[0],
+            AdException(AdException.INTERNAL_ERROR, "prebid error")
+        )
+        assertFalse(priorityOrderOf(loader).contains(SdkType.PREBID))
+
+        loader.loadAd()
+
+        assertEquals(2, interstitialConstruction.constructed().size)
+        assertEquals(2, gamLoadCount)
+        assertTrue(priorityOrderOf(loader).contains(SdkType.PREBID))
+    }
+
+    @Test
+    fun loadAd_afterAllSdksFailed_restoresFullOrderAndKeepsPrebidLazy() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.GAM, SdkType.PREBID)
+        val loader = createLoader()
+        loader.loadAd()
+        captureGamCallback(1).onAdFailedToLoad(gamError())            // triggers lazy Prebid
+        assertEquals(1, interstitialConstruction.constructed().size)
+        capturePrebidListener().onAdFailed(
+            interstitialConstruction.constructed()[0],
+            AdException(AdException.INTERNAL_ERROR, "prebid error")
+        )
+        assertTrue(priorityOrderOf(loader).isEmpty())
+
+        loader.loadAd()
+
+        assertEquals(listOf(SdkType.GAM, SdkType.PREBID), priorityOrderOf(loader).toList())
+        assertEquals(2, gamLoadCount)
+        // Prebid is last priority, so it must stay lazy again
+        assertEquals(1, interstitialConstruction.constructed().size)
+    }
+
+    @Test
+    fun loadAd_afterWinnerSelected_resetsSelectionAndStates() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.GAM, SdkType.PREBID)
+        val loader = createLoader()
+        loader.loadAd()
+        captureGamCallback(1).onAdLoaded(mock(InterstitialAd::class.java))
+        assertEquals(SdkType.GAM, selectedSdkOf(loader))
+
+        loader.loadAd()
+
+        assertNull(selectedSdkOf(loader))
+        assertEquals(SdkState.LOADING, sdkStatesOf(loader)[SdkType.GAM])
+        assertEquals(2, gamLoadCount)
+    }
+
+    // Replaces the old "snapshot" semantics: loadAd() now reads the actual config.
+    @Test
+    fun loadAd_picksUpChangedPriorityOrder() {
+        val loader = createLoader()
+        loader.loadAd()
+
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.GAM)
+        loader.loadAd()
+
+        assertEquals(listOf(SdkType.GAM), priorityOrderOf(loader).toList())
+    }
+
+    // endregion
+
+    // region late callbacks from cancelled SDKs (needs the selectedSDK guard in selectSdkIfFirstPriority)
+
+    @Test
+    fun lateGamLoadedAfterPrebidWon_doesNotNotifyListenerAgain() {
+        val loader = createLoader()
+        loader.loadAd()
+        val gamCallback = captureGamCallback()
+
+        capturePrebidListener().onAdLoaded(interstitialConstruction.constructed()[0])
+        verify(mockListener, times(1)).onAdLoaded(SdkType.PREBID)
+
+        gamCallback.onAdLoaded(mock(InterstitialAd::class.java))
+
+        verify(mockListener, times(1)).onAdLoaded(SdkType.PREBID)
+        assertEquals(SdkType.PREBID, selectedSdkOf(loader))
+    }
+
+    @Test
+    fun lateGamFailureAfterPrebidWon_doesNotNotifyListenerAgain() {
+        val loader = createLoader()
+        loader.loadAd()
+        val gamCallback = captureGamCallback()
+
+        capturePrebidListener().onAdLoaded(interstitialConstruction.constructed()[0])
+
+        gamCallback.onAdFailedToLoad(gamError())
+
+        verify(mockListener, times(1)).onAdLoaded(SdkType.PREBID)
+        assertEquals(SdkType.PREBID, selectedSdkOf(loader))
+    }
+
+    // endregion
+
+    // region Yandex (SDK 8.6.0 API)
+
+    @Test
+    fun yandex_isRequestedViaLoadAdRequestAndListener() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.YANDEX)
+        val loader = createLoader()
+
+        loader.loadAd()
+
+        assertEquals(1, yandexLoaderMC.constructed().size)
+        verify(yandexLoaderMC.constructed()[0]).loadAd(
+            anyNonNull(YandexAdRequest::class.java),
+            anyNonNull(InterstitialAdLoadListener::class.java)
+        )
+    }
+
+    @Test
+    fun yandex_adUnitIdNull_failsWithoutConstructingLoader() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.YANDEX)
+        val loader = createLoader(yandexId = null)
+
+        loader.loadAd()
+
+        verify(mockListener).onAdFailed(eq("Yandex AdUnitId is empty"), eq(SdkType.YANDEX))
+        assertTrue(yandexLoaderMC.constructed().isEmpty())
+    }
+
+    @Test
+    fun yandex_loaded_isSelected_andShowInstallsEventListenerAndShowsAd() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.YANDEX)
+        val loader = createLoader()
+        loader.loadAd()
+
+        val (yandexAd, _) = fireYandexLoaded()
+        verify(mockListener).onAdLoaded(SdkType.YANDEX)
+
+        loader.showAd()
+
+        verify(yandexAd).setAdEventListener(any(InterstitialAdEventListener::class.java))
+        verify(yandexAd).show(context as Activity)
+    }
+
+    @Test
+    fun yandex_failedToLoad_routesThroughHandleAdFailed() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.YANDEX, SdkType.GAM)
+        val loader = createLoader()
+        loader.loadAd()
+
+        fireYandexFailed("Yandex no fill")
+
+        verify(mockListener).onAdFailed(eq("Yandex no fill"), eq(SdkType.YANDEX))
+        assertFalse(priorityOrderOf(loader).contains(SdkType.YANDEX))
+    }
+
+    @Test
+    fun yandex_eventListenerEvents_propagateToListener() {
+        SdkConfigHolder.priorityOrderSDK = listOf(SdkType.YANDEX)
+        val loader = createLoader()
+        loader.loadAd()
+        val (_, eventListenerRef) = fireYandexLoaded()
+        loader.showAd()
+        val eventListener = eventListenerRef.get()
+
+        val adError = mock(AdError::class.java)
+        Mockito.`when`(adError.description).thenReturn("show err")
+        val impressionData = mock(ImpressionData::class.java)
+
+        eventListener.onAdShown()
+        eventListener.onAdClicked()
+        eventListener.onAdImpression(impressionData)
+        eventListener.onAdDismissed()
+        eventListener.onAdFailedToShow(adError)
+
+        verify(mockListener).onAdDisplayed(SdkType.YANDEX)
+        verify(mockListener).onAdClicked(SdkType.YANDEX)
+        verify(mockListener).onImpression(impressionData, SdkType.YANDEX)
+        verify(mockListener).onAdClosed(SdkType.YANDEX)
+        verify(mockListener).onAdFailedToShow("show err", SdkType.YANDEX)
+    }
+
+    // endregion
 }

@@ -44,10 +44,10 @@ dependencies {
  //  implementation project(':PrebidMobile-admobAdapters')
  //  implementation project(':PrebidMobile-maxAdapters')
 
-//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.5.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.5.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.5.0-yango'
-//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.5.0-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:mobile:0.5.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:core:0.5.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:eventhandlers:0.5.1-yango'
+//    implementation 'com.github.veonadtech.prebid-android-sdk:prebidorg:0.5.1-yango'
 
     // Standard libraries
     implementation libs.kotlin.stdlib
