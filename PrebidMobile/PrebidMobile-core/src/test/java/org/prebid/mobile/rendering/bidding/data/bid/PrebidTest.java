@@ -38,6 +38,8 @@ public class PrebidTest {
     public void tearDown(){
         PrebidMobile.setIncludeBidderKeysFlag(false);
         PrebidMobile.setIncludeWinnersFlag(false);
+        PrebidMobile.setFilterOutUncachedBids(false);
+        PrebidMobile.setUseCacheForReportingWithRenderingApi(false);
         PrebidMobile.clearStoredBidResponses();
     }
     @Test
@@ -94,6 +96,22 @@ public class PrebidTest {
     }
 
     @Test
+    public void whenGetJsonObjectForBidRequestAndFilterOutUncachedBidsWithRenderingApi_NoCacheRequested() throws JSONException {
+        // filterOutUncachedBids only filters the response, so it must never add a cache request.
+        JSONObject expected = new JSONObject();
+        StoredRequest storedRequest = new StoredRequest("test");
+
+        expected.put("storedrequest", storedRequest.toJSONObject());
+        expected.put("targeting", new JSONObject());
+        expected.put("sdk", new JSONObject().put("renderers", new JSONArray()));
+
+        PrebidMobile.setFilterOutUncachedBids(true);
+        AdUnitConfiguration config = new AdUnitConfiguration();
+
+        assertEquals(expected.toString(), Prebid.getJsonObjectForBidRequest("test", false, config).toString());
+    }
+
+    @Test
     public void whenGetJsonObjectForImp_BidResponseEqualsExpected() throws JSONException {
         final String configId = "test";
         final AdUnitConfiguration adUnitConfiguration = new AdUnitConfiguration();
@@ -129,7 +147,7 @@ public class PrebidTest {
         config.addAdFormat(AdFormat.BANNER);
         config.addAdFormat(AdFormat.VAST);
         assertEquals(
-                "{\"storedrequest\":{\"id\":\"test\"},\"cache\":{\"bids\":{}},\"targeting\":{\"includeformat\":\"true\"}}",
+                "{\"storedrequest\":{\"id\":\"test\"},\"cache\":{\"bids\":{}},\"targeting\":{\"includeformat\":true}}",
                 Prebid.getJsonObjectForBidRequest("test", false, config).toString()
         );
     }
@@ -178,7 +196,7 @@ public class PrebidTest {
         expected.put("cache", expectedCache);
 
         JSONObject expectedTargeting = new JSONObject();
-        expectedTargeting.put("includebidderkeys", "true");
+        expectedTargeting.put("includebidderkeys", true);
         expected.put("targeting", expectedTargeting);
 
         AdUnitConfiguration config = new AdUnitConfiguration();
@@ -198,7 +216,7 @@ public class PrebidTest {
         expected.put("cache", expectedCache);
 
         JSONObject expectedTargeting = new JSONObject();
-        expectedTargeting.put("includewinners", "true");
+        expectedTargeting.put("includewinners", true);
 
         expected.put("targeting", expectedTargeting);
 

@@ -21,8 +21,8 @@ class InterstitialAdsTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{1}")
         fun arguments() = listOf(
-            arrayOf(R.string.original_display_interstitial, "Original API Display Interstitial"),
-            arrayOf(R.string.rendering_display_interstitial, "Rendering API Display Interstitial")
+            arrayOf<Any>(R.string.original_display_interstitial, "Original API Display Interstitial"),
+            arrayOf<Any>(R.string.rendering_display_interstitial, "Rendering API Display Interstitial")
         )
     }
 

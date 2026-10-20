@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.prebid.mobile.AdSize;
 import org.prebid.mobile.LogUtil;
@@ -61,6 +62,7 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
     private BannerEventListener bannerEventListener;
     private AuctionListener auctionListener;
     private Handler appEventHandler;
+    private AdManagerRequestConfiguration adManagerRequestConfiguration;
 
     private float cpm;
 
@@ -83,6 +85,17 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
         this.gamAdUnitId = adUnitId;
         this.cpm = cpm;
         this.adSizes = adSizes;
+    }
+
+    public void setAdManagerRequestConfiguration(
+            @Nullable AdManagerRequestConfiguration adManagerRequestConfiguration
+    ) {
+        this.adManagerRequestConfiguration = adManagerRequestConfiguration;
+    }
+
+    @Nullable
+    public AdManagerRequestConfiguration getAdManagerRequestConfiguration() {
+        return adManagerRequestConfiguration;
     }
 
     public static AdSize[] convertGamAdSize(com.google.android.gms.ads.AdSize... sizes) {
@@ -175,7 +188,7 @@ public class AuctionBannerEventHandler implements BannerEventHandler, GamAdEvent
             return;
         }
 
-        requestBanner.loadAd(bid);
+        requestBanner.loadAd(bid, adManagerRequestConfiguration);
     }
 
     @Override
