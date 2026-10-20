@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.5.1
+## Changed
+* Bump up Yandex SDK ver to 8.6.0
+
 # 0.5.0
 ## Added
 * Handle Prebid Server bid caching failures gracefully

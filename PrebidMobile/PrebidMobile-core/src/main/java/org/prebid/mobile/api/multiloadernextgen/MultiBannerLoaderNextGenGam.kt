@@ -28,7 +28,7 @@ import org.prebid.mobile.logging.SdkAdStatus
 import org.prebid.mobile.logging.SdkLogUtil
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize as NextSize
 
-class MultiBannerLoaderNextGenGam(
+open class MultiBannerLoaderNextGenGam(
     private val context: Context,
     private val adSize: AdSize?,
     private val configId: String?,
@@ -36,6 +36,9 @@ class MultiBannerLoaderNextGenGam(
     private val yandexAdUnitId: String?,
     private val autoRefreshDelay: Int = 30
 ) {
+
+    protected open fun yandexFixedBannerSize(context: Context, size: AdSize): BannerAdSize =
+        BannerAdSize.fixed(context, size.width, size.height)
 
     companion object {
         private val TAG = MultiBannerLoaderNextGenGam::class.java.simpleName
@@ -62,6 +65,8 @@ class MultiBannerLoaderNextGenGam(
     fun loadAd() {
         destroy()
         selectedSDK = null
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
+
         val order = priorityOrder.toList()
         order.forEach { sdk ->
             adLoaders[sdk]?.load()
@@ -69,6 +74,7 @@ class MultiBannerLoaderNextGenGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         loadedViews.clear()
     }
@@ -254,63 +260,48 @@ class MultiBannerLoaderNextGenGam(
             val view = BannerAdView(context)
             banner = view
             view.apply {
-                setAdUnitId(yandexAdUnitId)
-                setAdSize(BannerAdSize.inlineSize(context, size.width, size.height))
-
-                setBannerAdEventListener(object : BannerAdEventListener {
-                    override fun onAdLoaded() {
-                        if (!isAdLoaded) {
-                            isAdLoaded = true
-                            SdkLogUtil.info("Yandex Ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX)
-                            handleAdLoaded(SdkType.YANDEX, view)
-                        }
-                    }
-
-                    override fun onAdFailedToLoad(error: AdRequestError) {
-                        SdkLogUtil.info(
-                            "Yandex Ad failed to load: ${error.description}", SdkAdStatus.FAILED,
-                            AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
-                        )
-                        handleAdFailed(null, error.description, SdkType.YANDEX)
-                    }
-
-                    override fun onAdClicked() {
-                        listener?.onAdClicked(null, SdkType.YANDEX)
-                        SdkLogUtil.info(
-                            "Yandex Ad clicked", SdkAdStatus.CLICKED,
-                            AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
-                        )
-                    }
-
-                    override fun onLeftApplication() {
-                        listener?.onLeftApplication(SdkType.YANDEX)
-                        SdkLogUtil.info(
-                            "Yandex Ad left application", SdkAdStatus.LEFTAPPLICATION,
-                            AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
-                        )
-                    }
-
-                    override fun onReturnedToApplication() {
-                        listener?.onReturnedToApplication(SdkType.YANDEX)
-                        SdkLogUtil.info(
-                            "Yandex Ad returned to application", SdkAdStatus.RETURNEDTOAPPLICATION,
-                            AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
-                        )
-                    }
-
-                    override fun onImpression(impressionData: ImpressionData?) {
-                        listener?.onImpression(impressionData, SdkType.YANDEX)
-                        SdkLogUtil.info(
-                            "Yandex Ad impression", SdkAdStatus.IMPRESSION,
-                            AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
-                        )
-                    }
-                })
+                setAdSize(BannerAdSize.fixed(context, size.width, size.height))
+                setBannerAdEventListener(createBannerAdEventListener(view))
 
                 SdkLogUtil.info("Yandex Ad requested", SdkAdStatus.REQUESTED, AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX)
-                loadAd(AdRequest.Builder().build())
+                loadAd(AdRequest.Builder(yandexAdUnitId).build())
             }
         }
+
+        private fun createBannerAdEventListener(view: BannerAdView): BannerAdEventListener =
+            object : BannerAdEventListener {
+                override fun onAdLoaded() {
+                    if (!isAdLoaded) {
+                        isAdLoaded = true
+                        SdkLogUtil.info("Yandex Ad loaded", SdkAdStatus.LOADED, AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX)
+                        handleAdLoaded(SdkType.YANDEX, view)
+                    }
+                }
+
+                override fun onAdFailedToLoad(error: AdRequestError) {
+                    SdkLogUtil.info(
+                        "Yandex Ad failed to load: ${error.description}", SdkAdStatus.FAILED,
+                        AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
+                    )
+                    handleAdFailed(null, error.description, SdkType.YANDEX)
+                }
+
+                override fun onAdClicked() {
+                    listener?.onAdClicked(null, SdkType.YANDEX)
+                    SdkLogUtil.info(
+                        "Yandex Ad clicked", SdkAdStatus.CLICKED,
+                        AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
+                    )
+                }
+
+                override fun onImpression(impressionData: ImpressionData?) {
+                    listener?.onImpression(impressionData, SdkType.YANDEX)
+                    SdkLogUtil.info(
+                        "Yandex Ad impression", SdkAdStatus.IMPRESSION,
+                        AdFormat.BANNER, yandexAdUnitId, SdkType.YANDEX
+                    )
+                }
+            }
 
         override fun destroy() {
             banner?.destroy()

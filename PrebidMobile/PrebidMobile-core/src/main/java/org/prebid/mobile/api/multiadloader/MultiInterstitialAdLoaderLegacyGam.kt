@@ -7,7 +7,7 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
 import com.yandex.mobile.ads.common.AdError
-import com.yandex.mobile.ads.common.AdRequestConfiguration
+import com.yandex.mobile.ads.common.AdRequest
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -74,6 +74,7 @@ class MultiInterstitialAdLoaderLegacyGam(
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
         }
+        priorityOrder.addAll(SdkConfigHolder.priorityOrderSDK)
 
         val order = priorityOrder.toList()
         order.forEach { sdk ->
@@ -98,6 +99,7 @@ class MultiInterstitialAdLoaderLegacyGam(
     }
 
     fun destroy() {
+        priorityOrder.clear()
         adLoaders.values.forEach { it.destroy() }
         sdkStates.keys.forEach { sdk ->
             sdkStates[sdk] = SdkState.NOT_STARTED
@@ -126,6 +128,8 @@ class MultiInterstitialAdLoaderLegacyGam(
     }
 
     private fun selectSdkIfFirstPriority(sdk: SdkType) {
+        if (selectedSDK != null) return
+
         if (isFirstPriorityAndLoaded()) {
             selectedSDK = getFirstLoadedSdk()
             selectedSDK?.let {
@@ -256,7 +260,8 @@ class MultiInterstitialAdLoaderLegacyGam(
     }
 
     private inner class YandexAdLoader : AdLoader {
-        private var interstitial: InterstitialAd? = null
+        private var interstitialAd: InterstitialAd? = null
+        private var interstitialAdLoader: InterstitialAdLoader? = null
 
         override fun load() {
             if (yandexAdUnitId.isNullOrEmpty()) {
@@ -264,71 +269,90 @@ class MultiInterstitialAdLoaderLegacyGam(
                 return
             }
 
-            InterstitialAdLoader(context).apply {
-                setAdLoadListener(object : InterstitialAdLoadListener {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        SdkLogUtil.info("Yandex Ad loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX)
-                        interstitial = interstitialAd.apply {
-                            setAdEventListener(object : InterstitialAdEventListener {
-                                override fun onAdShown() {
-                                    listener?.onAdDisplayed(SdkType.YANDEX) ?: Unit
-                                    SdkLogUtil.info(
-                                        "Yandex Ad shown", SdkAdStatus.DISPLAYED,
-                                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
-                                    )
-                                }
+            interstitialAdLoader = InterstitialAdLoader(context)
+            val adRequest = AdRequest.Builder(yandexAdUnitId).build()
 
-                                override fun onAdFailedToShow(adError: AdError) {
-                                    listener?.onAdFailedToShow(adError.description, SdkType.YANDEX) ?: Unit
-                                    SdkLogUtil.info(
-                                        "Yandex Ad failed to show: ${adError.description}", SdkAdStatus.FAILED,
-                                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
-                                    )
-                                }
+            SdkLogUtil.info("Yandex Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX)
+            interstitialAdLoader?.loadAd(adRequest, createLoadListener())
+        }
 
-                                override fun onAdDismissed() {
-                                    listener?.onAdClosed(SdkType.YANDEX) ?: Unit
-                                    SdkLogUtil.info(
-                                        "Yandex Ad closed", SdkAdStatus.CLOSED,
-                                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
-                                    )
-                                }
+        private fun createLoadListener(): InterstitialAdLoadListener =
+            object : InterstitialAdLoadListener {
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    SdkLogUtil.info("Yandex Ad loaded", SdkAdStatus.LOADED, AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX)
+                    interstitialAd = ad
+                    handleAdLoaded(SdkType.YANDEX)
+                }
 
-                                override fun onAdClicked() {
-                                    listener?.onAdClicked(SdkType.YANDEX) ?: Unit
-                                    SdkLogUtil.info(
-                                        "Yandex Ad clicked", SdkAdStatus.CLICKED,
-                                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
-                                    )
-                                }
+                override fun onAdFailedToLoad(adRequestError: AdRequestError) {
+                    SdkLogUtil.info(
+                        "Yandex Ad failed to load: ${adRequestError.description}", SdkAdStatus.FAILED,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                    handleAdFailed(adRequestError.description, SdkType.YANDEX)
+                }
+            }
 
-                                override fun onAdImpression(impressionData: ImpressionData?) {
-                                    listener?.onImpression(impressionData, SdkType.YANDEX) ?: Unit
-                                    SdkLogUtil.info(
-                                        "Yandex Ad impression", SdkAdStatus.IMPRESSION,
-                                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
-                                    )
-                                }
-                            })
-                        }
-                        handleAdLoaded(SdkType.YANDEX)
-                    }
+        private fun createAdEventListener(): InterstitialAdEventListener =
+            object : InterstitialAdEventListener {
+                override fun onAdShown() {
+                    listener?.onAdDisplayed(SdkType.YANDEX) ?: Unit
+                    SdkLogUtil.info(
+                        "Yandex Ad shown", SdkAdStatus.DISPLAYED,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                }
 
-                    override fun onAdFailedToLoad(error: AdRequestError) {
-                        handleAdFailed(error.description, SdkType.YANDEX)
-                    }
-                })
-                SdkLogUtil.info("Yandex Ad requested", SdkAdStatus.REQUESTED, AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX)
-                loadAd(AdRequestConfiguration.Builder(yandexAdUnitId).build())
+                override fun onAdFailedToShow(adError: AdError) {
+                    listener?.onAdFailedToShow(adError.description, SdkType.YANDEX) ?: Unit
+                    SdkLogUtil.info(
+                        "Yandex Ad failed to show: ${adError.description}", SdkAdStatus.FAILED,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                    // Clean resources after Ad dismissed
+                    interstitialAd?.setAdEventListener(null)
+                    interstitialAd = null
+                }
+
+                override fun onAdDismissed() {
+                    listener?.onAdClosed(SdkType.YANDEX) ?: Unit
+                    SdkLogUtil.info(
+                        "Yandex Ad closed", SdkAdStatus.CLOSED,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                    // Clean resources after Ad dismissed
+                    interstitialAd?.setAdEventListener(null)
+                    interstitialAd = null
+                }
+
+                override fun onAdClicked() {
+                    listener?.onAdClicked(SdkType.YANDEX) ?: Unit
+                    SdkLogUtil.info(
+                        "Yandex Ad clicked", SdkAdStatus.CLICKED,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                }
+
+                override fun onAdImpression(impressionData: ImpressionData?) {
+                    listener?.onImpression(impressionData, SdkType.YANDEX) ?: Unit
+                    SdkLogUtil.info(
+                        "Yandex Ad impression", SdkAdStatus.IMPRESSION,
+                        AdFormat.INTERSTITIAL, yandexAdUnitId, SdkType.YANDEX
+                    )
+                }
+            }
+
+        override fun show() {
+            interstitialAd?.apply {
+                setAdEventListener(createAdEventListener())
+                show(context as Activity)
             }
         }
 
-        override fun show() {
-            interstitial?.show(context as Activity)
-        }
-
         override fun destroy() {
-            interstitial = null
+            interstitialAd?.setAdEventListener(null)
+            interstitialAd = null
+            interstitialAdLoader = null
             LogUtil.debug(TAG, "Ad destroyed: ${SdkType.YANDEX}")
         }
     }
@@ -338,5 +362,4 @@ class MultiInterstitialAdLoaderLegacyGam(
         fun show()
         fun destroy()
     }
-
 }

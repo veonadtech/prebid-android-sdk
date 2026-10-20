@@ -54,8 +54,6 @@ class MultiBannerNextGenActivity : BaseAdActivity() {
             }
 
             override fun onAdClicked(bannerView: BannerView?, sdk: SdkType) = events.clicked(true)
-            override fun onLeftApplication(sdk: SdkType) {}
-            override fun onReturnedToApplication(sdk: SdkType) {}
             override fun onImpression(impressionData: ImpressionData?, sdk: SdkType) {}
             override fun onAdClosed(bannerView: BannerView?, sdk: SdkType) = events.closed(true)
             override fun onAdDisplayed(bannerView: BannerView?, sdk: SdkType) = events.displayed(true)
