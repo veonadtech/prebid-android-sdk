@@ -12,7 +12,7 @@ import org.prebid.veondemo.activities.BaseAdActivity
 class MultiInterstitialAdActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "prebid-demo-banner-320-50"
+        const val CONFIG_ID = "_beeline_uz_android_wheel_test2_interstitial"
         const val AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner_300x250_order"
         const val YANDEX_AD_UNIT_ID = "demo-interstitial-yandex"
     }
