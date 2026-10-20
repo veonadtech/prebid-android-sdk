@@ -18,22 +18,15 @@ package org.prebid.veondemo.activities.ads.gam.original
 import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.ads.AdsMediaSource
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DataSpec
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import org.prebid.mobile.AdSize
-import org.prebid.mobile.InStreamVideoAdUnit
-import org.prebid.mobile.Signals
-import org.prebid.mobile.Util
-import org.prebid.mobile.VideoParameters
-import org.prebid.veondemo.R
+import androidx.annotation.OptIn
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.ima.ImaAdsLoader
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.ui.PlayerView
+import org.prebid.mobile.*
 import org.prebid.veondemo.activities.BaseAdActivity
 
 
@@ -50,7 +43,7 @@ class GamOriginalApiInStreamActivity : BaseAdActivity() {
     }
 
     private var adUnit: InStreamVideoAdUnit? = null
-    private var player: SimpleExoPlayer? = null
+    private var player: ExoPlayer? = null
     private var adsUri: Uri? = null
     private var adsLoader: ImaAdsLoader? = null
     private var playerView: PlayerView? = null
@@ -113,26 +106,28 @@ class GamOriginalApiInStreamActivity : BaseAdActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun initializePlayer() {
         adsLoader = ImaAdsLoader.Builder(this).build()
 
-        val playerBuilder = SimpleExoPlayer.Builder(this)
-        player = playerBuilder.build()
+        val dataSourceFactory = DefaultDataSource.Factory(this)
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+            .setLocalAdInsertionComponents({ adsLoader!! }, playerView!!)
+
+        player = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build()
         playerView!!.player = player
         adsLoader!!.setPlayer(player)
 
-        val uri = Uri.parse(VIDEO_URL)
+        val mediaItem = MediaItem.Builder()
+            .setUri(Uri.parse(VIDEO_URL))
+            .setAdsConfiguration(
+                MediaItem.AdsConfiguration.Builder(adsUri!!).build()
+            )
+            .build()
 
-        val mediaItem = MediaItem.fromUri(uri)
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this, getString(R.string.app_name))
-        val mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
-        val mediaSource: MediaSource = mediaSourceFactory.createMediaSource(mediaItem)
-        val dataSpec = DataSpec(adsUri!!)
-        val adsMediaSource = AdsMediaSource(
-            mediaSource, dataSpec, "ad", mediaSourceFactory,
-            adsLoader!!, playerView!!
-        )
-        player?.setMediaSource(adsMediaSource)
+        player?.setMediaItem(mediaItem)
         player?.playWhenReady = true
         player?.prepare()
     }

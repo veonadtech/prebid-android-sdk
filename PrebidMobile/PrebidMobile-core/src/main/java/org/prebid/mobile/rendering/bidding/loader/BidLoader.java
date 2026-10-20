@@ -16,14 +16,12 @@
 
 package org.prebid.mobile.rendering.bidding.loader;
 
-import static java.lang.Math.max;
-
 import androidx.annotation.NonNull;
-
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidEventDelegate;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.AdFormat;
+import org.prebid.mobile.api.data.FetchDemandResult;
 import org.prebid.mobile.api.data.SdkType;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
@@ -40,6 +38,8 @@ import org.prebid.mobile.rendering.utils.helpers.RefreshTimerTask;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.lang.Math.max;
 
 public class BidLoader {
 
@@ -61,8 +61,28 @@ public class BidLoader {
             currentlyLoading.set(false);
             BidResponse bidResponse = new BidResponse(response.responseString, adConfiguration);
             if (bidResponse.hasParseError()) {
-                failedToLoadBid(bidResponse.getParseError());
+                failedToLoadBid(new AdException(AdException.FAILED_TO_PARSE_RESPONSE, bidResponse.getParseError()));
                 return;
+            }
+            if (bidResponse.isFilteringUncachedBids()) {
+                int removedBids = bidResponse.getBidsWithoutSuccessfulCacheCount();
+                if (removedBids > 0) {
+                    LogUtil.warning(TAG, "Ignored " + removedBids + " bids without successful Prebid Cache entries.");
+                }
+                if (bidResponse.isTopBidFiltered()) {
+                    LogUtil.warning(TAG, "Top bid was filtered for a failed Prebid Cache entry; promoted the next best cached bid.");
+                }
+                if (bidResponse.getWinningBid() == null) {
+                    String errorMessage = removedBids > 0 && bidResponse.getSeatbids().isEmpty()
+                            ? FetchDemandResult.NO_CACHED_BIDS_MESSAGE
+                            : FetchDemandResult.NO_BIDS_MESSAGE;
+                    failedToLoadBid(new AdException(
+                            AdException.NO_BIDS,
+                            errorMessage
+                    ));
+                    callEventDelegate(bidResponse);
+                    return;
+                }
             }
             checkTmax(response, bidResponse);
             updateAdUnitConfiguration(bidResponse);
@@ -80,7 +100,7 @@ public class BidLoader {
                 String msg,
                 long responseTime
         ) {
-            failedToLoadBid(msg);
+            failedToLoadBid(new AdException(AdException.FAILED_TO_LOAD_BIDS, msg));
         }
 
         @Override
@@ -88,7 +108,11 @@ public class BidLoader {
                 Exception e,
                 long responseTime
         ) {
-            failedToLoadBid(e.getMessage());
+            if (e instanceof AdException) {
+                failedToLoadBid((AdException) e);
+            } else {
+                failedToLoadBid(new AdException(AdException.FAILED_TO_LOAD_BIDS, e.getMessage()));
+            }
         }
     };
 
@@ -175,7 +199,6 @@ public class BidLoader {
 
         boolean isRefreshAvailable = adConfiguration != null && adConfiguration.isAdType(AdFormat.BANNER);
         if (!isRefreshAvailable) {
-            LogUtil.debug(TAG, "setupRefreshTimer: Canceled. AdConfiguration is null or AdType is not Banner");
             return;
         }
 
@@ -219,8 +242,8 @@ public class BidLoader {
         bidRequester.startAdRequest();
     }
 
-    private void failedToLoadBid(String msg) {
-        LogUtil.error(TAG, "Invalid bid response: " + msg);
+    private void failedToLoadBid(AdException exception) {
+        LogUtil.error(TAG, exception.getMessage());
         currentlyLoading.set(false);
 
         if (requestListener == null) {
@@ -230,7 +253,7 @@ public class BidLoader {
         }
 
         setupRefreshTimer();
-        requestListener.onError(new AdException(AdException.INTERNAL_ERROR, "Invalid bid response: " + msg));
+        requestListener.onError(exception);
     }
 
     private void checkTmax(

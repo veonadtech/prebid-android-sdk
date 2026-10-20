@@ -48,7 +48,11 @@ public class NativeAdUnit extends AdUnit {
                 HashMap<String, String> keywords = response.getTargeting();
                 Util.apply(keywords, adObject);
 
-                String cacheId = CacheManager.save(response.getWinningBidJson());
+                Integer expirationTimeSeconds = response.getExpirationTimeSeconds();
+                String cacheId = CacheManager.save(
+                        response.getWinningBidJson(),
+                        expirationTimeSeconds != null ? expirationTimeSeconds.longValue() : null
+                );
                 Util.saveCacheId(cacheId, adObject);
 
                 notifyWinEvent(response);
@@ -231,11 +235,6 @@ public class NativeAdUnit extends AdUnit {
     public NativeAdUnitConfiguration getNativeConfiguration() {
         return nativeConfiguration;
     }
-
-    @Nullable
-    public String getImpOrtbConfig() {return configuration.getImpOrtbConfig();}
-
-    public void setImpOrtbConfig(@Nullable String ortbConfig) {configuration.setImpOrtbConfig(ortbConfig);}
 
     private void notifyWinEvent(BidResponse response) {
         if (response == null) return;

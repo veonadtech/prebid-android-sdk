@@ -54,7 +54,7 @@ public interface PrebidMobilePluginRenderer {
 
     /**
      * Creates and returns Banner View for a given Bid Response.
-     * Returns nil in the case of an internal error.
+     * Returns null in the case of an internal error.
      * <br>
      * Don't forget to clean resources in {@link android.view.View#onDetachedFromWindow()}.
      */
@@ -68,7 +68,7 @@ public interface PrebidMobilePluginRenderer {
 
     /**
      * Creates and returns an implementation of PrebidMobileInterstitialControllerInterface for a given bid response
-     * Returns nil in the case of an internal error
+     * Returns null in the case of an internal error
      */
     PrebidMobileInterstitialControllerInterface createInterstitialController(
             @NonNull Context context,
@@ -81,4 +81,15 @@ public interface PrebidMobilePluginRenderer {
      * Returns true only if the given ad unit could be renderer by the plugin
      */
     boolean isSupportRenderingFor(AdUnitConfiguration adUnitConfiguration);
+
+    /**
+     * Returns true if the renderer, or the ad SDK it wraps, sends the win notice for its ads itself.
+     * <p>
+     * When a plugin renderer creates the ad, Prebid sends the bid's win notice: {@code nurl},
+     * the Prebid Cache URLs and {@code ext.prebid.events.win}. Return true so that Prebid does not
+     * send it a second time. The default returns false, and Prebid sends the win notice.
+     */
+    default boolean sendsWinNotice() {
+        return false;
+    }
 }
