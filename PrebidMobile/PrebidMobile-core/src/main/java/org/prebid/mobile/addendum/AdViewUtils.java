@@ -53,6 +53,7 @@ public final class AdViewUtils {
     private static final String EDQ = "\\\\\"";
 
     private static final String INNER_HTML_SCRIPT = "document.body.innerHTML";
+
     private static final String SIZE_VALUE_REGEX_EXPRESSION = "[0-9]+x[0-9]+";
     private static final String SIZE_OBJECT_REGEX_EXPRESSION = "hb_size\\W+" + SIZE_VALUE_REGEX_EXPRESSION; //"hb_size\\W+[0-9]+x[0-9]+"
 
@@ -65,10 +66,35 @@ public final class AdViewUtils {
     private static final String GAM_CUSTOM_TEMPLATE_AD_CLASS_2 = "com.google.android.gms.ads.nativead.NativeCustomFormatAd";
     private static final String NEXT_CUSTOM_TEMPLATE_AD_CLASS = "com.google.android.libraries.ads.mobile.sdk.nativead.CustomNativeAd";
 
+    // A view narrower than this has not been measured yet; a width ratio taken from it is degenerate.
+    private static final int MIN_MEASURED_VIEW_WIDTH = 10;
+
+    // The height equivalent: below this the publisher has not called setAdSizes() and the view is
+    // a few px tall. Deliberately a SEPARATE constant from the width one rather than a shared
+    // "unmeasured" value -- the two axes are independent, and a future change to one must not
+    // silently move the other.
+    private static final int MIN_MEASURED_VIEW_HEIGHT = 10;
+
     private AdViewUtils() {
     }
 
     public static void findPrebidCreativeSize(@Nullable View adView, final PbFindSizeListener handler) {
+        findPrebidCreativeSize(adView, handler, null);
+    }
+
+    /**
+     * Behaves like {@link #findPrebidCreativeSize(View, PbFindSizeListener)} and additionally notifies
+     * {@code scaleListener} after the corrective WebView initial-scale (see {@link #fixZoomIn}) has
+     * been applied.
+     * <p>
+     * Delivery of {@code scaleListener} is best-effort: it is invoked at most once, and only when a
+     * corrective scale is actually applied. It is NOT invoked when no scale is applied (for example
+     * when the WebView is not yet sized, or its content height never resolves) nor on the failure
+     * path. Callers must not treat it as a guaranteed completion signal; if they gate UI on it they
+     * should pair it with their own fallback (such as a timeout). Passing {@code null} is equivalent
+     * to {@link #findPrebidCreativeSize(View, PbFindSizeListener)}.
+     */
+    public static void findPrebidCreativeSize(@Nullable View adView, final PbFindSizeListener handler, @Nullable final PbScaleAppliedListener scaleListener) {
         if (adView == null) {
             warnAndTriggerFailure(PbFindSizeErrorFactory.NO_WEB_VIEW, handler);
             return;
@@ -81,24 +107,31 @@ public final class AdViewUtils {
             return;
         }
 
-        findSizeInWebViewListAsync(webViewList, handler);
+        findSizeInWebViewListAsync(webViewList, handler, scaleListener);
     }
 
     static void triggerSuccess(WebView webView, Pair<Integer, Integer> adSize, PbFindSizeListener handler) {
+        triggerSuccess(webView, adSize, handler, null);
+    }
+
+    static void triggerSuccess(WebView webView, Pair<Integer, Integer> adSize, PbFindSizeListener handler, @Nullable PbScaleAppliedListener scaleListener) {
         final int width = adSize.first;
         final int height = adSize.second;
 
         handler.success(width, height);
 
-        fixZoomIn(webView, width, height);
+        fixZoomIn(webView, width, height, scaleListener);
 
     }
 
     //a fix of strange bug on Android with image scaling up
     //case: should be called after PublisherAdView.setAdSizes()
     static void fixZoomIn(final WebView webView, final int expectedWidth, final int expectedHeight) {
+        fixZoomIn(webView, expectedWidth, expectedHeight, null);
+    }
 
-        final int minViewHeight = 10;
+    // Overload accepting an optional listener that is notified after the corrective scale is applied.
+    static void fixZoomIn(final WebView webView, final int expectedWidth, final int expectedHeight, @Nullable final PbScaleAppliedListener scaleListener) {
 
         //500 millis to find a webViewContentHeight
         //usually it takes 200 millis
@@ -116,7 +149,7 @@ public final class AdViewUtils {
 
                 //case: check if a publisher have called PublisherAdView.setAdSizes()
                 //if publisher does not call PublisherAdView.setAdSizes() it is less then 10(e.g 3 instead of 750)
-                if (webViewHeight > minViewHeight) {
+                if (webViewHeight > MIN_MEASURED_VIEW_HEIGHT) {
                     int webViewContentHeight = webView.getContentHeight();
 
                     //case: wait when webView.getContentHeight() >= expected height from HTML
@@ -131,13 +164,13 @@ public final class AdViewUtils {
                             if (contentHeightSet.size() == 1) {
 
                                 //case: if it is not possible to get an expected height se scale as is
-                                setWebViewScale(webView, webViewHeight, webViewContentHeight);
+                                setWebViewScale(webView, webViewHeight, webViewContentHeight, expectedWidth, expectedHeight, scaleListener);
                                 return;
                             }
                         }
                         webView.postDelayed(this, contentHeightDelayMillis);
                     } else {
-                        setWebViewScale(webView, webViewHeight, webViewContentHeight);
+                        setWebViewScale(webView, webViewHeight, webViewContentHeight, expectedWidth, expectedHeight, scaleListener);
                     }
                 }
 
@@ -146,11 +179,57 @@ public final class AdViewUtils {
     }
 
     static void setWebViewScale(WebView webView, float webViewHeight, int webViewContentHeight) {
-        //case: regulate scale because WebView.getSettings().setLoadWithOverviewMode() does not work
-        int scale = (int) (webViewHeight / webViewContentHeight * 100 + 1);
+        setWebViewScale(webView, webViewHeight, webViewContentHeight, 0, 0, null);
+    }
 
-        LogUtil.debug("Set WebView scale: " + scale + " (" + webViewHeight + ", " + webViewContentHeight + ")");
+    // Overload that additionally notifies an optional listener once the scale has been applied.
+    static void setWebViewScale(WebView webView, float webViewHeight, int webViewContentHeight, final int width, final int height, @Nullable final PbScaleAppliedListener scaleListener) {
+
+        // A contentHeight of 0 makes the ratio below Infinity, which truncates to Integer.MAX_VALUE
+        // and is passed straight to setInitialScale. Leave the WebView's own scale alone instead.
+        if (webViewContentHeight <= 0) {
+            LogUtil.debug("Skip WebView scale: contentHeight not reported yet");
+            return;
+        }
+
+        //case: regulate scale because WebView.getSettings().setLoadWithOverviewMode() does not work
+        // Fit inside the view on both axes. The height ratio alone can exceed what the width allows,
+        // which renders the creative larger than its slot and crops it horizontally.
+        final int viewWidth = webView.getWidth();
+        final int byHeight = (int) (webViewHeight / webViewContentHeight * 100 + 1);
+        int scale = byHeight;
+        // byWidth can only use the DECLARED width -- WebView exposes no getContentWidth() -- so it
+        // caps on an assumption where byHeight measures. Truncated rather than rounded up like
+        // byHeight, since this term is a ceiling.
+        //
+        // Two of the three conditions below are load-bearing: an unmeasured view yields a ratio that
+        // would shrink the creative to a sliver, and a ratio truncating to 0 would reach
+        // setInitialScale as "use the default scale", silently dropping the correction. The
+        // width > 0 check is deliberate but redundant -- width == 0 already lands on byHeight via
+        // Infinity -> MAX_VALUE -> min(), which holds only because the viewWidth check to its right
+        // guarantees a non-zero numerator (0f/0f would be NaN, and (int) NaN is 0, not MAX_VALUE).
+        // It is kept because routing a zero divisor through that chain is the defect being fixed
+        // here, not a mechanism to lean on one line below it.
+        if (width > 0 && viewWidth > MIN_MEASURED_VIEW_WIDTH) {
+            final int byWidth = (int) ((float) viewWidth / width * 100);
+            if (byWidth > 0) {
+                scale = Math.min(byWidth, byHeight);
+            }
+        }
+
+        LogUtil.debug("Set WebView scale: " + scale + " (" + webViewHeight + ", " + webViewContentHeight
+                + ", viewWidth " + viewWidth + ", declaredWidth " + width + ")");
         webView.setInitialScale(scale);
+
+        // A scale was genuinely applied here, so "scale applied" is accurate.
+        if (scaleListener != null) {
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scaleListener.onScaleApplied(width, height);
+                }
+            });
+        }
     }
 
     static void warnAndTriggerFailure(Set<Pair<WebView, PbFindSizeError>> webViewErrorSet, PbFindSizeListener handler) {
@@ -183,13 +262,17 @@ public final class AdViewUtils {
     }
 
     static void findSizeInWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final PbFindSizeListener handler) {
+        findSizeInWebViewListAsync(webViewList, handler, null);
+    }
+
+    static void findSizeInWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final PbFindSizeListener handler, @Nullable final PbScaleAppliedListener scaleListener) {
 
         int currentAndroidApi = Build.VERSION.SDK_INT;
         int necessaryAndroidApi = Build.VERSION_CODES.KITKAT;
 
         if (currentAndroidApi >= necessaryAndroidApi) {
             int lastIndex = webViewList.size() - 1;
-            iterateWebViewListAsync(webViewList, lastIndex, handler);
+            iterateWebViewListAsync(webViewList, lastIndex, handler, scaleListener);
         } else {
             warnAndTriggerFailure(PbFindSizeErrorFactory.getUnsupportedAndroidApiError(currentAndroidApi, necessaryAndroidApi), handler);
         }
@@ -200,8 +283,12 @@ public final class AdViewUtils {
      * {@link PbFindSizeListener#success(int, int)} when size is found
      * and {@link PbFindSizeListener#failure(PbFindSizeError)} when size is not found inside passed WebView list
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     static void iterateWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final int index, final PbFindSizeListener handler) {
+        iterateWebViewListAsync(webViewList, index, handler, null);
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    static void iterateWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final int index, final PbFindSizeListener handler, @Nullable final PbScaleAppliedListener scaleListener) {
 
         final WebView webView = webViewList.get(index);
 
@@ -216,7 +303,7 @@ public final class AdViewUtils {
                 int nextIndex = index - 1;
 
                 if (nextIndex >= 0) {
-                    iterateWebViewListAsync(webViewList, nextIndex, handler);
+                    iterateWebViewListAsync(webViewList, nextIndex, handler, scaleListener);
                 } else {
                     warnAndTriggerFailure(resultSet, handler);
                 }
@@ -233,7 +320,7 @@ public final class AdViewUtils {
                 PbFindSizeError error = pair.second;
 
                 if (size != null) {
-                    triggerSuccess(webView, size, handler);
+                    triggerSuccess(webView, size, handler, scaleListener);
                 } else {
                     processNextWebViewOrFail(error);
                 }
@@ -429,6 +516,21 @@ public final class AdViewUtils {
         void success(int width, int height);
 
         void failure(@NonNull PbFindSizeError error);
+    }
+
+    /**
+     * Callback used with {@link #findPrebidCreativeSize(View, PbFindSizeListener, PbScaleAppliedListener)}.
+     * Invoked after the corrective WebView initial-scale has been applied (see {@link #fixZoomIn}).
+     * <p>
+     * Best-effort: called at most once, and only when a corrective scale is actually applied. It is
+     * not called when no scale is applied or on the failure path, so it is not a guaranteed completion
+     * signal — see {@link #findPrebidCreativeSize(View, PbFindSizeListener, PbScaleAppliedListener)}.
+     *
+     * @param width  the creative width reported by {@link PbFindSizeListener#success(int, int)}
+     * @param height the creative height reported by {@link PbFindSizeListener#success(int, int)}
+     */
+    public interface PbScaleAppliedListener {
+        void onScaleApplied(int width, int height);
     }
 
     /**

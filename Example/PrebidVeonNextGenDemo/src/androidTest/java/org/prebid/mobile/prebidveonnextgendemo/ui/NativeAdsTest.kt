@@ -22,8 +22,8 @@ class NativeAdsTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{1}")
         fun arguments() = listOf(
-            arrayOf(R.string.original_native_styles, "Original API Native"),
-            arrayOf(R.string.rendering_native, "Rendering API Native")
+            arrayOf<Any>(R.string.original_native_styles, "Original API Native"),
+            arrayOf<Any>(R.string.rendering_native, "Rendering API Native")
         )
     }
 
