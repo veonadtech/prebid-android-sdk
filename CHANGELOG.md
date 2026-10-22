@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.5.2
+## Fixed
+* Fixed Yandex SDK version
+
 # 0.5.1
 ## Changed
 * Bump up Yandex SDK ver to 8.6.0
