@@ -23,14 +23,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.util.Log;
-import android.webkit.URLUtil;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
-import org.prebid.mobile.core.BuildConfig;
 import org.prebid.mobile.rendering.listeners.OnBrowserActionResultListener;
 import org.prebid.mobile.rendering.listeners.OnBrowserActionResultListener.BrowserActionResult;
 import org.prebid.mobile.rendering.utils.url.ActionNotResolvedException;
@@ -53,17 +50,14 @@ public class ExternalViewerUtils {
         @Nullable Intent intent
     ) {
         if (context == null || intent == null) {
-            Log.e(TAG, "Can't start activity!");
+            LogUtil.error(TAG, "Can't start activity!");
             return;
         }
 
         boolean contextCanNotRunNewActivity = !(context instanceof Activity);
         if (contextCanNotRunNewActivity) {
-            Log.d(TAG, "Context is not Activity type. Intent flag FLAG_ACTIVITY_NEW_TASK added.");
-            boolean isRelease = !BuildConfig.DEBUG;
-            if (isRelease) {
-                intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-            }
+            LogUtil.debug(TAG, "Context is not Activity type. Intent flag FLAG_ACTIVITY_NEW_TASK added.");
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         }
 
         context.startActivity(intent);
@@ -96,7 +90,11 @@ public class ExternalViewerUtils {
         if (context != null && url != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.parse(url), "video/*");
-            startActivity(context, intent);
+            try {
+                startActivity(context, intent);
+            } catch (ActivityNotFoundException | SecurityException e) {
+                LogUtil.error(TAG, "No external video player for " + url);
+            }
         }
     }
 
@@ -151,6 +149,12 @@ public class ExternalViewerUtils {
                                     boolean shouldFireEvents, @Nullable
                                         OnBrowserActionResultListener onBrowserActionResultListener) {
 
+        if (context == null || url == null) {
+            LogUtil.error(TAG, "startBrowser: Failure. Context or URL is null");
+            notifyBrowserActionFailure(onBrowserActionResultListener);
+            return;
+        }
+
         Intent intent = new Intent(context, AdBrowserActivity.class);
         intent.putExtra(AdBrowserActivity.EXTRA_URL, url);
         intent.putExtra(AdBrowserActivity.EXTRA_DENSITY_SCALING_ENABLED, false);
@@ -162,27 +166,39 @@ public class ExternalViewerUtils {
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         }
 
-        if (!PrebidMobile.useExternalBrowser && isActivityCallable(context, intent)) {
-            startActivity(context, intent);
-            notifyBrowserActionSuccess(BrowserActionResult.INTERNAL_BROWSER, onBrowserActionResultListener);
+        if (PrebidMobile.useExternalBrowser) {
+            if (startExternalBrowser(context, url)) {
+                notifyBrowserActionSuccess(BrowserActionResult.EXTERNAL_BROWSER, onBrowserActionResultListener);
+                return;
+            }
         } else {
-            startExternalBrowser(context, url);
-            notifyBrowserActionSuccess(BrowserActionResult.EXTERNAL_BROWSER, onBrowserActionResultListener);
+            if (startBrowserActivity(context, intent)) {
+                notifyBrowserActionSuccess(BrowserActionResult.INTERNAL_BROWSER, onBrowserActionResultListener);
+                return;
+            }
+        }
+
+        notifyBrowserActionFailure(onBrowserActionResultListener);
+    }
+
+    private static boolean startBrowserActivity(Context context, Intent intent) {
+        try {
+            startActivity(context, intent);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            LogUtil.error(TAG, "Internal browser activity was not found");
+            return false;
         }
     }
 
-    private static void startExternalBrowser(Context context, String url) {
-        if (context == null || url == null) {
-            LogUtil.error(TAG, "startExternalBrowser: Failure. Context or URL is null");
-            return;
-        }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-        if (URLUtil.isValidUrl(url) || isActivityCallable(context, intent)) {
+    private static boolean startExternalBrowser(Context context, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        try {
             startActivity(context, intent);
-        }
-        else {
-            LogUtil.error(TAG, "No activity available to handle action " + intent.toString());
+            return true;
+        } catch (ActivityNotFoundException e) {
+            LogUtil.error(TAG, "No external browser for " + url);
+            return false;
         }
     }
 
@@ -215,5 +231,11 @@ public class ExternalViewerUtils {
         }
 
         onBrowserActionResultListener.onSuccess(browserActionResult);
+    }
+
+    private static void notifyBrowserActionFailure(@Nullable OnBrowserActionResultListener listener) {
+        if (listener != null) {
+            listener.onFailure();
+        }
     }
 }
