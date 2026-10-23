@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -32,10 +33,12 @@ import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
@@ -50,6 +53,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.prebid.mobile.rendering.views.browser.AdBrowserActivity;
 import org.prebid.mobile.test.utils.WhiteBox;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.LooperMode;
@@ -58,6 +62,7 @@ import org.robolectric.shadows.ShadowEnvironment;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
 @LooperMode(LEGACY)
@@ -161,6 +166,21 @@ public class DeviceInfoImplTest {
     public void playVideoTest() {
         deviceInfoImpl.playVideo("test", mockContext);
         verify(mockContext).startActivity(any(Intent.class));
+    }
+
+    @Test
+    public void playVideoWhenInternalActivityDisappears_StartsExternalPlayer() {
+        when(mockPackageManager.queryIntentActivities(any(Intent.class), anyInt()))
+                .thenReturn(Collections.singletonList(mock(ResolveInfo.class)));
+        doThrow(new ActivityNotFoundException()).doNothing()
+                .when(mockContext).startActivity(any(Intent.class));
+
+        deviceInfoImpl.playVideo("https://example.com/video.mp4", mockContext);
+
+        ArgumentCaptor<Intent> intents = ArgumentCaptor.forClass(Intent.class);
+        verify(mockContext, org.mockito.Mockito.times(2)).startActivity(intents.capture());
+        assertEquals(AdBrowserActivity.class.getName(), intents.getAllValues().get(0).getComponent().getClassName());
+        assertEquals(Intent.ACTION_VIEW, intents.getAllValues().get(1).getAction());
     }
 
     @Test
