@@ -18,6 +18,7 @@ package org.prebid.mobile.rendering.sdk.deviceData.managers;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -219,10 +220,14 @@ public class DeviceInfoImpl extends BaseManager implements DeviceInfoManager {
             intent.putExtra(AdBrowserActivity.EXTRA_IS_VIDEO, true);
             intent.putExtra(AdBrowserActivity.EXTRA_URL, url);
             if (ExternalViewerUtils.isActivityCallable(context, intent)) {
-                ExternalViewerUtils.startActivity(context, intent);
-            } else {
-                ExternalViewerUtils.startExternalVideoPlayer(context, url);
+                try {
+                    ExternalViewerUtils.startActivity(context, intent);
+                    return;
+                } catch (ActivityNotFoundException | SecurityException e) {
+                    LogUtil.error(TAG, "Can't start internal video player: " + e.getMessage());
+                }
             }
+            ExternalViewerUtils.startExternalVideoPlayer(context, url);
         } else {
             LogUtil.error(TAG, "Can't play video as context is null");
         }
