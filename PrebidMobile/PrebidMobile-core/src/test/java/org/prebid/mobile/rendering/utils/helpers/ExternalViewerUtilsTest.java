@@ -162,15 +162,31 @@ public class ExternalViewerUtilsTest {
     }
 
     @Test
-    public void whenExternalBrowserMissing_DoNotOpenFallbackAndReportFailure() {
+    public void whenExternalBrowserMissing_OpenInternalBrowserAndReportSuccess() {
+        PrebidMobile.useExternalBrowser = true;
+        doThrow(new ActivityNotFoundException()).doNothing().when(mockContext).startActivity(any(Intent.class));
+
+        ExternalViewerUtils.startBrowser(mockContext, "https://example.com", 42, true, mockResultListener);
+
+        ArgumentCaptor<Intent> capture = ArgumentCaptor.forClass(Intent.class);
+        verify(mockContext, times(2)).startActivity(capture.capture());
+        assertEquals(Intent.ACTION_VIEW, capture.getAllValues().get(0).getAction());
+        assertEquals(AdBrowserActivity.class.getName(), capture.getAllValues().get(1).getComponent().getClassName());
+        verify(mockResultListener).onSuccess(OnBrowserActionResultListener.BrowserActionResult.INTERNAL_BROWSER);
+        verify(mockResultListener, never()).onFailure();
+    }
+
+    @Test
+    public void whenExternalAndInternalBrowserMissing_ReportFailure() {
         PrebidMobile.useExternalBrowser = true;
         doThrow(new ActivityNotFoundException()).when(mockContext).startActivity(any(Intent.class));
 
         ExternalViewerUtils.startBrowser(mockContext, "https://example.com", 42, true, mockResultListener);
 
         ArgumentCaptor<Intent> capture = ArgumentCaptor.forClass(Intent.class);
-        verify(mockContext).startActivity(capture.capture());
-        assertTrue(Intent.ACTION_VIEW.equals(capture.getValue().getAction()));
+        verify(mockContext, times(2)).startActivity(capture.capture());
+        assertEquals(Intent.ACTION_VIEW, capture.getAllValues().get(0).getAction());
+        assertEquals(AdBrowserActivity.class.getName(), capture.getAllValues().get(1).getComponent().getClassName());
         verify(mockResultListener).onFailure();
         verify(mockResultListener, never()).onSuccess(any());
     }

@@ -166,12 +166,18 @@ public class ExternalViewerUtils {
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         }
 
-        if (!PrebidMobile.useExternalBrowser && startBrowserActivity(context, intent)) {
+        boolean externalFirst = PrebidMobile.useExternalBrowser;
+        if (externalFirst && startExternalBrowser(context, url)) {
+            notifyBrowserActionSuccess(BrowserActionResult.EXTERNAL_BROWSER, onBrowserActionResultListener);
+            return;
+        }
+
+        if (startBrowserActivity(context, intent)) {
             notifyBrowserActionSuccess(BrowserActionResult.INTERNAL_BROWSER, onBrowserActionResultListener);
             return;
         }
 
-        if (startExternalBrowser(context, url)) {
+        if (!externalFirst && startExternalBrowser(context, url)) {
             notifyBrowserActionSuccess(BrowserActionResult.EXTERNAL_BROWSER, onBrowserActionResultListener);
             return;
         }
