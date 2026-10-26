@@ -17,6 +17,7 @@
 package org.prebid.mobile.rendering.utils.url.action;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -35,6 +36,7 @@ import org.prebid.mobile.rendering.mraid.methods.network.RedirectUrlListener;
 import org.prebid.mobile.rendering.utils.url.ActionNotResolvedException;
 import org.prebid.mobile.rendering.utils.url.UrlHandler;
 import org.prebid.mobile.rendering.views.webview.mraid.BaseJSInterface;
+import org.prebid.mobile.rendering.views.webview.mraid.JSInterface;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -153,6 +155,53 @@ public class MraidInternalBrowserActionTest {
     }
 
     @Test
+    public void handleInternalBrowserActionFollowUrlFailure_ReportsOpenError() {
+        ArgumentCaptor<RedirectUrlListener> callback = ArgumentCaptor.forClass(RedirectUrlListener.class);
+
+        mraidInternalBrowserAction.handleInternalBrowserAction(mockContext, mockBaseJsInterface, VALID_URL);
+        verify(mockBaseJsInterface).followToOriginalUrl(eq(VALID_URL), callback.capture());
+        callback.getValue().onFailed();
+
+        verify(mockBaseJsInterface).onError(eq("Unable to resolve URL"), eq(JSInterface.ACTION_OPEN));
+        verify(mockContext, never()).startActivity(any(Intent.class));
+    }
+
+    @Test
+    public void handleInternalBrowserActionWhenExternalActivityMissing_ReportsOpenError() {
+        String url = "tel://222";
+        when(mockContext.getApplicationContext()).thenReturn(mockContext);
+        doThrow(new ActivityNotFoundException()).when(mockContext).startActivity(any(Intent.class));
+        ArgumentCaptor<RedirectUrlListener> callback = ArgumentCaptor.forClass(RedirectUrlListener.class);
+
+        mraidInternalBrowserAction.handleInternalBrowserAction(mockContext, mockBaseJsInterface, url);
+        verify(mockBaseJsInterface).followToOriginalUrl(eq(url), callback.capture());
+        callback.getValue().onSuccess(url, null);
+
+        verify(mockBaseJsInterface).onError(eq("Unable to open URL"), eq(JSInterface.ACTION_OPEN));
+    }
+
+    @Test
+    public void handleInternalBrowserActionWithMissingResolvedUrl_ReportsOpenError() {
+        ArgumentCaptor<RedirectUrlListener> callback = ArgumentCaptor.forClass(RedirectUrlListener.class);
+
+        mraidInternalBrowserAction.handleInternalBrowserAction(mockContext, mockBaseJsInterface, VALID_URL);
+        verify(mockBaseJsInterface).followToOriginalUrl(eq(VALID_URL), callback.capture());
+        callback.getValue().onSuccess(null, null);
+
+        verify(mockBaseJsInterface).onError(eq("Unable to open URL"), eq(JSInterface.ACTION_OPEN));
+    }
+
+    @Test
+    public void launchBrowserActivityWhenActivityMissing_ReportsOpenError() {
+        when(mockMraidVariableContainer.getUrlForLaunching()).thenReturn(VALID_URL);
+        doThrow(new ActivityNotFoundException()).when(mockContext).startActivity(any(Intent.class));
+
+        mraidInternalBrowserAction.launchBrowserActivity(mockContext, mockBaseJsInterface, VALID_URL);
+
+        verify(mockBaseJsInterface).onError(eq("Unable to open URL"), eq(JSInterface.ACTION_OPEN));
+    }
+
+    @Test
     @Config(sdk = 28)
     public void handleInternalBrowserActionFollowUrlSuccessAndIsVideoContent_PlayVideo() {
         String url = "https://video.mp4";
@@ -175,14 +224,14 @@ public class MraidInternalBrowserActionTest {
     }
 
     @Test
-    public void launchBrowserActivityWithNullUrlAndNonEmptyResolveInfoList_StartBrowserActivity() {
+    public void launchBrowserActivityWithNullUrlAndNonEmptyResolveInfoList_DoesNotStartBrowserActivity() {
         List<ResolveInfo> resolveInfoArrayList = new ArrayList<>();
         resolveInfoArrayList.add(null);
         prepareContextAndInterfaceMocks(false, null, resolveInfoArrayList);
 
         mraidInternalBrowserAction.launchBrowserActivity(mockContext, mockBaseJsInterface, null);
 
-        verify(mockContext).startActivity(any(Intent.class));
+        verify(mockContext, never()).startActivity(any(Intent.class));
     }
 
     @Test
