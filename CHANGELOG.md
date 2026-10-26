@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.5.3
+## Fixed
+* Fixed crash after activity not found external browser
+
 # 0.5.2
 ## Fixed
 * Fixed Yandex SDK version

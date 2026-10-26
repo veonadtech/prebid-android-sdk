@@ -26,7 +26,7 @@ import java.util.EnumSet
 class InAppDisplayInterstitialActivity : BaseAdActivity() {
 
     companion object {
-        const val CONFIG_ID = "beeline_uz_android_wheel_test2_interstitial"
+        const val CONFIG_ID = "beeline_uz_android_universal_interstitial"
     }
 
     private var adUnit: InterstitialAdUnit? = null
