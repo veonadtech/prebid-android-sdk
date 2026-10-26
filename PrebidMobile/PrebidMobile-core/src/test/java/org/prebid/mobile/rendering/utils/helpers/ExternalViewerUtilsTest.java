@@ -39,6 +39,7 @@ import org.robolectric.annotation.Config;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -175,14 +176,29 @@ public class ExternalViewerUtilsTest {
     }
 
     @Test
-    public void whenInternalBrowserMissing_DoNotOpenFallbackAndReportFailure() {
+    public void whenInternalBrowserMissing_OpenExternalBrowserAndReportSuccess() {
+        doThrow(new ActivityNotFoundException()).doNothing().when(mockContext).startActivity(any(Intent.class));
+
+        ExternalViewerUtils.startBrowser(mockContext, "https://example.com", true, mockResultListener);
+
+        ArgumentCaptor<Intent> capture = ArgumentCaptor.forClass(Intent.class);
+        verify(mockContext, times(2)).startActivity(capture.capture());
+        assertEquals(AdBrowserActivity.class.getName(), capture.getAllValues().get(0).getComponent().getClassName());
+        assertEquals(Intent.ACTION_VIEW, capture.getAllValues().get(1).getAction());
+        verify(mockResultListener).onSuccess(OnBrowserActionResultListener.BrowserActionResult.EXTERNAL_BROWSER);
+        verify(mockResultListener, never()).onFailure();
+    }
+
+    @Test
+    public void whenInternalAndExternalBrowserMissing_ReportFailure() {
         doThrow(new ActivityNotFoundException()).when(mockContext).startActivity(any(Intent.class));
 
         ExternalViewerUtils.startBrowser(mockContext, "https://example.com", true, mockResultListener);
 
         ArgumentCaptor<Intent> capture = ArgumentCaptor.forClass(Intent.class);
-        verify(mockContext).startActivity(capture.capture());
-        assertTrue(capture.getValue().getComponent().getClassName().equals(AdBrowserActivity.class.getName()));
+        verify(mockContext, times(2)).startActivity(capture.capture());
+        assertEquals(AdBrowserActivity.class.getName(), capture.getAllValues().get(0).getComponent().getClassName());
+        assertEquals(Intent.ACTION_VIEW, capture.getAllValues().get(1).getAction());
         verify(mockResultListener).onFailure();
         verify(mockResultListener, never()).onSuccess(any());
     }
