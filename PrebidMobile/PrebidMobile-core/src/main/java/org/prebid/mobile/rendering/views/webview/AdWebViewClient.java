@@ -148,6 +148,11 @@ public class AdWebViewClient extends WebViewClient {
             WebViewBase webViewBase = ((WebViewBase) view);
 
             if (!webViewBase.isClicked()) {
+                // A two-part MRAID creative is loaded from a click URL. Its initial
+                // server redirects are part of loading the expanded creative.
+                if ("twopart".equals(webViewBase.getJSName())) {
+                    return false;
+                }
                 // Get the rendered HTML
                 reloadUrl(view, JS__GET_RENDERED_HTML);
                 return true;
