@@ -144,7 +144,7 @@ public class WebViewBase extends AdWebView implements AdAssetsLoadedListener {
             public boolean onTouch(View v, MotionEvent event) {
 
                 setIsClicked(true);
-                return (event.getAction() == MotionEvent.ACTION_MOVE);
+                return false;
             }
         });
     }

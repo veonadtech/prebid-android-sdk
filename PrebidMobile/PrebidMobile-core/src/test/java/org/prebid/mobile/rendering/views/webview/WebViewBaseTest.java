@@ -169,15 +169,49 @@ public class WebViewBaseTest {
         MotionEvent motionEvent = MotionEvent.obtain(
             downTime,
             eventTime,
-            MotionEvent.ACTION_MOVE,
+            MotionEvent.ACTION_DOWN,
             x,
             y,
             metaState
         );
 
         webViewBase.loadAd();
-        assertTrue(webViewBase.dispatchTouchEvent(motionEvent));
+        webViewBase.dispatchTouchEvent(motionEvent);
         assertTrue(webViewBase.isClicked());
+        motionEvent.recycle();
+    }
+
+    @Test
+    public void clickTrackingPassesMoveEventsToWebView() {
+        class RecordingWebView extends WebViewBase {
+            int moveCount;
+
+            RecordingWebView() {
+                super(context, adHTML, 100, 200, mockPreloadListener, mockMraidListener);
+            }
+
+            @Override
+            public boolean onTouchEvent(MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    moveCount++;
+                }
+                return true;
+            }
+        }
+
+        RecordingWebView view = new RecordingWebView();
+        view.enableClickTracking();
+        long time = SystemClock.uptimeMillis();
+        MotionEvent down = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 10, 10, 0);
+        MotionEvent move = MotionEvent.obtain(time, time + 100, MotionEvent.ACTION_MOVE, 50, 10, 0);
+
+        view.dispatchTouchEvent(down);
+        view.dispatchTouchEvent(move);
+
+        assertTrue(view.isClicked());
+        assertEquals(1, view.moveCount);
+        down.recycle();
+        move.recycle();
     }
 
     @Test
