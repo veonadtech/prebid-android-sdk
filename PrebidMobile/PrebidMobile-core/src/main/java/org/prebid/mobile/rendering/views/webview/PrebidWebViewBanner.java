@@ -93,6 +93,7 @@ public class PrebidWebViewBanner extends PrebidWebViewBase
         String script = JSLibraryManager.getInstance(mraidWebView.getContext()).getMRAIDScript();
         //inject mraid.js
         mraidWebView.setMraidAdAssetsLoadListener(mraidWebView, script);
+        mraidWebView.enableClickTracking();
 
         mraidWebView.loadUrl(url);
     }
