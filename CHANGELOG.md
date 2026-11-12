@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.5.4
+## Fixed
+* Fixed click logic some type of mraid.expand banners 
+
 # 0.5.3
 ## Fixed
 * Fixed crash after activity not found external browser
