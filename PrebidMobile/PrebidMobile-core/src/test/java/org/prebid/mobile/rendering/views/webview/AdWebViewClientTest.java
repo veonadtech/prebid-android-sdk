@@ -102,4 +102,20 @@ public class AdWebViewClientTest {
         verify(mockListener).openExternalLink(TEST_URL);
         assertEquals(true, returnValue);
     }
+
+    @Test
+    public void shouldAllowInitialTwoPartRedirect() {
+        WebViewBase webView = mock(WebViewBase.class);
+        when(webView.getJSName()).thenReturn("twopart");
+        when(webView.isClicked()).thenReturn(false);
+
+        boolean shouldOverride = adWebViewClient.shouldOverrideUrlLoading(
+                webView,
+                "https://cdn.example.com/expanded-creative"
+        );
+
+        assertEquals(false, shouldOverride);
+        verify(webView, never()).stopLoading();
+        verify(webView, never()).loadUrl(anyString());
+    }
 }

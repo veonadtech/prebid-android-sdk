@@ -124,15 +124,7 @@ public class WebViewBase extends AdWebView implements AdAssetsLoadedListener {
         //inject MRAID here
         initLoad();
 
-        setOnTouchListener(new OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                setIsClicked(true);
-                return (event.getAction() == MotionEvent.ACTION_MOVE);
-            }
-        });
+        enableClickTracking();
 
         /****
          * Sometimes assets just don't load into the WebView, event though the
@@ -143,6 +135,18 @@ public class WebViewBase extends AdWebView implements AdAssetsLoadedListener {
          * via-javascript
          * ***/
         loadDataWithBaseURL(PrebidMobile.SCHEME_HTTPS + "://" + domain + "/", adHTML, "text/html", "utf-8", null);
+    }
+
+    public void enableClickTracking() {
+        setOnTouchListener(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                setIsClicked(true);
+                return (event.getAction() == MotionEvent.ACTION_MOVE);
+            }
+        });
     }
 
     public void setJSName(String name) {
