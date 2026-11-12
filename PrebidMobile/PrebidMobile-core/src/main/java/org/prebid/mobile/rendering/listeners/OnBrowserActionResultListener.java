@@ -19,6 +19,9 @@ package org.prebid.mobile.rendering.listeners;
 public interface OnBrowserActionResultListener {
     void onSuccess(BrowserActionResult browserActionResult);
 
+    /** Called when the requested browser could not be opened. */
+    default void onFailure() {}
+
     enum BrowserActionResult {
         INTERNAL_BROWSER, EXTERNAL_BROWSER
     }

@@ -430,8 +430,11 @@ public class BaseJSInterfaceTest {
         GetOriginalUrlTask redirectedUrlAsyncTask = WhiteBox.getInternalState(spyBaseJSInterface, "redirectedUrlAsyncTask");
         ResponseHandler getOriginalURLCallBack = WhiteBox.getInternalState(redirectedUrlAsyncTask, "responseHandler");
 
-        getOriginalURLCallBack.onResponse(mock(BaseNetworkTask.GetUrlResult.class));
-        verify(mockListener).onSuccess(any(), any());
+        BaseNetworkTask.GetUrlResult result = new BaseNetworkTask.GetUrlResult();
+        result.originalUrl = "https://example.com";
+        result.contentType = "text/html";
+        getOriginalURLCallBack.onResponse(result);
+        verify(mockListener).onSuccess("https://example.com", "text/html");
 
         getOriginalURLCallBack.onResponse(null);
         verify(mockListener).onFailed();

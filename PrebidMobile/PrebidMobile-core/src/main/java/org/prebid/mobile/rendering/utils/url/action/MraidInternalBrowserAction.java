@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting;
 
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.rendering.listeners.OnBrowserActionResultListener;
 import org.prebid.mobile.rendering.models.internal.MraidVariableContainer;
 import org.prebid.mobile.rendering.mraid.methods.network.RedirectUrlListener;
 import org.prebid.mobile.rendering.utils.helpers.ExternalViewerUtils;
@@ -32,6 +33,7 @@ import org.prebid.mobile.rendering.utils.helpers.Utils;
 import org.prebid.mobile.rendering.utils.url.ActionNotResolvedException;
 import org.prebid.mobile.rendering.utils.url.UrlHandler;
 import org.prebid.mobile.rendering.views.webview.mraid.BaseJSInterface;
+import org.prebid.mobile.rendering.views.webview.mraid.JSInterface;
 
 import java.lang.ref.WeakReference;
 
@@ -86,6 +88,7 @@ public class MraidInternalBrowserAction implements UrlAction {
                         ExternalViewerUtils.startActivity(context.getApplicationContext(), intent);
                     } catch (ActivityNotFoundException e) {
                         LogUtil.error(TAG, "Unable to open url " + url + ". Activity was not found");
+                        baseJSInterface.onError("Unable to open URL", JSInterface.ACTION_OPEN);
                     }
                 } else if (url != null && (url.startsWith(PrebidMobile.SCHEME_HTTP) || url.startsWith(PrebidMobile.SCHEME_HTTPS))) {
                     if (Utils.isVideoContent(contentType)) {
@@ -93,13 +96,15 @@ public class MraidInternalBrowserAction implements UrlAction {
                     } else {
                         launchBrowserActivity(context, baseJSInterface, url);
                     }
+                } else {
+                    baseJSInterface.onError("Unable to open URL", JSInterface.ACTION_OPEN);
                 }
             }
 
             @Override
             public void onFailed() {
-                // Nothing to do
                 LogUtil.debug(TAG, "Open: redirection failed");
+                baseJSInterface.onError("Unable to resolve URL", JSInterface.ACTION_OPEN);
             }
         });
     }
@@ -108,10 +113,24 @@ public class MraidInternalBrowserAction implements UrlAction {
     void launchBrowserActivity(final Context context, BaseJSInterface jsInterface, String url) {
         final MraidVariableContainer mraidVariableContainer = jsInterface.getMraidVariableContainer();
 
+        if (mraidVariableContainer == null) {
+            jsInterface.onError("Unable to open URL", JSInterface.ACTION_OPEN);
+            return;
+        }
+
         if (url != null) {
             mraidVariableContainer.setUrlForLaunching(url);
         }
 
-        ExternalViewerUtils.startBrowser(context, mraidVariableContainer.getUrlForLaunching(), broadcastId, true, null);
+        ExternalViewerUtils.startBrowser(context, mraidVariableContainer.getUrlForLaunching(), broadcastId, true,
+                new OnBrowserActionResultListener() {
+                    @Override
+                    public void onSuccess(BrowserActionResult browserActionResult) { }
+
+                    @Override
+                    public void onFailure() {
+                        jsInterface.onError("Unable to open URL", JSInterface.ACTION_OPEN);
+                    }
+                });
     }
 }
