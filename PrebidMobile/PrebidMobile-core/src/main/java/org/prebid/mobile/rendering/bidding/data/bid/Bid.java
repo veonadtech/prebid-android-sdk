@@ -146,6 +146,7 @@ public class Bid {
 
     @NonNull
     private RewardedExt rewardedExt = RewardedExt.defaultExt();
+    private boolean hasRewardedExt;
 
     protected Bid() {
     }
@@ -325,6 +326,7 @@ public class Bid {
             bid.prebid = prebidObject;
             bid.mobileSdkPassThrough = MobileSdkPassThrough.create(ext);
             bid.rewardedExt = RewardedExtParser.parse(ext);
+            bid.hasRewardedExt = RewardedExtParser.hasRewardedExt(ext);
             bid.type = prebidObject.getType();
         }
 
@@ -399,5 +401,9 @@ public class Bid {
     @NonNull
     public RewardedExt getRewardedExt() {
         return rewardedExt;
+    }
+
+    public boolean hasRewardedExt() {
+        return hasRewardedExt;
     }
 }
