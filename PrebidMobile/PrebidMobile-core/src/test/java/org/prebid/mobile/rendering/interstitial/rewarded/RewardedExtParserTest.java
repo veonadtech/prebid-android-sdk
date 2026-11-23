@@ -3,11 +3,23 @@ package org.prebid.mobile.rendering.interstitial.rewarded;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.prebid.mobile.rendering.bidding.data.bid.Bid;
 import org.prebid.mobile.test.utils.ResourceUtils;
 
 import static org.junit.Assert.*;
 
 public class RewardedExtParserTest {
+
+    @Test
+    public void hasRewardedExt_onlyWhenRwddIsPresent() throws Exception {
+        JSONObject absent = new JSONObject("{\"prebid\":{\"passthrough\":[{\"type\":\"prebidmobilesdk\"}]}}");
+        JSONObject present = new JSONObject("{\"prebid\":{\"passthrough\":[{\"type\":\"prebidmobilesdk\",\"rwdd\":{}}]}}");
+
+        assertFalse(RewardedExtParser.hasRewardedExt(absent));
+        assertTrue(RewardedExtParser.hasRewardedExt(present));
+        assertFalse(Bid.fromJSONObject(new JSONObject().put("ext", absent)).hasRewardedExt());
+        assertTrue(Bid.fromJSONObject(new JSONObject().put("ext", present)).hasRewardedExt());
+    }
 
     @Test
     public void parse_emptyRewardedJson_default() throws JSONException {
