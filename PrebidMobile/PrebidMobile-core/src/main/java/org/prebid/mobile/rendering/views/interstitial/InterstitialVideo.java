@@ -440,7 +440,11 @@ public class InterstitialVideo extends AdBaseDialog {
 
                 if (isRewarded && !hasEndCard) {
                     View learnMore = adViewContainer.findViewById(R.id.tv_learn_more);
-                    learnMore.setVisibility(View.VISIBLE);
+                    if (learnMore != null) {
+                        learnMore.setVisibility(View.VISIBLE);
+                    } else {
+                        LogUtil.warning(TAG, "Countdown finished without Learn More view or end card");
+                    }
                 }
             }
         };

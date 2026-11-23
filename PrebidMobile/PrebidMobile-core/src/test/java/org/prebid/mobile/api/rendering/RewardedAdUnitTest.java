@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.ArgumentCaptor;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.api.rendering.listeners.RewardedAdUnitListener;
@@ -395,6 +396,70 @@ public class RewardedAdUnitTest {
 
         verify(spyEventListener, times(1)).onPrebidSdkWin();
         verify(mockInterstitialController, times(1)).loadAd(any(), any());
+    }
+
+    @Test
+    public void gamFailureWithBannerBidWithoutRewardedExt_LoadsRegularInterstitial() {
+        BidResponse bidResponse = mock(BidResponse.class);
+        Bid bid = mock(Bid.class);
+        when(bidResponse.getWinningBid()).thenReturn(bid);
+        when(bid.getType()).thenReturn("banner");
+        PrebidMobilePluginRenderer renderer = FakePrebidMobilePluginRenderer.getFakePrebidRenderer(
+                mockInterstitialController, null, true, PREBID_MOBILE_RENDERER_NAME, "1.0"
+        );
+        PrebidMobile.registerPluginRenderer(renderer);
+        try {
+            WhiteBox.setInternalState(rewardedAdUnit, "bidResponse", bidResponse);
+
+            RenderingTestUtils.getRewardedVideoEventListener(rewardedAdUnit)
+                    .onAdFailed(new AdException(AdException.INTERNAL_ERROR, "GAM failed"));
+
+            ArgumentCaptor<AdUnitConfiguration> configCaptor = ArgumentCaptor.forClass(AdUnitConfiguration.class);
+            verify(mockInterstitialController).loadAd(configCaptor.capture(), eq(bidResponse));
+            assertFalse(configCaptor.getValue().isRewarded());
+            assertTrue(rewardedAdUnit.config.isRewarded());
+        } finally {
+            PrebidMobile.unregisterPluginRenderer(renderer);
+        }
+    }
+
+    @Test
+    public void bannerBidWithoutRewardedExt_LoadsAsRegularInterstitial() {
+        assertRenderingRewarded("banner", false, false);
+    }
+
+    @Test
+    public void videoBidWithoutRewardedExt_RemainsRewarded() {
+        assertRenderingRewarded("video", false, true);
+    }
+
+    @Test
+    public void bannerBidWithRewardedExt_RemainsRewarded() {
+        assertRenderingRewarded("banner", true, true);
+    }
+
+    private void assertRenderingRewarded(String type, boolean hasRewardedExt, boolean expectedRewarded) {
+        BidResponse response = mock(BidResponse.class);
+        Bid bid = mock(Bid.class);
+        when(response.getWinningBid()).thenReturn(bid);
+        when(bid.getType()).thenReturn(type);
+        when(bid.hasRewardedExt()).thenReturn(hasRewardedExt);
+        PrebidMobilePluginRenderer renderer = FakePrebidMobilePluginRenderer.getFakePrebidRenderer(
+                mockInterstitialController, null, true, PREBID_MOBILE_RENDERER_NAME, "1.0"
+        );
+        PrebidMobile.registerPluginRenderer(renderer);
+        try {
+            WhiteBox.setInternalState(rewardedAdUnit, "bidResponse", response);
+            rewardedAdUnit.loadPrebidAd();
+
+            ArgumentCaptor<AdUnitConfiguration> configCaptor = ArgumentCaptor.forClass(AdUnitConfiguration.class);
+            verify(mockInterstitialController).loadAd(configCaptor.capture(), eq(response));
+            assertEquals(expectedRewarded, configCaptor.getValue().isRewarded());
+            assertTrue(rewardedAdUnit.config.isRewarded());
+            assertNotSame(rewardedAdUnit.config, configCaptor.getValue());
+        } finally {
+            PrebidMobile.unregisterPluginRenderer(renderer);
+        }
     }
 
     @Test

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 0.5.5
+## Changed
+* Added support for the interstitial ad format in rewarded mode
+
 # 0.5.4
 ## Fixed
 * Fixed click logic some type of mraid.expand banners 
