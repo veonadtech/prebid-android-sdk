@@ -43,6 +43,10 @@ public class RewardedExtParser {
         return new RewardedExt(reward, completionRules, closingRules);
     }
 
+    public static boolean hasRewardedExt(@Nullable JSONObject bidExtJson) {
+        return getRootRewardedJson(bidExtJson) != null;
+    }
+
     @Nullable
     private static JSONObject getRootRewardedJson(@Nullable JSONObject bidExtJson) {
         if (bidExtJson == null) return null;
